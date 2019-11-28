@@ -79,7 +79,7 @@ func (c *Command) Run() (string, error) {
 	cmd := exec.Command(c.Name, c.Args...)
 	cmd.Env = c.Env()
 	//显示运行的命令
-	log.Infow("run context", "args", cmd.Args)
+	log.Infow("run", "args", cmd.Args)
 	stdout, err := cmd.CombinedOutput()
 	if err != nil {
 		return string(stdout), errWrap(err, "run")
@@ -140,7 +140,6 @@ func (c *Command) RunContext(ctx context.Context, info chan<- string) (e error) 
 			}
 		}
 	}
-	//}
 END:
 	e = cmd.Wait()
 	if e != nil {

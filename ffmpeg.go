@@ -10,6 +10,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/goextension/log"
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 )
@@ -181,7 +182,7 @@ func ProbeInfoOption(f func(string) (*StreamFormat, error)) SplitOptions {
 }
 
 // FFMpegSplitToM3U8WithProbe ...
-func FFMpegSplitToM3U8WithProbe(ctx Context, file string, args ...SplitOptions) (sa *SplitArgs, e error) {
+func FFMpegSplitToM3U8WithProbe(ctx context.Context, file string, args ...SplitOptions) (sa *SplitArgs, e error) {
 	args = append(args, ProbeInfoOption(FFProbeStreamFormat))
 	return FFMpegSplitToM3U8(ctx, file, args...)
 }
@@ -262,18 +263,18 @@ func optimizeScale(sa *SplitArgs, video *Stream) {
 }
 
 // FFMpegSplitToM3U8WithOptimize ...
-func FFMpegSplitToM3U8WithOptimize(ctx Context, file string, args ...SplitOptions) (sa *SplitArgs, e error) {
+func FFMpegSplitToM3U8WithOptimize(ctx context.Context, file string, args ...SplitOptions) (sa *SplitArgs, e error) {
 	args = append(args, ProbeInfoOption(FFProbeStreamFormat))
 	return FFMpegSplitToM3U8(ctx, file, args...)
 }
 
 // FFMpegSplitToM3U8 ...
-func FFMpegSplitToM3U8(ctx Context, file string, args ...SplitOptions) (sa *SplitArgs, e error) {
+func FFMpegSplitToM3U8(ctx context.Context, file string, args ...SplitOptions) (sa *SplitArgs, e error) {
 	if strings.Index(file, " ") != -1 {
 		return nil, xerrors.New("file name cannot have spaces")
 	}
 	if ctx == nil {
-		ctx = FFmpegContext()
+		ctx = context.TODO()
 	}
 	sa = &SplitArgs{
 		Output:          "",
@@ -317,7 +318,6 @@ func FFMpegSplitToM3U8(ctx Context, file string, args ...SplitOptions) (sa *Spli
 	if e != nil {
 		return nil, e
 	}
-	log.With("output", sa.Output).Info("output dir")
 	if sa.Auto {
 		sa.Output = filepath.Join(sa.Output, uuid.New().String())
 		_ = os.MkdirAll(sa.Output, os.ModePerm)
@@ -338,36 +338,20 @@ func FFMpegSplitToM3U8(ctx Context, file string, args ...SplitOptions) (sa *Spli
 }
 
 // FFMpegRun ...
-func FFMpegRun(ctx Context, args string) (e error) {
+func FFMpegRun(ctx context.Context, args string) (e error) {
 	ffmpeg := NewFFMpeg()
 	ffmpeg.SetArgs(args)
 	info := make(chan string, 1024)
-	done := make(chan error, 1)
 	go func() {
-		ctx.Add(1)
-		done <- ffmpeg.RunContext(ctx, info)
+		e = ffmpeg.RunContext(ctx, info)
 	}()
-	for {
+	for v := range info {
 		select {
-		case e = <-done:
-			if e != nil {
-				log.Error(e)
-			}
-			return
-		case v := <-info:
-			if v != "" {
-				log.With("status", "process").Info(v)
-			}
-		case <-ctx.Context().Done():
-			log.With("status", "done")
-			if e = ctx.Context().Err(); e != nil {
-				if e == context.Canceled {
-					log.Info("exit with cancel")
-				}
-			}
+		case <-ctx.Done():
 			return
 		default:
-			//log.Println("waiting:...")
 		}
+		log.Infow("running", "proc", v)
 	}
+	return
 }
