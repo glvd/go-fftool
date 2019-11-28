@@ -7,7 +7,7 @@ const scaleOutputTemplate = "-vf scale=-2:%d"
 const bitRateOutputTemplate = "-b:v %dK"
 const frameRateOutputTemplate = "-r %3.2f"
 
-const defaultTemplate = `-y,-i,%s,-strict,-2,-c:v,%s,-c:a,%s,%s,%s`
+const defaultTemplate = `-y,-i,%s,-strict,-2,-c:v,%s,-c:a,%s%s,%s`
 
 // Scale ...
 type Scale int
