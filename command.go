@@ -74,6 +74,16 @@ func GetCurrentDir() string {
 	return dir
 }
 
+// Env ...
+func (c *Command) Env() []string {
+	bin := filepath.Join(GetCurrentDir(), DefaultCommandPath)
+	path := os.Getenv("PATH")
+	if err := os.Setenv("PATH", strings.Join([]string{path, bin}, ":")); err != nil {
+		panic(err)
+	}
+	return os.Environ()
+}
+
 // Run ...
 func (c *Command) Run() (string, error) {
 	cmd := exec.Command(c.Name, c.Args...)
@@ -85,16 +95,6 @@ func (c *Command) Run() (string, error) {
 		return string(stdout), errWrap(err, "run")
 	}
 	return string(stdout), nil
-}
-
-// Env ...
-func (c *Command) Env() []string {
-	bin := filepath.Join(GetCurrentDir(), DefaultCommandPath)
-	path := os.Getenv("PATH")
-	if err := os.Setenv("PATH", strings.Join([]string{path, bin}, ":")); err != nil {
-		panic(err)
-	}
-	return os.Environ()
 }
 
 // RunContext ...
