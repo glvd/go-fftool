@@ -42,7 +42,7 @@ func TestCommand_RunContext(t *testing.T) {
 			fields: fields{
 				path: DefaultCommandPath,
 				Name: "ffmpeg",
-				Args: nil,
+				Args: []string{"-version"},
 			},
 			args: args{
 				ctx:  context.Background(),
