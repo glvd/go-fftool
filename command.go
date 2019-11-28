@@ -2,29 +2,43 @@ package fftool
 
 import (
 	"bufio"
+	"context"
 	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 
-	"github.com/godcong/go-trait"
+	exio "github.com/goextension/io"
+	"github.com/goextension/log"
 )
 
-var log = trait.NewZapSugar()
+// DefaultCommandPath ...
+var DefaultCommandPath = "bin"
 
 // Command ...
 type Command struct {
-	Path string
+	path string
 	Name string
 	Args []string
 	//OutPath string
 	//Opts    map[string][]string
 }
 
+// Path ...
+func (c *Command) Path() string {
+	return c.path
+}
+
+// SetPath ...
+func (c *Command) SetPath(path string) {
+	c.path = path
+}
+
 // New ...
 func New(name string) *Command {
 	return &Command{
+		path: DefaultCommandPath,
 		Name: name,
 		//Opts: make(map[string][]string),
 	}
@@ -42,25 +56,12 @@ func NewFFProbe() *Command {
 
 // SetArgs ...
 func (c *Command) SetArgs(s string) {
-	c.Args = strings.Split(s, " ")
+	c.Args = strings.Split(s, ",")
 }
 
 // AddArgs ...
 func (c *Command) AddArgs(s string) {
 	c.Args = append(c.Args, s)
-}
-
-// SetPath ...
-func (c *Command) SetPath(s string) {
-	c.Path = s
-}
-
-// CMD ...
-func (c *Command) CMD() string {
-	if c.Path != "" {
-		return filepath.Join(c.Path, c.Name)
-	}
-	return c.Name
 }
 
 // GetCurrentDir ...
@@ -75,83 +76,59 @@ func GetCurrentDir() string {
 
 // Run ...
 func (c *Command) Run() (string, error) {
-	cmd := exec.Command(c.CMD(), c.Args...)
+	cmd := exec.Command(c.Name, c.Args...)
 	cmd.Env = c.Env()
 	//显示运行的命令
-	log.With("run", "Run").Info(cmd.Args)
+	log.Infow("run context", "args", cmd.Args)
 	stdout, err := cmd.CombinedOutput()
 	if err != nil {
-		return string(stdout), err
+		return string(stdout), errWrap(err, "run")
 	}
 	return string(stdout), nil
 }
 
 // Env ...
 func (c *Command) Env() []string {
+	bin := filepath.Join(GetCurrentDir(), DefaultCommandPath)
 	path := os.Getenv("PATH")
-	if err := os.Setenv("PATH", path+":"+GetCurrentDir()); err != nil {
-		//err = xerrors.Errorf("PATH error:%+v", err)
-		log.Error(err)
+	if err := os.Setenv("PATH", strings.Join([]string{path, bin}, ":")); err != nil {
+		panic(err)
 	}
 	return os.Environ()
 }
 
 // RunContext ...
-func (c *Command) RunContext(ctx Context, info chan<- string) (e error) {
-	_, e = exec.LookPath(c.CMD())
-	if e != nil {
-		return e
-	}
-	cmd := exec.CommandContext(ctx.Context(), c.CMD(), c.Args...)
-	cmd.Env = os.Environ()
-	//显示运行的命令
-	log.With("run", "RunContext").Info(cmd.Args)
+func (c *Command) RunContext(ctx context.Context, info chan<- string) (e error) {
 	defer func() {
-		log.Info("done")
-		ctx.Done()
-		if e != nil {
-			log.Error(e)
+		if info != nil {
+			close(info)
 		}
 	}()
+	cmd := exec.CommandContext(ctx, c.Name, c.Args...)
+	cmd.Env = c.Env()
+	//显示运行的命令
+	log.Infow("run context", "args", cmd.Args)
 	stdout, e := cmd.StdoutPipe()
 	if e != nil {
-		return e
+		return errWrap(e, "StdoutPipe")
 	}
 
 	stderr, e := cmd.StderrPipe()
 	if e != nil {
-		return e
+		return errWrap(e, "StderrPipe")
 	}
 
-	//cmd.Stdout = os.Stdout
-	//cmd.Stderr = os.Stderr
-	//cmd.Stdin = os.Stdin
 	e = cmd.Start()
 	if e != nil {
-		return e
+		return errWrap(e, "start")
 	}
-	//done := make(chan error)
-	//go func() {
-	//	done <- cmd.Wait()
-	//}()
-	//err must before out
-	reader := bufio.NewReader(io.MultiReader(stderr, stdout))
-	//实时循环读取输出流中的一行内容
-	//for {
-	log.Info("running")
-	for {
 
+	reader := bufio.NewReader(exio.MultiReader(stderr, stdout))
+	for {
 		select {
-		//case err := <-done:
-		//	log.Error(err)
-		//	return
-		case <-ctx.Context().Done():
-			log.Error(ctx.Context().Err())
-			return ctx.Context().Err()
+		case <-ctx.Done():
+			return errWrap(ctx.Err(), "done")
 		default:
-			//if cmd.ProcessState != nil && cmd.ProcessState.Exited() {
-			//	goto END
-			//}
 			lines, _, e := reader.ReadLine()
 			if e != nil || io.EOF == e {
 				goto END
@@ -169,10 +146,5 @@ END:
 	if e != nil {
 		return e
 	}
-	//return nil
-	//e = cmd.Run()
-	//if e != nil {
-	//	return e
-	//}
 	return nil
 }

@@ -7,8 +7,9 @@ const scaleOutputTemplate = "-vf scale=-2:%d"
 const bitRateOutputTemplate = "-b:v %dK"
 const frameRateOutputTemplate = "-r %3.2f"
 
-const defaultTemplate = `-y,-i,%s,-strict,-2,-c:v,%s,-c:a,%s,%s`
+const defaultTemplate = `-y,-i,%s,-strict,-2,-c:v,%s,-c:a,%s,%s,%s`
 
+// Scale ...
 type Scale int
 
 // Scale ...
@@ -33,12 +34,14 @@ var frameRateList = []float64{
 	Scale1080P: float64(30000)/1001 - 0.005,
 }
 
+// Config ...
 type Config struct {
 	Scale     Scale
 	BitRate   int64
 	FrameRate float64
 }
 
+// DefaultConfig ...
 func DefaultConfig() Config {
 	return Config{
 		Scale: Scale720P,
