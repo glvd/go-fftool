@@ -19,6 +19,7 @@ var DefaultCommandPath = "bin"
 // Command ...
 type Command struct {
 	path string
+	env  []string
 	Name string
 	Args []string
 	//OutPath string
@@ -43,7 +44,6 @@ func New(name string) *Command {
 	return &Command{
 		path: DefaultCommandPath,
 		Name: name,
-		//Opts: make(map[string][]string),
 	}
 }
 
@@ -76,20 +76,23 @@ func getCurrentDir() string {
 	return dir
 }
 
-// Env ...
-func (c *Command) Env() []string {
-	if err := os.Setenv("PATH", strings.Join([]string{os.Getenv("PATH"), c.Path()}, ":")); err != nil {
-		panic(err)
+// environ ...
+func (c *Command) init() []string {
+	if c.env == nil {
+		if err := os.Setenv("PATH", strings.Join([]string{os.Getenv("PATH"), c.Path()}, string(os.PathListSeparator))); err != nil {
+			panic(err)
+		}
+		c.env = os.Environ()
 	}
-	return os.Environ()
+	return c.env
 }
 
 // Run ...
 func (c *Command) Run() (string, error) {
+	c.init()
 	cmd := exec.Command(c.Name, c.Args...)
-	cmd.Env = c.Env()
 	//显示运行的命令
-	log.Infow("run", "args", cmd.Args)
+	log.Infow("run", "args", cmd.Args, "environ", c.env)
 	stdout, err := cmd.CombinedOutput()
 	if err != nil {
 		return string(stdout), errWrap(err, "run")
@@ -104,10 +107,10 @@ func (c *Command) RunContext(ctx context.Context, info chan<- string) (e error) 
 			close(info)
 		}
 	}()
+	c.init()
 	cmd := exec.CommandContext(ctx, c.Name, c.Args...)
-	cmd.Env = c.Env()
 	//显示运行的命令
-	log.Infow("run context", "args", cmd.Args)
+	log.Infow("run context", "args", cmd.Args, "environ", c.env)
 	stdout, e := cmd.StdoutPipe()
 	if e != nil {
 		return errWrap(e, "StdoutPipe")

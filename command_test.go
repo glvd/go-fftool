@@ -3,6 +3,7 @@ package fftool
 import (
 	"context"
 	"path/filepath"
+	"sync"
 	"testing"
 
 	"github.com/goextension/log"
@@ -12,6 +13,7 @@ var cmdPath string
 
 func init() {
 	cmdPath = filepath.Join(`D:\workspace\golang\project\go-fftool`, DefaultCommandPath)
+	//cmdPath = DefaultCommandPath
 }
 
 // TestCommand_RunContext ...
@@ -63,16 +65,20 @@ func TestCommand_RunContext(t *testing.T) {
 				Name: tt.fields.Name,
 				Args: tt.fields.Args,
 			}
+			wg := &sync.WaitGroup{}
+			wg.Add(1)
 			go func() {
 				if err := c.RunContext(tt.args.ctx, tt.args.info); (err != nil) != tt.wantErr {
 					t.Errorf("RunContext() error = %v, wantErr %v", err, tt.wantErr)
 				}
+				wg.Done()
 			}()
 			if tt.args.info != nil {
 				for v := range tt.args.info {
 					log.Info(v)
 				}
 			}
+			wg.Wait()
 		})
 	}
 }
