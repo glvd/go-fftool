@@ -2,10 +2,17 @@ package fftool
 
 import (
 	"context"
+	"path/filepath"
 	"testing"
 
 	"github.com/goextension/log"
 )
+
+var cmdPath string
+
+func init() {
+	cmdPath = filepath.Join(`D:\workspace\golang\project\go-fftool`, DefaultCommandPath)
+}
 
 // TestCommand_RunContext ...
 func TestCommand_RunContext(t *testing.T) {
@@ -27,7 +34,7 @@ func TestCommand_RunContext(t *testing.T) {
 		{
 			name: "test1",
 			fields: fields{
-				path: DefaultCommandPath,
+				path: cmdPath,
 				Name: "ffmpeg",
 				Args: []string{"-version"},
 			},
@@ -38,7 +45,7 @@ func TestCommand_RunContext(t *testing.T) {
 		}, {
 			name: "test2",
 			fields: fields{
-				path: DefaultCommandPath,
+				path: cmdPath,
 				Name: "ffmpeg",
 				Args: []string{"-version"},
 			},
@@ -86,7 +93,7 @@ func TestCommand_Run(t *testing.T) {
 		{
 			name: "test1",
 			fields: fields{
-				path: DefaultCommandPath,
+				path: cmdPath,
 				Name: "ffmpeg",
 				Args: []string{"-version"},
 			},

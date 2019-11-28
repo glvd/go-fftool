@@ -27,7 +27,10 @@ type Command struct {
 
 // Path ...
 func (c *Command) Path() string {
-	return c.path
+	if filepath.IsAbs(c.path) {
+		return c.path
+	}
+	return filepath.Join(getCurrentDir(), c.path)
 }
 
 // SetPath ...
@@ -75,9 +78,7 @@ func getCurrentDir() string {
 
 // Env ...
 func (c *Command) Env() []string {
-	bin := filepath.Join(getCurrentDir(), DefaultCommandPath)
-	path := os.Getenv("PATH")
-	if err := os.Setenv("PATH", strings.Join([]string{path, bin}, ":")); err != nil {
+	if err := os.Setenv("PATH", strings.Join([]string{os.Getenv("PATH"), c.Path()}, ":")); err != nil {
 		panic(err)
 	}
 	return os.Environ()
