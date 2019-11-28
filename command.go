@@ -64,8 +64,7 @@ func (c *Command) AddArgs(s string) {
 	c.Args = append(c.Args, s)
 }
 
-// GetCurrentDir ...
-func GetCurrentDir() string {
+func getCurrentDir() string {
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0])) //返回绝对路径  filepath.Dir(os.Args[0])去除最后一个元素的路径
 	if err != nil {
 		log.Fatal(err)
@@ -76,7 +75,7 @@ func GetCurrentDir() string {
 
 // Env ...
 func (c *Command) Env() []string {
-	bin := filepath.Join(GetCurrentDir(), DefaultCommandPath)
+	bin := filepath.Join(getCurrentDir(), DefaultCommandPath)
 	path := os.Getenv("PATH")
 	if err := os.Setenv("PATH", strings.Join([]string{path, bin}, ":")); err != nil {
 		panic(err)
