@@ -14,13 +14,6 @@ import (
 	"golang.org/x/xerrors"
 )
 
-//const sliceM3u8FFmpegTemplate = `-y -i %s -strict -2 -ss %s -to %s -c:v %s -c:a %s -bsf:v h264_mp4toannexb -vsync 0 -f hls -hls_list_size 0 -hls_time %d -hls_segment_filename %s %s`
-const sliceM3u8FFmpegTemplate = `-y -i %s -strict -2 -c:v %s -c:a %s -bsf:v h264_mp4toannexb -f hls -hls_list_size 0 -hls_time %d -hls_segment_filename %s %s`
-const sliceM3u8ScaleTemplate = `-y -i %s -strict -2 -c:v %s -c:a %s -bsf:v h264_mp4toannexb %s -f hls -hls_list_size 0 -hls_time %d -hls_segment_filename %s %s`
-const scaleOutputTemplate = "-vf scale=-2:%d"
-const bitRateOutputTemplate = "-b:v %dK"
-const frameRateOutputTemplate = "-r %3.2f"
-
 // SplitArgs ...
 type SplitArgs struct {
 	StreamFormat    *StreamFormat
