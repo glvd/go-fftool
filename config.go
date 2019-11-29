@@ -105,6 +105,17 @@ func scaleVale(scale Scale) int64 {
 	return scaleList[i]
 }
 
+func resolutionScale(v int64) Scale {
+	r := getResolution(v, 0, -1)
+	switch {
+	case r <= 480:
+		return Scale480P
+	case r > 720:
+		return Scale1080P
+	}
+	return Scale720P
+}
+
 // OptimizeWithFormat ...
 func (c *Config) OptimizeWithFormat(sfmt *StreamFormat) (string, error) {
 	video := sfmt.Video()
@@ -123,10 +134,9 @@ func (c *Config) OptimizeWithFormat(sfmt *StreamFormat) (string, error) {
 }
 
 func (c *Config) optimizeBitRate(video *Stream) (e error) {
-	val := scaleVale(c.Scale)
-	if video.Height != nil && *video.Height < val {
-		//pass when video is smaller then input
-		c.Scale = Scale480P
+	scale := resolutionScale(*video.Height)
+	if c.Scale > scale {
+		c.Scale = scale
 	}
 
 	i, e := strconv.ParseInt(video.BitRate, 10, 64)
