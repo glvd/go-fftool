@@ -130,9 +130,18 @@ func getResolutionIndex(n int64, sta, end int) int {
 	return sta
 }
 
+type ffprobe struct {
+	Name string
+}
+
+// FFProbe ...
+type FFProbe interface {
+	StreamFormat() (*StreamFormat, error)
+}
+
 // FFProbeStreamFormat ...
 func FFProbeStreamFormat(filename string) (*StreamFormat, error) {
-	probe := NewFFProbe()
+	New("ffprobe")
 	probe.SetArgs("-v quiet -print_format json -show_format -show_streams")
 	probe.AddArgs(filename)
 	s, e := probe.Run()

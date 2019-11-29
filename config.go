@@ -34,18 +34,43 @@ var frameRateList = []float64{
 	Scale1080P: float64(30000)/1001 - 0.005,
 }
 
+//Crypto ...
+type Crypto struct {
+	Key string
+}
+
+// CutOut ...
+type CutOut struct {
+	StartTime string
+	EndTime   string
+}
+
 // Config ...
 type Config struct {
-	Scale     Scale
-	BitRate   int64
-	FrameRate float64
-	Name      string //command name
+	Name            string //command name
+	Scale           Scale
+	BitRate         int64
+	FrameRate       float64
+	Output          string //output path
+	VideoFormat     string
+	AudioFormat     string
+	M3U8Name        string
+	SegmentFileName string
+	HLSTime         int
 }
 
 // DefaultConfig ...
 func DefaultConfig() Config {
 	return Config{
-		Scale: Scale720P,
+		Scale:           Scale720P,
+		BitRate:         0,
+		FrameRate:       0,
+		Output:          "video_split_temp",
+		VideoFormat:     "libx264",
+		AudioFormat:     "aac",
+		M3U8Name:        "media.m3u8",
+		SegmentFileName: "media-%05d.ts",
+		HLSTime:         10,
 	}
 }
 
@@ -56,4 +81,21 @@ func (c *Config) init() {
 	if c.FrameRate == 0 {
 		c.FrameRate = frameRateList[c.Scale]
 	}
+}
+
+// ConfigFFMPEG ...
+func ConfigFFMPEG() (config Config) {
+	config = DefaultConfig()
+	config.Name = "ffmpeg"
+	return
+}
+
+// Args ...
+func (c *Config) Args() []string {
+	panic("args")
+}
+
+// OptimizeWithFormat ...
+func (c *Config) OptimizeWithFormat(sfmt *StreamFormat) error {
+	panic("optimize")
 }

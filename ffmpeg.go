@@ -14,99 +14,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
-// SplitArgs ...
-type SplitArgs struct {
-	StreamFormat    *StreamFormat
-	Auto            bool
-	Scale           int64
-	Start           string
-	End             string
-	Output          string
-	Video           string
-	Audio           string
-	M3U8            string
-	SegmentFileName string
-	HLSTime         int
-	probe           func(string) (*StreamFormat, error)
-	BitRate         int64
-	FrameRate       float64
-}
-
-// SplitOptions ...
-type SplitOptions func(args *SplitArgs)
-
-// HLSTimeOption ...
-func HLSTimeOption(i int) SplitOptions {
-	return func(args *SplitArgs) {
-		args.HLSTime = i
-	}
-}
-
-// ScaleOption ...
-func ScaleOption(s int64, v ...string) SplitOptions {
-	return func(args *SplitArgs) {
-		args.Video = "libx264"
-		for _, value := range v {
-			args.Video = value
-		}
-		args.Scale = s
-	}
-}
-
-// OutputOption ...
-func OutputOption(s string) SplitOptions {
-	return func(args *SplitArgs) {
-		args.Output = s
-	}
-}
-
-// AutoOption ...
-func AutoOption(s bool) SplitOptions {
-	return func(args *SplitArgs) {
-		args.Auto = s
-	}
-}
-
 // VideoOption ...
-func VideoOption(s string) SplitOptions {
-	return func(args *SplitArgs) {
-		args.Video = s
-	}
-}
-
-// AudioOption ...
-func AudioOption(s string) SplitOptions {
-	return func(args *SplitArgs) {
-		args.Video = s
-	}
-}
-
-// StreamFormatOption ...
-func StreamFormatOption(s *StreamFormat) SplitOptions {
-	return func(args *SplitArgs) {
-		args.StreamFormat = s
-	}
-}
-
-// BitRateOption ...
-func BitRateOption(b int64) SplitOptions {
-	return func(args *SplitArgs) {
-		args.BitRate = b
-	}
-}
-
-// ProbeInfoOption ...
-func ProbeInfoOption(f func(string) (*StreamFormat, error)) SplitOptions {
-	return func(args *SplitArgs) {
-		args.probe = f
-	}
-}
-
-// FFMpegSplitToM3U8WithProbe ...
-func FFMpegSplitToM3U8WithProbe(ctx context.Context, file string, args ...SplitOptions) (sa *SplitArgs, e error) {
-	args = append(args, ProbeInfoOption(FFProbeStreamFormat))
-	return FFMpegSplitToM3U8(ctx, file, args...)
-}
 
 func scaleIndex(scale int64) int {
 	if scale == 480 {
@@ -197,18 +105,6 @@ func FFMpegSplitToM3U8(ctx context.Context, file string, args ...SplitOptions) (
 	if ctx == nil {
 		ctx = context.TODO()
 	}
-	sa = &SplitArgs{
-		Output:          "",
-		Auto:            true,
-		Video:           "libx264",
-		Audio:           "aac",
-		M3U8:            "media.m3u8",
-		SegmentFileName: "media-%05d.ts",
-		HLSTime:         10,
-	}
-	for _, o := range args {
-		o(sa)
-	}
 
 	if sa.probe != nil {
 		sa.StreamFormat, e = sa.probe(file)
@@ -278,29 +174,26 @@ func FFMpegRun(ctx context.Context, args string) (e error) {
 }
 
 type ffmpeg struct {
-	config Config
+	config *Config
 	cmd    *Command
 }
 
-// Run ...
-func (f *ffmpeg) Run() (string, error) {
-	panic("implement me")
-}
-
 // RunContext ...
-func (f *ffmpeg) RunContext(ctx context.Context, info chan<- string) (e error) {
-	panic("implement me")
+func (f *ffmpeg) Run(ctx context.Context, input, output string) (e error) {
+	return f.cmd.RunContext(ctx, nil)
 }
 
-// FFMPEG ...
-type FFMPEG interface {
-	CommandRunner
+// FFMpeg ...
+type FFMpeg interface {
 }
 
 // NewFFMpeg ...
-func NewFFMpeg(config Config) FFMPEG {
-	return &ffmpeg{
-		config: config,
-		cmd:    New(config.Name),
+func NewFFMpeg(config Config) FFMpeg {
+	ff := &ffmpeg{
+		config: &config,
 	}
+
+	ff.cmd = New(config.Name)
+
+	return ff
 }
