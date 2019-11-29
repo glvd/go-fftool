@@ -2,6 +2,7 @@ package fftool
 
 import (
 	"encoding/json"
+	"fmt"
 	"path"
 	"path/filepath"
 	"regexp"
@@ -139,23 +140,20 @@ type FFProbe struct {
 // NewFFProbe ...
 func NewFFProbe() *FFProbe {
 	ff := &FFProbe{Name: "ffprobe"}
-
-	ff.cmd = New(ff.Name)
-
 	return ff
+}
+
+func (ff *FFProbe) init() {
+	if ff.cmd == nil {
+		ff.cmd = New(ff.Name)
+	}
 }
 
 // StreamFormat ...
 func (ff *FFProbe) StreamFormat(file string) (*StreamFormat, error) {
-
-}
-
-// FFProbeStreamFormat ...
-func FFProbeStreamFormat(filename string) (*StreamFormat, error) {
-	New("ffprobe")
-	probe.SetArgs("-v quiet -print_format json -show_format -show_streams")
-	probe.AddArgs(filename)
-	s, e := probe.Run()
+	ff.init()
+	ff.cmd.SetArgs(fmt.Sprintf(ffprobeStreamFormatTemplate, file))
+	s, e := ff.cmd.Run()
 	if e != nil {
 		return nil, e
 	}
@@ -167,20 +165,7 @@ func FFProbeStreamFormat(filename string) (*StreamFormat, error) {
 	return &sf, nil
 }
 
-// ResolutionInt ...
-func (f *StreamFormat) ResolutionInt() int {
-	idx := 0
-	for _, s := range f.Streams {
-		if s.CodecType == "video" {
-			if s.Height != nil {
-				idx = getResolutionIndex(*s.Height, 0, -1)
-				break
-			}
-
-		}
-	}
-	return resolution[idx]
-}
+const ffprobeStreamFormatTemplate = `-v,quiet,-print_format,json,-show_format,-show_streams,%s`
 
 // Resolution ...
 func (f *StreamFormat) Resolution() string {
@@ -205,11 +190,6 @@ func (f *StreamFormat) Video() *Stream {
 		}
 	}
 	return nil
-}
-
-// IsVideo ...
-func (f *StreamFormat) IsVideo() bool {
-	return isVideo(f.Format.Filename)
 }
 
 // Audio ...

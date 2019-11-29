@@ -47,7 +47,6 @@ type CutOut struct {
 
 // Config ...
 type Config struct {
-	Name            string //command name
 	Scale           Scale
 	BitRate         int64
 	FrameRate       float64
@@ -81,13 +80,6 @@ func (c *Config) init() {
 	if c.FrameRate == 0 {
 		c.FrameRate = frameRateList[c.Scale]
 	}
-}
-
-// ConfigFFMPEG ...
-func ConfigFFMPEG() (config Config) {
-	config = DefaultConfig()
-	config.Name = "ffmpeg"
-	return
 }
 
 // Args ...

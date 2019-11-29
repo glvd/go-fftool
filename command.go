@@ -86,7 +86,7 @@ func (c *Command) Run() (string, error) {
 	c.init()
 	cmd := exec.Command(c.Name, c.Args...)
 	//显示运行的命令
-	log.Infow("run", "args", cmd.Args, "environ", c.env)
+	log.Infow("run", "args", cmd.Args)
 	stdout, err := cmd.CombinedOutput()
 	if err != nil {
 		return string(stdout), errWrap(err, "run")
