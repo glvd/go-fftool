@@ -31,3 +31,7 @@ func NewFFMpeg(config Config) *FFMpeg {
 
 	return ff
 }
+
+func optimizeWithFormat() {
+
+}

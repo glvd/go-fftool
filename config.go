@@ -1,5 +1,14 @@
 package fftool
 
+import (
+	"errors"
+	"math"
+	"strconv"
+	"strings"
+
+	"github.com/goextension/log"
+)
+
 //const sliceM3u8FFmpegTemplate = `-y -i %s -strict -2 -ss %s -to %s -c:v %s -c:a %s -bsf:v h264_mp4toannexb -vsync 0 -f hls -hls_list_size 0 -hls_time %d -hls_segment_filename %s %s`
 const sliceM3u8FFmpegTemplate = `-y -i %s -strict -2 -c:v %s -c:a %s -bsf:v h264_mp4toannexb -f hls -hls_list_size 0 -hls_time %d -hls_segment_filename %s %s`
 const sliceM3u8ScaleTemplate = `-y -i %s -strict -2 -c:v %s -c:a %s -bsf:v h264_mp4toannexb %s -f hls -hls_list_size 0 -hls_time %d -hls_segment_filename %s %s`
@@ -18,6 +27,12 @@ const (
 	Scale720P  Scale = 1
 	Scale1080P Scale = 2
 )
+
+var scaleList = []int64{
+	0: 480,
+	1: 720,
+	2: 1080,
+}
 
 var bitRateList = []int64{
 	//Scale480P:  1000 * 1024,
@@ -74,20 +89,76 @@ func DefaultConfig() Config {
 }
 
 func (c *Config) init() {
-	if c.BitRate == 0 {
-		c.BitRate = bitRateList[c.Scale]
+
+}
+
+// Args ...
+func (c *Config) Args() string {
+	panic("args")
+}
+
+func scaleVale(scale Scale) int64 {
+	i := int(scale)
+	if len(scaleList) >= i {
+		return 0
+	}
+	return scaleList[i]
+}
+
+// OptimizeWithFormat ...
+func (c *Config) OptimizeWithFormat(sfmt *StreamFormat) (string, error) {
+	video := sfmt.Video()
+	if video == nil {
+		return "", errors.New("video is null")
+	}
+	val := scaleVale(c.Scale)
+
+	if val != 0 {
+		if video.Height != nil && *video.Height < int64(c.Scale) {
+			//pass when video is smaller then input
+			c.Scale = Scale480P
+		}
+
+		//idx := scaleIndex(sa.Scale)
+		i, e := strconv.ParseInt(video.BitRate, 10, 64)
+		if e != nil {
+			log.Errorw("parse:bitrate", "error", e)
+			i = math.MaxInt64
+		}
+
+		if c.BitRate == 0 {
+			c.BitRate = bitRateList[c.Scale]
+		}
+		if c.BitRate > i {
+			c.BitRate = 0
+		}
+
+	}
+}
+
+func (c *Config) opFrameRate(video *Stream) (e error) {
+	fr := strings.Split(video.RFrameRate, "/")
+	il := 1
+	ir := 1
+	if len(fr) == 2 {
+		il, e = strconv.Atoi(fr[0])
+		if e != nil {
+			il = 1
+			log.Errorw("parse:il", "error", e, "framerate", video.RFrameRate)
+		}
+		ir, e = strconv.Atoi(fr[1])
+		if e != nil {
+			ir = 1
+			log.Errorw("parse:ir", "error", e, "framerate", video.RFrameRate)
+		}
 	}
 	if c.FrameRate == 0 {
 		c.FrameRate = frameRateList[c.Scale]
 	}
-}
 
-// Args ...
-func (c *Config) Args() []string {
-	panic("args")
-}
-
-// OptimizeWithFormat ...
-func (c *Config) OptimizeWithFormat(sfmt *StreamFormat) error {
-	panic("optimize")
+	if c.FrameRate > float64(il)/float64(ir) {
+		c.FrameRate = 0
+	}
+	log.Infow("info", "framerate", c.FrameRate, "il", il, "ir", ir, "il/ir", il/ir)
+	return nil
 }
