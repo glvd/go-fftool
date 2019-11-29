@@ -63,9 +63,9 @@ func getCurrentDir() string {
 // environ ...
 func (c *Command) init() []string {
 	if c.env == nil {
-		_, e := exec.LookPath(filepath.Join(c.Path()))
+		_, e := exec.LookPath(c.Path())
 		if e != nil {
-			log.Infow("add path", "path", c.Path())
+			log.Warnw("add path", "path", c.Path())
 			if err := os.Setenv("PATH", strings.Join([]string{os.Getenv("PATH"), c.Path()}, string(os.PathListSeparator))); err != nil {
 				panic(err)
 			}

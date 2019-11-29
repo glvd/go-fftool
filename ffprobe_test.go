@@ -6,6 +6,7 @@ import (
 
 // TestFFProbe_StreamFormat ...
 func TestFFProbe_StreamFormat(t *testing.T) {
+	ff := NewFFProbe()
 	type fields struct {
 		cmd  *Command
 		Name string
@@ -36,7 +37,6 @@ func TestFFProbe_StreamFormat(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ff := NewFFProbe()
 			got, err := ff.StreamFormat(tt.args.file)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("StreamFormat() error = %v, wantErr %v", err, tt.wantErr)
