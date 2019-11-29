@@ -18,11 +18,11 @@ func TestCommand_RunContext(t *testing.T) {
 	type fields struct {
 		path string
 		Name string
-		Args []string
 	}
 	type args struct {
 		ctx  context.Context
 		info chan string
+		args string
 	}
 	tests := []struct {
 		name    string
@@ -35,10 +35,10 @@ func TestCommand_RunContext(t *testing.T) {
 			fields: fields{
 				path: DefaultCommandPath,
 				Name: "ffmpeg",
-				Args: []string{"-version"},
 			},
 			args: args{
-				ctx: context.Background(),
+				ctx:  context.Background(),
+				args: "-version",
 			},
 			wantErr: false,
 		}, {
@@ -46,11 +46,11 @@ func TestCommand_RunContext(t *testing.T) {
 			fields: fields{
 				path: DefaultCommandPath,
 				Name: "ffmpeg",
-				Args: []string{"-version"},
 			},
 			args: args{
 				ctx:  context.Background(),
 				info: make(chan string),
+				args: "-version",
 			},
 			wantErr: false,
 		},
@@ -60,12 +60,11 @@ func TestCommand_RunContext(t *testing.T) {
 			c := &Command{
 				path: tt.fields.path,
 				Name: tt.fields.Name,
-				Args: tt.fields.Args,
 			}
 			wg := &sync.WaitGroup{}
 			wg.Add(1)
 			go func() {
-				if err := c.RunContext(tt.args.ctx, tt.args.info); (err != nil) != tt.wantErr {
+				if err := c.RunContext(tt.args.ctx, tt.args.args, tt.args.info); (err != nil) != tt.wantErr {
 					t.Errorf("RunContext() error = %v, wantErr %v", err, tt.wantErr)
 				}
 				wg.Done()
@@ -84,22 +83,30 @@ func TestCommand_RunContext(t *testing.T) {
 func TestCommand_Run(t *testing.T) {
 	type fields struct {
 		path string
+		env  []string
 		Name string
-		Args []string
+	}
+	type args struct {
+		args string
 	}
 	tests := []struct {
 		name    string
 		fields  fields
+		args    args
 		want    string
 		wantErr bool
 	}{
 		{
-			name: "test1",
+			name: "testrun",
 			fields: fields{
 				path: DefaultCommandPath,
+				env:  nil,
 				Name: "ffmpeg",
-				Args: []string{"-version"},
 			},
+			args: args{
+				args: "-version",
+			},
+			want:    "",
 			wantErr: false,
 		},
 	}
@@ -107,15 +114,17 @@ func TestCommand_Run(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			c := &Command{
 				path: tt.fields.path,
+				env:  tt.fields.env,
 				Name: tt.fields.Name,
-				Args: tt.fields.Args,
 			}
-			got, err := c.Run()
+			got, err := c.Run(tt.args.args)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Run() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			t.Logf("Run() got = %v", got)
+			if got != tt.want {
+				t.Errorf("Run() got = %v, want %v", got, tt.want)
+			}
 		})
 	}
 }

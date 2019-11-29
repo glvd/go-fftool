@@ -19,7 +19,7 @@ func (ff *FFMpeg) init() {
 
 // Run ...
 func (ff *FFMpeg) Run(ctx context.Context, input, output string) (e error) {
-	return ff.cmd.RunContext(ctx, nil)
+	return ff.cmd.RunContext(ctx, "", nil)
 }
 
 // NewFFMpeg ...

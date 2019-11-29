@@ -27,7 +27,6 @@ type Command struct {
 	path string
 	env  []string
 	Name string
-	Args []string
 }
 
 // Path ...
@@ -51,16 +50,6 @@ func New(name string) *Command {
 	}
 }
 
-// SetArgs ...
-func (c *Command) SetArgs(s string) {
-	c.Args = strings.Split(s, ",")
-}
-
-// AddArgs ...
-func (c *Command) AddArgs(s string) {
-	c.Args = append(c.Args, s)
-}
-
 func getCurrentDir() string {
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0])) //返回绝对路径  filepath.Dir(os.Args[0])去除最后一个元素的路径
 	if err != nil {
@@ -82,9 +71,9 @@ func (c *Command) init() []string {
 }
 
 // Run ...
-func (c *Command) Run() (string, error) {
+func (c *Command) Run(args string) (string, error) {
 	c.init()
-	cmd := exec.Command(c.Name, c.Args...)
+	cmd := exec.Command(c.Name, Args(args)...)
 	//显示运行的命令
 	log.Infow("run", "args", cmd.Args)
 	stdout, err := cmd.CombinedOutput()
@@ -95,14 +84,14 @@ func (c *Command) Run() (string, error) {
 }
 
 // RunContext ...
-func (c *Command) RunContext(ctx context.Context, info chan<- string) (e error) {
+func (c *Command) RunContext(ctx context.Context, args string, info chan<- string) (e error) {
 	defer func() {
 		if info != nil {
 			close(info)
 		}
 	}()
 	c.init()
-	cmd := exec.CommandContext(ctx, c.Name, c.Args...)
+	cmd := exec.CommandContext(ctx, c.Name, Args(args)...)
 	//显示运行的命令
 	log.Infow("run context", "args", cmd.Args, "environ", c.env)
 	stdout, e := cmd.StdoutPipe()
@@ -143,4 +132,9 @@ END:
 		return e
 	}
 	return nil
+}
+
+// Args ...
+func Args(args string) []string {
+	return strings.Split(args, ",")
 }
