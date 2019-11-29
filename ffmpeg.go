@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"sync"
 
 	"github.com/goextension/log"
 	"github.com/google/uuid"
@@ -31,84 +30,6 @@ type SplitArgs struct {
 	probe           func(string) (*StreamFormat, error)
 	BitRate         int64
 	FrameRate       float64
-}
-
-// FFmpegContext ...
-type ffmpegContext struct {
-	once   sync.Once
-	mu     sync.RWMutex
-	wg     *sync.WaitGroup
-	ctx    context.Context
-	cancel context.CancelFunc
-	done   chan bool
-}
-
-// Context ...
-func (c *ffmpegContext) Context() context.Context {
-	return c.ctx
-}
-
-// Add ...
-func (c *ffmpegContext) Add(i int) {
-	c.wg.Add(i)
-}
-
-// Wait ...
-func (c *ffmpegContext) Wait() {
-	select {
-	case <-c.Waiting():
-		return
-	}
-}
-
-// Waiting ...
-func (c *ffmpegContext) Waiting() <-chan bool {
-	c.once.Do(func() {
-		go func() {
-			c.wg.Wait()
-			c.done <- true
-		}()
-	})
-
-	c.mu.Lock()
-	if c.done == nil {
-		c.done = make(chan bool)
-	}
-	d := c.done
-	c.mu.Unlock()
-	return d
-}
-
-// Done ...
-func (c *ffmpegContext) Done() {
-	c.wg.Done()
-}
-
-// Cancel ...
-func (c *ffmpegContext) Cancel() {
-	if c.cancel != nil {
-		c.cancel()
-	}
-}
-
-// Context ...
-type Context interface {
-	Cancel()
-	Add(int)
-	Waiting() <-chan bool
-	Wait()
-	Done()
-	Context() context.Context
-}
-
-// FFmpegContext ...
-func FFmpegContext() Context {
-	ctx, cancel := context.WithCancel(context.Background())
-	return &ffmpegContext{
-		wg:     &sync.WaitGroup{},
-		ctx:    ctx,
-		cancel: cancel,
-	}
 }
 
 // SplitOptions ...
@@ -354,4 +275,32 @@ func FFMpegRun(ctx context.Context, args string) (e error) {
 		log.Infow("running", "proc", v)
 	}
 	return
+}
+
+type ffmpeg struct {
+	config Config
+	cmd    *Command
+}
+
+// Run ...
+func (f *ffmpeg) Run() (string, error) {
+	panic("implement me")
+}
+
+// RunContext ...
+func (f *ffmpeg) RunContext(ctx context.Context, info chan<- string) (e error) {
+	panic("implement me")
+}
+
+// FFMPEG ...
+type FFMPEG interface {
+	CommandRunner
+}
+
+// NewFFMpeg ...
+func NewFFMpeg(config Config) FFMPEG {
+	return &ffmpeg{
+		config: config,
+		cmd:    New(config.Name),
+	}
 }

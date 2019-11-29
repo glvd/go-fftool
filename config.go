@@ -39,6 +39,7 @@ type Config struct {
 	Scale     Scale
 	BitRate   int64
 	FrameRate float64
+	Name      string //command name
 }
 
 // DefaultConfig ...

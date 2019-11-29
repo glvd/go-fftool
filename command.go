@@ -16,14 +16,18 @@ import (
 // DefaultCommandPath ...
 var DefaultCommandPath = "bin"
 
+// CommandRunner ...
+type CommandRunner interface {
+	Run() (string, error)
+	RunContext(ctx context.Context, info chan<- string) (e error)
+}
+
 // Command ...
 type Command struct {
 	path string
 	env  []string
 	Name string
 	Args []string
-	//OutPath string
-	//Opts    map[string][]string
 }
 
 // Path ...
@@ -45,11 +49,6 @@ func New(name string) *Command {
 		path: DefaultCommandPath,
 		Name: name,
 	}
-}
-
-// NewFFMpeg ...
-func NewFFMpeg() *Command {
-	return New("ffmpeg")
 }
 
 // NewFFProbe ...
