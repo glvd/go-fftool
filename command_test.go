@@ -31,7 +31,7 @@ func TestCommand_RunContext(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "runcontext",
+			name: "runcontext1",
 			fields: fields{
 				path: DefaultCommandPath,
 				Name: "ffmpeg",
@@ -42,7 +42,7 @@ func TestCommand_RunContext(t *testing.T) {
 			},
 			wantErr: false,
 		}, {
-			name: "test2",
+			name: "runcontext2",
 			fields: fields{
 				path: DefaultCommandPath,
 				Name: "ffmpeg",
