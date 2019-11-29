@@ -2,29 +2,10 @@ package fftool
 
 import (
 	"encoding/json"
-	"path"
-	"path/filepath"
-	"regexp"
-	"strconv"
 	"strings"
-	"time"
 )
 
 const ffprobeStreamFormatTemplate = `-v,quiet,-print_format,json,-show_format,-show_streams,%s`
-
-// ExtIdx ...
-const (
-	CNameIdx = iota
-	ExtIdx
-	CaptionIdx
-	LanguageIdx
-	AudioIdx
-	VideoIdx
-	SharpnessIdx
-	DataIdx
-	ENameIdx
-	MaxSizeIdx
-)
 
 // StreamFormat ...
 type StreamFormat struct {
@@ -111,25 +92,25 @@ type StreamTags struct {
 //var resolution = []int{120, 144, 160, 200, 240, 320, 360, 480, 540, 576, 600, 640, 720, 768, 800, 864, 900, 960, 1024, 1050, 1080, 1152, 1200, 1280, 1440, 1536, 1600, 1620, 1800, 1824, 1920, 2048, 2160, 2400, 2560, 2880, 3072, 3200, 4096, 4320, 4800}
 var resolution = []int{240, 360, 480, 720, 1080, 1920, 2560, 4096, 4800}
 
-func getResolutionIndex(n int64, sta, end int) int {
-	//log.Infof("%d,%d,%d", n, sta, end)
-	//if int64(resolution[sta]) == n {
-	//	return sta
-	//}
-	if end == -1 {
-		end = len(resolution)
+func getResolution(n int64, sta, end int) int {
+	size := len(resolution)
+	if end == -1 || end > size {
+		end = size
 	}
 
-	if idx := (sta + end) / 2; idx > sta {
-		if int64(resolution[idx]) > n {
-			return getResolutionIndex(n, sta, idx)
+	for {
+		idx := (sta + end) / 2
+		if idx > sta {
+			if int64(resolution[idx]) > n {
+				end = idx
+			} else {
+				sta = idx
+			}
+			continue
 		}
-		return getResolutionIndex(n, idx, end)
+		break
 	}
-	if int64(resolution[sta]) != n && sta < len(resolution)-1 {
-		return sta + 1
-	}
-	return sta
+	return resolution[sta]
 }
 
 // FFProbe ...
@@ -165,21 +146,6 @@ func (ff *FFProbe) StreamFormat(file string) (*StreamFormat, error) {
 	return &sf, nil
 }
 
-// Resolution ...
-func (f *StreamFormat) Resolution() string {
-	idx := 0
-	for _, s := range f.Streams {
-		if s.CodecType == "video" {
-			if s.Height != nil {
-				idx = getResolutionIndex(*s.Height, 0, -1)
-				break
-			}
-
-		}
-	}
-	return strconv.FormatInt(int64(resolution[idx]), 10)
-}
-
 // Video ...
 func (f *StreamFormat) Video() *Stream {
 	for _, s := range f.Streams {
@@ -190,6 +156,11 @@ func (f *StreamFormat) Video() *Stream {
 	return nil
 }
 
+// IsVideo ...
+func (f *StreamFormat) IsVideo() bool {
+	return f.Video() != nil
+}
+
 // Audio ...
 func (f *StreamFormat) Audio() *Stream {
 	for _, s := range f.Streams {
@@ -198,50 +169,6 @@ func (f *StreamFormat) Audio() *Stream {
 		}
 	}
 	return nil
-}
-
-// NameAnalyze 解析
-func (f *StreamFormat) NameAnalyze() *FileInfo {
-	_, name := filepath.Split(f.Format.Filename)
-	ext := filepath.Ext(f.Format.Filename)
-	name = strings.Replace(name, ext, "", -1)
-	audio := f.Audio()
-	audioName := ""
-	if audio != nil {
-		audioName = audio.CodecName
-	}
-	video := f.Video()
-	videoName := ""
-	if video != nil {
-		videoName = video.CodecName
-	}
-	info := &FileInfo{
-		Ext:       ext,
-		Caption:   "None",
-		Language:  "Japanese",
-		Audio:     audioName,
-		Video:     videoName,
-		Sharpness: f.Resolution(),
-		Date:      strconv.FormatInt(int64(time.Now().Year()), 10),
-		CName:     name,
-		EName:     "",
-		Prefix:    "",
-	}
-
-	na := f.Format.NameAnalyze()
-
-	if na != nil {
-		_, err := strconv.ParseInt(info.Date, 10, 32)
-		if err != nil {
-			return info
-		}
-		info.Date = na.Date
-		info.EName = na.EName
-		info.CName = na.CName
-		info.Caption = na.Caption
-		info.Language = na.Language
-	}
-	return info
 }
 
 // FileInfo ...
@@ -275,59 +202,4 @@ func (info *FileInfo) ToString() string {
 	infos = append(infos, info.Language)
 	infos = append(infos, info.Caption)
 	return strings.Join(infos, ".") + info.Ext
-}
-
-// NameAnalyze ...
-func (f *Format) NameAnalyze() *FileInfo {
-	return NameAnalyze(f.Filename)
-}
-
-// NameAnalyze ...
-func NameAnalyze(filename string) *FileInfo {
-	_, name := filepath.Split(filename)
-	compile, e := regexp.Compile("^\\[(.)+\\]")
-	if e != nil {
-		return nil
-	}
-	prefix := compile.FindString(name)
-	name = compile.ReplaceAllString(name, "")
-	n := strings.Split(name, ".")
-	size := len(n)
-
-	if isVideo(name) || size < MaxSizeIdx-1 {
-		return nil
-	}
-
-	cname := n[CNameIdx]
-	ename := ""
-	if size-ENameIdx > CNameIdx {
-		ename = strings.Join(n[CNameIdx+1:size-DataIdx], ".")
-	}
-
-	return &FileInfo{
-		Ext:       n[size-ExtIdx],
-		Caption:   n[size-CaptionIdx],
-		Language:  n[size-LanguageIdx],
-		Audio:     n[size-AudioIdx],
-		Video:     n[size-VideoIdx],
-		Sharpness: n[size-SharpnessIdx],
-		Date:      n[size-DataIdx],
-		CName:     cname,
-		EName:     ename,
-		Prefix:    prefix,
-	}
-}
-
-func isVideo(filename string) bool {
-	vlist := []string{
-		".swf", "flv", ".3gp", "ogm", ".vob", ".m4v", ".mkv", ".mp4", ".mpg", ".mpeg",
-		".avi", ".rm", ".rmvb", ".mov", ".wmv", ".asf", ".dat", ".asx", ".wvx", ".mpe", ".mpa",
-	}
-	ext := path.Ext(filename)
-	for _, v := range vlist {
-		if ext == v {
-			return true
-		}
-	}
-	return false
 }

@@ -41,3 +41,70 @@ func TestFFProbe_StreamFormat(t *testing.T) {
 		})
 	}
 }
+
+// Test_getResolutionIndex ...
+func Test_getResolutionIndex(t *testing.T) {
+	type args struct {
+		n   int64
+		sta int
+		end int
+	}
+	tests := []struct {
+		name string
+		args args
+		want int
+	}{
+		{
+			name: "1",
+			args: args{
+				n:   180,
+				sta: 0,
+				end: -1,
+			},
+			want: 240,
+		},
+		{
+			name: "2",
+			args: args{
+				n:   240,
+				sta: 0,
+				end: -1,
+			},
+			want: 240,
+		},
+		{
+			name: "3",
+			args: args{
+				n:   1080,
+				sta: 0,
+				end: -1,
+			},
+			want: 1080,
+		},
+		{
+			name: "4",
+			args: args{
+				n:   4800,
+				sta: 0,
+				end: -1,
+			},
+			want: 4800,
+		},
+		{
+			name: "5",
+			args: args{
+				n:   4900,
+				sta: 0,
+				end: -1,
+			},
+			want: 4800,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := getResolution(tt.args.n, tt.args.sta, tt.args.end); got != tt.want {
+				t.Errorf("getResolution() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

@@ -12,9 +12,9 @@ import (
 //const sliceM3u8FFmpegTemplate = `-y -i %s -strict -2 -ss %s -to %s -c:v %s -c:a %s -bsf:v h264_mp4toannexb -vsync 0 -f hls -hls_list_size 0 -hls_time %d -hls_segment_filename %s %s`
 const sliceM3u8FFmpegTemplate = `-y -i %s -strict -2 -c:v %s -c:a %s -bsf:v h264_mp4toannexb -f hls -hls_list_size 0 -hls_time %d -hls_segment_filename %s %s`
 const sliceM3u8ScaleTemplate = `-y -i %s -strict -2 -c:v %s -c:a %s -bsf:v h264_mp4toannexb %s -f hls -hls_list_size 0 -hls_time %d -hls_segment_filename %s %s`
-const scaleOutputTemplate = "-vf scale=-2:%d"
-const bitRateOutputTemplate = "-b:v %dK"
-const frameRateOutputTemplate = "-r %3.2f"
+const scaleOutputTemplate = ",-vf,scale=-2:%d"
+const bitRateOutputTemplate = ",-b:v,%dK"
+const frameRateOutputTemplate = ",-r,%3.2f"
 
 const defaultTemplate = `-y,-i,%s,-strict,-2,-c:v,%s,-c:a,%s%s,%s`
 
@@ -111,32 +111,40 @@ func (c *Config) OptimizeWithFormat(sfmt *StreamFormat) (string, error) {
 	if video == nil {
 		return "", errors.New("video is null")
 	}
-	val := scaleVale(c.Scale)
-
-	if val != 0 {
-		if video.Height != nil && *video.Height < int64(c.Scale) {
-			//pass when video is smaller then input
-			c.Scale = Scale480P
-		}
-
-		//idx := scaleIndex(sa.Scale)
-		i, e := strconv.ParseInt(video.BitRate, 10, 64)
-		if e != nil {
-			log.Errorw("parse:bitrate", "error", e)
-			i = math.MaxInt64
-		}
-
-		if c.BitRate == 0 {
-			c.BitRate = bitRateList[c.Scale]
-		}
-		if c.BitRate > i {
-			c.BitRate = 0
-		}
-
+	e := c.optimizeBitRate(video)
+	if e != nil {
+		return "", e
 	}
+	e = c.optimizeFrameRate(video)
+	if e != nil {
+		return "", e
+	}
+	return "", nil
 }
 
-func (c *Config) opFrameRate(video *Stream) (e error) {
+func (c *Config) optimizeBitRate(video *Stream) (e error) {
+	val := scaleVale(c.Scale)
+	if video.Height != nil && *video.Height < val {
+		//pass when video is smaller then input
+		c.Scale = Scale480P
+	}
+
+	i, e := strconv.ParseInt(video.BitRate, 10, 64)
+	if e != nil {
+		i = math.MaxInt64
+		log.Errorw("parse:bitrate", "error", e)
+	}
+
+	if c.BitRate == 0 {
+		c.BitRate = bitRateList[c.Scale]
+	}
+	if c.BitRate > i {
+		c.BitRate = 0
+	}
+	return nil
+}
+
+func (c *Config) optimizeFrameRate(video *Stream) (e error) {
 	fr := strings.Split(video.RFrameRate, "/")
 	il := 1
 	ir := 1
