@@ -11,6 +11,8 @@ import (
 	"time"
 )
 
+const ffprobeStreamFormatTemplate = `-v,quiet,-print_format,json,-show_format,-show_streams,%s`
+
 // ExtIdx ...
 const (
 	CNameIdx = iota
@@ -163,8 +165,6 @@ func (ff *FFProbe) StreamFormat(file string) (*StreamFormat, error) {
 	}
 	return &sf, nil
 }
-
-const ffprobeStreamFormatTemplate = `-v,quiet,-print_format,json,-show_format,-show_streams,%s`
 
 // Resolution ...
 func (f *StreamFormat) Resolution() string {
