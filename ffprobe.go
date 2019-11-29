@@ -2,7 +2,6 @@ package fftool
 
 import (
 	"encoding/json"
-	"fmt"
 	"path"
 	"path/filepath"
 	"regexp"
@@ -154,7 +153,7 @@ func (ff *FFProbe) init() {
 // StreamFormat ...
 func (ff *FFProbe) StreamFormat(file string) (*StreamFormat, error) {
 	ff.init()
-	s, e := ff.cmd.Run(fmt.Sprintf(ffprobeStreamFormatTemplate, file))
+	s, e := ff.cmd.Run(FormatArgs(ffprobeStreamFormatTemplate, file))
 	if e != nil {
 		return nil, e
 	}

@@ -3,6 +3,7 @@ package fftool
 import (
 	"bufio"
 	"context"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -137,4 +138,9 @@ END:
 // Args ...
 func Args(args string) []string {
 	return strings.Split(args, ",")
+}
+
+// FormatArgs ...
+func FormatArgs(source, target string) string {
+	return fmt.Sprintf(source, target)
 }
