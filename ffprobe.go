@@ -130,13 +130,24 @@ func getResolutionIndex(n int64, sta, end int) int {
 	return sta
 }
 
-type ffprobe struct {
+// FFProbe ...
+type FFProbe struct {
+	cmd  *Command
 	Name string
 }
 
-// FFProbe ...
-type FFProbe interface {
-	StreamFormat() (*StreamFormat, error)
+// NewFFProbe ...
+func NewFFProbe() *FFProbe {
+	ff := &FFProbe{Name: "ffprobe"}
+
+	ff.cmd = New(ff.Name)
+
+	return ff
+}
+
+// StreamFormat ...
+func (ff *FFProbe) StreamFormat(file string) (*StreamFormat, error) {
+
 }
 
 // FFProbeStreamFormat ...

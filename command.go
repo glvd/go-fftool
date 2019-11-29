@@ -51,11 +51,6 @@ func New(name string) *Command {
 	}
 }
 
-// NewFFProbe ...
-func NewFFProbe() *Command {
-	return New("ffprobe")
-}
-
 // SetArgs ...
 func (c *Command) SetArgs(s string) {
 	c.Args = strings.Split(s, ",")
