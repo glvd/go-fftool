@@ -141,6 +141,6 @@ func Args(args string) []string {
 }
 
 // FormatArgs ...
-func FormatArgs(source, target string) string {
-	return fmt.Sprintf(source, target)
+func FormatArgs(source string, args ...interface{}) string {
+	return fmt.Sprintf(source, args...)
 }
