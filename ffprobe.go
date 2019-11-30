@@ -134,7 +134,7 @@ func (ff *FFProbe) init() {
 // StreamFormat ...
 func (ff *FFProbe) StreamFormat(file string) (*StreamFormat, error) {
 	ff.init()
-	s, e := ff.cmd.Run(FormatArgs(ffprobeStreamFormatTemplate, file))
+	s, e := ff.cmd.Run(formatArgs(ffprobeStreamFormatTemplate, file))
 	if e != nil {
 		return nil, e
 	}

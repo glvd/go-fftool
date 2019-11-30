@@ -52,7 +52,7 @@ func New(name string) *Command {
 }
 
 func getCurrentDir() string {
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0])) //返回绝对路径  filepath.Dir(os.Args[0])去除最后一个元素的路径
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0])) //返回绝对路径  filepath.Dir(os.cmdArgs[0])去除最后一个元素的路径
 	if err != nil {
 		log.Errorw("current dir", "error", err)
 		return ""
@@ -78,7 +78,7 @@ func (c *Command) init() []string {
 // Run ...
 func (c *Command) Run(args string) (string, error) {
 	c.init()
-	cmd := exec.Command(c.Name, Args(args)...)
+	cmd := exec.Command(c.Name, cmdArgs(args)...)
 	//显示运行的命令
 	log.Infow("run", "args", cmd.Args)
 	stdout, err := cmd.CombinedOutput()
@@ -96,7 +96,7 @@ func (c *Command) RunContext(ctx context.Context, args string, info chan<- strin
 		}
 	}()
 	c.init()
-	cmd := exec.CommandContext(ctx, c.Name, Args(args)...)
+	cmd := exec.CommandContext(ctx, c.Name, cmdArgs(args)...)
 	//显示运行的命令
 	log.Infow("run context", "args", cmd.Args)
 	stdout, e := cmd.StdoutPipe()
@@ -139,12 +139,12 @@ END:
 	return nil
 }
 
-// Args ...
-func Args(args string) []string {
+// cmdArgs ...
+func cmdArgs(args string) []string {
 	return strings.Split(args, ",")
 }
 
-// FormatArgs ...
-func FormatArgs(source string, args ...interface{}) string {
+// formatArgs ...
+func formatArgs(source string, args ...interface{}) string {
 	return fmt.Sprintf(source, args...)
 }
