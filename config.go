@@ -26,6 +26,9 @@ const (
 	Scale480P  Scale = 0
 	Scale720P  Scale = 1
 	Scale1080P Scale = 2
+	//Scale2K    Scale = 3
+	//Scale4K    Scale = 4
+	//Scale8K    Scale = 5
 )
 
 var scaleList = []int64{
@@ -41,12 +44,16 @@ var bitRateList = []int64{
 	Scale480P:  500 * 1024,
 	Scale720P:  1000 * 1024,
 	Scale1080P: 2000 * 1024,
+	//Scale2K:    4000 * 1024,
+	//Scale4K:    8000 * 1024,
 }
 
 var frameRateList = []float64{
 	Scale480P:  float64(24000)/1001 - 0.005,
 	Scale720P:  float64(24000)/1001 - 0.005,
 	Scale1080P: float64(30000)/1001 - 0.005,
+	//Scale2K:    float64(30000)/1001 - 0.005,
+	//Scale4K:    float64(30000)/1001 - 0.005,
 }
 
 //Crypto ...
