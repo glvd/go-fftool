@@ -113,11 +113,11 @@ func scaleVale(scale Scale) int64 {
 }
 
 func resolutionScale(v int64) Scale {
-	r := getResolution(v, 0, -1)
+	//r := getResolution(v, 0, -1)
 	switch {
-	case r <= 480:
+	case v <= 480:
 		return Scale480P
-	case r > 960:
+	case v > 960:
 		return Scale1080P
 	}
 	return Scale720P
@@ -141,22 +141,6 @@ func optimizeWithFormat(c *Config, sfmt *StreamFormat) (e error) {
 	if video == nil {
 		return errors.New("video is null")
 	}
-	e = c.optimizeBitRate(video)
-	if e != nil {
-		return e
-	}
-	e = c.optimizeFrameRate(video)
-	if e != nil {
-		return e
-	}
-	return nil
-}
-
-func (c *Config) optimizeBitRate(video *Stream) (e error) {
-	scale := resolutionScale(*video.Height)
-	if c.Scale > scale {
-		c.Scale = scale
-	}
 
 	i, e := strconv.ParseInt(video.BitRate, 10, 64)
 	if e != nil {
@@ -164,29 +148,47 @@ func (c *Config) optimizeBitRate(video *Stream) (e error) {
 		log.Errorw("parse:bitrate", "error", e)
 	}
 
+	e = c.optimizeBitRate(*video.Height, i)
+	if e != nil {
+		return e
+	}
+
+	e = c.optimizeFrameRate(video.RFrameRate)
+	if e != nil {
+		return e
+	}
+	return nil
+}
+
+func (c *Config) optimizeBitRate(height int64, bitRate int64) (e error) {
+	scale := resolutionScale(height)
+	if c.Scale > scale {
+		c.Scale = scale
+	}
+
 	if c.BitRate == 0 {
 		c.BitRate = bitRateList[c.Scale]
 	}
-	if c.BitRate > i {
+	if c.BitRate > bitRate {
 		c.BitRate = 0
 	}
 	return nil
 }
 
-func (c *Config) optimizeFrameRate(video *Stream) (e error) {
-	fr := strings.Split(video.RFrameRate, "/")
+func (c *Config) optimizeFrameRate(frameRate string) (e error) {
+	fr := strings.Split(frameRate, "/")
 	il := 1
 	ir := 1
 	if len(fr) == 2 {
 		il, e = strconv.Atoi(fr[0])
 		if e != nil {
 			il = 1
-			log.Errorw("parse:il", "error", e, "framerate", video.RFrameRate)
+			log.Errorw("parse:il", "error", e, "framerate", frameRate)
 		}
 		ir, e = strconv.Atoi(fr[1])
 		if e != nil {
 			ir = 1
-			log.Errorw("parse:ir", "error", e, "framerate", video.RFrameRate)
+			log.Errorw("parse:ir", "error", e, "framerate", frameRate)
 		}
 	}
 	if c.FrameRate == 0 {
