@@ -6,7 +6,7 @@ import (
 
 // FFMpeg ...
 type FFMpeg struct {
-	config Config
+	config *Config
 	cmd    *Command
 	Name   string
 }
@@ -15,6 +15,12 @@ func (ff *FFMpeg) init() {
 	if ff.cmd == nil {
 		ff.cmd = New(ff.Name)
 	}
+}
+
+// Version ...
+func (ff *FFMpeg) Version() (string, error) {
+	ff.init()
+	return ff.cmd.Run("-version")
 }
 
 // Run ...
@@ -27,7 +33,7 @@ func (ff FFMpeg) Run(ctx context.Context, input, output string) (e error) {
 // NewFFMpeg ...
 func NewFFMpeg(config Config) *FFMpeg {
 	ff := &FFMpeg{
-		config: config,
+		config: &config,
 		Name:   "ffmpeg",
 	}
 
