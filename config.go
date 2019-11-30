@@ -129,7 +129,11 @@ func (c *Config) Clone() Config {
 }
 
 // OptimizeWithFormat ...
-func OptimizeWithFormat(c *Config, sfmt *StreamFormat) (e error) {
+func (c *Config) OptimizeWithFormat(sfmt *StreamFormat) (e error) {
+	return optimizeWithFormat(c, sfmt)
+}
+
+func optimizeWithFormat(c *Config, sfmt *StreamFormat) (e error) {
 	if sfmt == nil {
 		return errors.New("format is null")
 	}
