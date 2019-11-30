@@ -116,24 +116,29 @@ func resolutionScale(v int64) Scale {
 	return Scale720P
 }
 
+// Clone ...
+func (c *Config) Clone() Config {
+	return *c
+}
+
 // OptimizeWithFormat ...
-func (c *Config) OptimizeWithFormat(sfmt *StreamFormat) (string, error) {
+func OptimizeWithFormat(c *Config, sfmt *StreamFormat) (e error) {
 	if sfmt == nil {
-		return "", errors.New("format is null")
+		return errors.New("format is null")
 	}
 	video := sfmt.Video()
 	if video == nil {
-		return "", errors.New("video is null")
+		return errors.New("video is null")
 	}
-	e := c.optimizeBitRate(video)
+	e = c.optimizeBitRate(video)
 	if e != nil {
-		return "", e
+		return e
 	}
 	e = c.optimizeFrameRate(video)
 	if e != nil {
-		return "", e
+		return e
 	}
-	return "", nil
+	return nil
 }
 
 func (c *Config) optimizeBitRate(video *Stream) (e error) {
