@@ -110,7 +110,7 @@ func resolutionScale(v int64) Scale {
 	switch {
 	case r <= 480:
 		return Scale480P
-	case r > 720:
+	case r > 960:
 		return Scale1080P
 	}
 	return Scale720P
@@ -118,6 +118,9 @@ func resolutionScale(v int64) Scale {
 
 // OptimizeWithFormat ...
 func (c *Config) OptimizeWithFormat(sfmt *StreamFormat) (string, error) {
+	if sfmt == nil {
+		return "", errors.New("format is null")
+	}
 	video := sfmt.Video()
 	if video == nil {
 		return "", errors.New("video is null")

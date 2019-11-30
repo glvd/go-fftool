@@ -73,6 +73,25 @@ func TestConfig_OptimizeWithFormat(t *testing.T) {
 			want:    "",
 			wantErr: false,
 		},
+		{
+			name: "3",
+			fields: fields{
+				Scale:           1,
+				BitRate:         0,
+				FrameRate:       0,
+				Output:          "",
+				VideoFormat:     "",
+				AudioFormat:     "",
+				M3U8Name:        "",
+				SegmentFileName: "",
+				HLSTime:         0,
+			},
+			args: args{
+				sfmt: nil,
+			},
+			want:    "",
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
