@@ -81,8 +81,8 @@ type Config struct {
 }
 
 // DefaultConfig ...
-func DefaultConfig() Config {
-	return Config{
+func DefaultConfig() *Config {
+	return &Config{
 		Scale:           Scale720P,
 		BitRate:         0,
 		FrameRate:       0,

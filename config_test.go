@@ -106,13 +106,10 @@ func TestConfig_OptimizeWithFormat(t *testing.T) {
 				SegmentFileName: tt.fields.SegmentFileName,
 				HLSTime:         tt.fields.HLSTime,
 			}
-			got, err := c.OptimizeWithFormat(tt.args.sfmt)
+			err := c.OptimizeWithFormat(tt.args.sfmt)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("OptimizeWithFormat() error = %v, wantErr %v", err, tt.wantErr)
 				return
-			}
-			if got != tt.want {
-				t.Errorf("OptimizeWithFormat() got = %v, want %v", got, tt.want)
 			}
 			t.Logf("%+v", c)
 		})
