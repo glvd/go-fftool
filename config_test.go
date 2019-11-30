@@ -90,7 +90,7 @@ func TestConfig_OptimizeWithFormat(t *testing.T) {
 				sfmt: nil,
 			},
 			want:    "",
-			wantErr: false,
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
