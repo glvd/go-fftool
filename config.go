@@ -148,19 +148,19 @@ func optimizeWithFormat(c *Config, sfmt *StreamFormat) (e error) {
 		log.Errorw("parse:bitrate", "error", e)
 	}
 
-	e = c.optimizeBitRate(*video.Height, i)
+	e = optimizeBitRate(c, *video.Height, i)
 	if e != nil {
 		return e
 	}
 
-	e = c.optimizeFrameRate(video.RFrameRate)
+	e = optimizeFrameRate(c, video.RFrameRate)
 	if e != nil {
 		return e
 	}
 	return nil
 }
 
-func (c *Config) optimizeBitRate(height int64, bitRate int64) (e error) {
+func optimizeBitRate(c *Config, height int64, bitRate int64) (e error) {
 	scale := resolutionScale(height)
 	if c.Scale > scale {
 		c.Scale = scale
@@ -175,7 +175,7 @@ func (c *Config) optimizeBitRate(height int64, bitRate int64) (e error) {
 	return nil
 }
 
-func (c *Config) optimizeFrameRate(frameRate string) (e error) {
+func optimizeFrameRate(c *Config, frameRate string) (e error) {
 	fr := strings.Split(frameRate, "/")
 	il := 1
 	ir := 1
