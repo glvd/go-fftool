@@ -2,6 +2,7 @@ package fftool
 
 import (
 	"errors"
+	"fmt"
 	"math"
 	"strconv"
 	"strings"
@@ -101,7 +102,17 @@ func (c *Config) init() {
 
 // Args ...
 func (c *Config) Args() string {
-	panic("args")
+	panic("")
+}
+
+func outputTemplate(input, cv, ca, output string, exts ...interface{}) string {
+	var outExt []string
+	for range exts {
+		outExt = append(outExt, "%s")
+	}
+	def := fmt.Sprintf(defaultTemplate, input, cv, ca, strings.Join(outExt, ","), output)
+
+	return fmt.Sprintf(def, exts...)
 }
 
 func scaleVale(scale Scale) int64 {
