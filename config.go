@@ -24,6 +24,7 @@ type Scale int
 
 // Scale ...
 const (
+	ScaleNone  Scale = -1
 	Scale480P  Scale = 0
 	Scale720P  Scale = 1
 	Scale1080P Scale = 2
@@ -101,8 +102,19 @@ func (c *Config) init() {
 }
 
 // Args ...
-func (c *Config) Args() string {
-	panic("")
+func (c *Config) Args(intput, output string) string {
+	var exts []interface{}
+	if c.Scale != -1 {
+		exts = append(exts, fmt.Sprintf(scaleOutputTemplate, scaleVale(c.Scale)))
+	}
+	if c.BitRate != 0 {
+		exts = append(exts, fmt.Sprintf(bitRateOutputTemplate, c.BitRate))
+	}
+	if c.FrameRate != 0 {
+		exts = append(exts, fmt.Sprintf(frameRateOutputTemplate, c.FrameRate))
+	}
+
+	return outputTemplate(intput, c.AudioFormat, c.VideoFormat, output, exts...)
 }
 
 func outputTemplate(input, cv, ca, output string, exts ...interface{}) string {
