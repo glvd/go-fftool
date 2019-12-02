@@ -2,6 +2,8 @@ package fftool
 
 import (
 	"context"
+	"github.com/goextension/log"
+	"sync"
 )
 
 // FFMpeg ...
@@ -37,7 +39,18 @@ func (ff FFMpeg) Run(ctx context.Context, input, output string) (e error) {
 	ff.init()
 	args := ff.config.Args(input, output)
 
-	return ff.cmd.RunContext(ctx, args, nil)
+	outlog := make(chan string)
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		e = ff.cmd.RunContext(ctx, args, outlog)
+	}()
+	for i2 := range outlog {
+		log.Info("run", "info", i2)
+	}
+	wg.Wait()
+	return e
 }
 
 // NewFFMpeg ...
