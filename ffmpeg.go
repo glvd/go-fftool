@@ -37,7 +37,7 @@ func (ff FFMpeg) Run(ctx context.Context, input, output string) (e error) {
 
 	ff.config.Args(input, output)
 
-	return ff.cmd.RunContext(ctx, "", nil)
+	return nil
 }
 
 // NewFFMpeg ...

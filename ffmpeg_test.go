@@ -1,33 +1,38 @@
-package fftool_test
+package fftool
 
 import (
+	"context"
 	"testing"
-
-	"github.com/glvd/go-fftool"
 )
 
-var _config = fftool.DefaultConfig()
+var testVideo = `D:\video\周杰伦 唱歌贼难听.2019.1080P.h264.aac.Japanese.None.mp4`
+var testStreamFormat *StreamFormat
 
 func init() {
-
+	var err error
+	p := NewFFProbe()
+	testStreamFormat, err = p.StreamFormat(testVideo)
+	if err != nil {
+		panic(err)
+	}
 }
 
 // TestFFMpeg_Version ...
 func TestFFMpeg_Version(t *testing.T) {
 	tests := []struct {
 		name    string
-		fields  fftool.FFMpeg
+		fields  FFMpeg
 		wantErr bool
 	}{
 		{
 			name:    "version",
-			fields:  fftool.FFMpeg{},
+			fields:  FFMpeg{},
 			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ff := fftool.NewFFMpeg(*_config)
+			ff := NewFFMpeg()
 
 			got, err := ff.Version()
 			if (err != nil) != tt.wantErr {
@@ -36,6 +41,45 @@ func TestFFMpeg_Version(t *testing.T) {
 			}
 			if got != "" {
 				t.Logf("Version() got = %v", got)
+			}
+		})
+	}
+}
+
+// TestFFMpeg_Run ...
+func TestFFMpeg_Run(t *testing.T) {
+	type fields struct {
+		config Config
+		cmd    *Command
+		Name   string
+	}
+	type args struct {
+		ctx    context.Context
+		input  string
+		output string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		{
+			name:    "version",
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ff := NewFFMpeg()
+			ff2, err2 := ff.OptimizeWithFormat(testStreamFormat)
+			if err2 != nil {
+				t.Errorf("Version() error = %v, wantErr %v", err2, tt.wantErr)
+				return
+			}
+
+			if err := ff2.Run(tt.args.ctx, tt.args.input, tt.args.output); (err != nil) != tt.wantErr {
+				t.Errorf("Run() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
