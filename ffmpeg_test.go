@@ -32,7 +32,7 @@ func TestFFMpeg_Version(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ff := NewFFMpeg()
+			ff := NewFFMpeg(*DefaultConfig())
 
 			got, err := ff.Version()
 			if (err != nil) != tt.wantErr {
@@ -77,14 +77,16 @@ func TestFFMpeg_Run(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ff := NewFFMpeg()
-			ff2, err2 := ff.OptimizeWithFormat(testStreamFormat)
-			if err2 != nil {
-				t.Errorf("Version() error = %v, wantErr %v", err2, tt.wantErr)
+			cfg := DefaultConfig()
+			cfg.UseGPU = true
+			err := cfg.OptimizeWithFormat(testStreamFormat)
+			if err != nil {
+				t.Errorf("OptimizeWithFormat() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+			ff := NewFFMpeg(*DefaultConfig())
 
-			if err := ff2.Run(tt.args.ctx, tt.args.input, tt.args.output); (err != nil) != tt.wantErr {
+			if err := ff.Run(tt.args.ctx, tt.args.input, tt.args.output); (err != nil) != tt.wantErr {
 				t.Errorf("Run() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

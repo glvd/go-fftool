@@ -54,9 +54,9 @@ func (ff FFMpeg) Run(ctx context.Context, input, output string) (e error) {
 }
 
 // NewFFMpeg ...
-func NewFFMpeg() *FFMpeg {
+func NewFFMpeg(config Config) *FFMpeg {
 	ff := &FFMpeg{
-		config: *DefaultConfig(),
+		config: config,
 		Name:   "ffmpeg",
 	}
 

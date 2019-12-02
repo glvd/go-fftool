@@ -18,7 +18,7 @@ const scaleOutputTemplate = ",-vf,scale=-2:%d"
 const bitRateOutputTemplate = ",-b:v,%dK"
 const frameRateOutputTemplate = ",-r,%3.2f"
 const sliceOuputTemplate = ",-bsf:v,h264_mp4toannexb,-f,hls,-hls_list_size,0,-hls_time,%d,-hls_segment_filename,%s,%s"
-const gpuOutputTemplate = ",-hwaccel,cuvid,-c:v,h264_cuvid,-c:v,h264_nvenc"
+const gpuOutputTemplate = ",-hwaccel,cuvid,-c:v,h264_cuvid,-c:v,%s"
 
 const defaultTemplate = `-y,-i,%s,-strict,-2,-c:v,%s,-c:a,%s%s,%s`
 
@@ -190,6 +190,19 @@ func optimizeWithFormat(c *Config, sfmt *StreamFormat) (e error) {
 	if e != nil {
 		return e
 	}
+
+	if video.CodecName == "h264" && c.Scale == 0 {
+		c.VideoFormat = "copy"
+	}
+
+	if c.UseGPU && c.VideoFormat != "copy" {
+		c.VideoFormat = "h264_nvenc"
+	}
+
+	if audio := sfmt.Audio(); audio != nil && audio.CodecName == "aac" {
+		c.AudioFormat = "copy"
+	}
+
 	return nil
 }
 
