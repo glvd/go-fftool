@@ -6,7 +6,7 @@ import (
 
 // FFMpeg ...
 type FFMpeg struct {
-	config *Config
+	config Config
 	cmd    *Command
 	Name   string
 }
@@ -23,9 +23,17 @@ func (ff *FFMpeg) Version() (string, error) {
 	return ff.cmd.Run("-version")
 }
 
+// OptimizeWithFormat ...
+func (ff FFMpeg) OptimizeWithFormat(format *StreamFormat) (*FFMpeg, error) {
+	e := ff.config.OptimizeWithFormat(format)
+	if e != nil {
+		return nil, e
+	}
+	return &ff, nil
+}
+
 // Run ...
 func (ff FFMpeg) Run(ctx context.Context, input, output string) (e error) {
-	//c := ff.config.Clone()
 
 	ff.config.Args(input, output)
 
@@ -33,9 +41,9 @@ func (ff FFMpeg) Run(ctx context.Context, input, output string) (e error) {
 }
 
 // NewFFMpeg ...
-func NewFFMpeg(config Config) *FFMpeg {
+func NewFFMpeg() *FFMpeg {
 	ff := &FFMpeg{
-		config: &config,
+		config: *DefaultConfig(),
 		Name:   "ffmpeg",
 	}
 
