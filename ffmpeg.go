@@ -34,10 +34,10 @@ func (ff FFMpeg) OptimizeWithFormat(format *StreamFormat) (*FFMpeg, error) {
 
 // Run ...
 func (ff FFMpeg) Run(ctx context.Context, input, output string) (e error) {
+	ff.init()
+	args := ff.config.Args(input, output)
 
-	ff.config.Args(input, output)
-
-	return nil
+	return ff.cmd.RunContext(ctx, args, nil)
 }
 
 // NewFFMpeg ...

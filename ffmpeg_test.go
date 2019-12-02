@@ -65,7 +65,13 @@ func TestFFMpeg_Run(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name:    "version",
+			name:   "version",
+			fields: fields{},
+			args: args{
+				ctx:    context.Background(),
+				input:  testVideo,
+				output: "d:\\temp\\",
+			},
 			wantErr: false,
 		},
 	}

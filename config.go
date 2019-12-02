@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -73,6 +74,7 @@ type CutOut struct {
 // Config ...
 type Config struct {
 	Scale           Scale
+	IsSlice         bool
 	BitRate         int64
 	FrameRate       float64
 	Output          string //output path
@@ -103,7 +105,7 @@ func (c *Config) init() {
 }
 
 // Args ...
-func (c *Config) Args(intput, output string) string {
+func (c *Config) Args(input, output string) string {
 	var exts []interface{}
 	if c.Scale != -1 {
 		log.Infow("scale", "scale", c.Scale, "value", scaleVale(c.Scale))
@@ -116,7 +118,11 @@ func (c *Config) Args(intput, output string) string {
 		exts = append(exts, fmt.Sprintf(frameRateOutputTemplate, c.FrameRate))
 	}
 
-	return outputTemplate(intput, c.AudioFormat, c.VideoFormat, output, exts...)
+	if !c.IsSlice {
+		output = filepath.Join(output, filepath.Base(input))
+	}
+
+	return outputTemplate(input, c.VideoFormat, c.AudioFormat, output, exts...)
 }
 
 func outputTemplate(input, cv, ca, output string, exts ...interface{}) string {
@@ -124,8 +130,8 @@ func outputTemplate(input, cv, ca, output string, exts ...interface{}) string {
 	for range exts {
 		outExt = append(outExt, "%s")
 	}
-	def := fmt.Sprintf(defaultTemplate, input, cv, ca, strings.Join(outExt, ","), output)
-
+	def := fmt.Sprintf(defaultTemplate, input, cv, ca, strings.Join(outExt, ""), output)
+	log.Infow("format", "def", def)
 	return fmt.Sprintf(def, exts...)
 }
 
