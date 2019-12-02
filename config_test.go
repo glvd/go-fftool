@@ -173,6 +173,7 @@ func TestConfig_Args(t *testing.T) {
 			//	SegmentFileName: tt.fields.SegmentFileName,
 			//	HLSTime:         tt.fields.HLSTime,
 			//}
+			c.UseGPU = true
 			if got := c.Args(tt.args.intput, tt.args.output); got != tt.want {
 				t.Errorf("Args() = %v, want %v", got, tt.want)
 			}

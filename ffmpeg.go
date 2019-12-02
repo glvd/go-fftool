@@ -25,15 +25,6 @@ func (ff *FFMpeg) Version() (string, error) {
 	return ff.cmd.Run("-version")
 }
 
-// OptimizeWithFormat ...
-func (ff FFMpeg) OptimizeWithFormat(format *StreamFormat) (*FFMpeg, error) {
-	e := ff.config.OptimizeWithFormat(format)
-	if e != nil {
-		return nil, e
-	}
-	return &ff, nil
-}
-
 // Run ...
 func (ff FFMpeg) Run(ctx context.Context, input, output string) (e error) {
 	ff.init()

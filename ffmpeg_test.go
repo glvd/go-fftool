@@ -84,7 +84,7 @@ func TestFFMpeg_Run(t *testing.T) {
 				t.Errorf("OptimizeWithFormat() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			ff := NewFFMpeg(*DefaultConfig())
+			ff := NewFFMpeg(*cfg)
 
 			if err := ff.Run(tt.args.ctx, tt.args.input, tt.args.output); (err != nil) != tt.wantErr {
 				t.Errorf("Run() error = %v, wantErr %v", err, tt.wantErr)

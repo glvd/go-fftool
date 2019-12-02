@@ -15,12 +15,13 @@ import (
 const sliceM3u8FFmpegTemplate = `-y -i %s -strict -2 -c:v %s -c:a %s -bsf:v h264_mp4toannexb -f hls -hls_list_size 0 -hls_time %d -hls_segment_filename %s %s`
 const sliceM3u8ScaleTemplate = `-y -i %s -strict -2 -c:v %s -c:a %s -bsf:v h264_mp4toannexb %s -f hls -hls_list_size 0 -hls_time %d -hls_segment_filename %s %s`
 const scaleOutputTemplate = ",-vf,scale=-2:%d"
+const gpuScaleOutputTemplate = ",-vf,scale_npp=-2:%d"
 const bitRateOutputTemplate = ",-b:v,%dK"
 const frameRateOutputTemplate = ",-r,%3.2f"
 const sliceOutputTemplate = ",-bsf:v,h264_mp4toannexb,-f,hls,-hls_list_size,0,-hls_time,%d,-hls_segment_filename,%s,%s"
-const gpuOutputTemplate = ",-hwaccel,cuvid,-c:v,h264_cuvid,-c:v,%s"
+const gpuOutputTemplate = ",-hwaccel,cuvid,-c:v,h264_cuvid"
 
-const defaultTemplate = `-y,-i,%s,-strict,-2,-c:v,%s,-c:a,%s%s,%s`
+const defaultTemplate = `-y%s,-i,%s,-strict,-2,-c:v,%s,-c:a,%s%s,%s`
 
 // Scale ...
 type Scale int
@@ -109,9 +110,19 @@ func (c *Config) init() {
 // Args ...
 func (c *Config) Args(input, output string) string {
 	var exts []interface{}
+
+	if c.UseGPU && c.VideoFormat != "copy" {
+		c.VideoFormat = "h264_nvenc"
+		exts = append(exts, gpuOutputTemplate)
+	}
+
 	if c.Scale != -1 {
 		log.Infow("scale", "scale", c.Scale, "value", scaleVale(c.Scale))
-		exts = append(exts, fmt.Sprintf(scaleOutputTemplate, scaleVale(c.Scale)))
+		if c.UseGPU {
+			exts = append(exts, fmt.Sprintf(gpuScaleOutputTemplate, scaleVale(c.Scale)))
+		} else {
+			exts = append(exts, fmt.Sprintf(scaleOutputTemplate, scaleVale(c.Scale)))
+		}
 	}
 	if c.BitRate != 0 {
 		exts = append(exts, fmt.Sprintf(bitRateOutputTemplate, c.BitRate))
@@ -124,15 +135,20 @@ func (c *Config) Args(input, output string) string {
 		output = filepath.Join(output, filepath.Base(input))
 	}
 
-	return outputTemplate(input, c.VideoFormat, c.AudioFormat, output, exts...)
+	return outputTemplate(c.UseGPU, input, c.VideoFormat, c.AudioFormat, output, exts...)
 }
 
-func outputTemplate(input, cv, ca, output string, exts ...interface{}) string {
+func outputTemplate(gpu bool, input, cv, ca, output string, exts ...interface{}) string {
 	var outExt []string
 	for range exts {
 		outExt = append(outExt, "%s")
 	}
-	def := fmt.Sprintf(defaultTemplate, input, cv, ca, strings.Join(outExt, ""), output)
+	def := ""
+	if gpu {
+		def = fmt.Sprintf(defaultTemplate, gpuOutputTemplate, input, cv, ca, strings.Join(outExt, ""), output)
+	} else {
+		def = fmt.Sprintf(defaultTemplate, "", input, cv, ca, strings.Join(outExt, ""), output)
+	}
 	log.Infow("format", "def", def)
 	return fmt.Sprintf(def, exts...)
 }
@@ -193,10 +209,6 @@ func optimizeWithFormat(c *Config, sfmt *StreamFormat) (e error) {
 
 	if video.CodecName == "h264" && c.Scale == 0 {
 		c.VideoFormat = "copy"
-	}
-
-	if c.UseGPU && c.VideoFormat != "copy" {
-		c.VideoFormat = "h264_nvenc"
 	}
 
 	if audio := sfmt.Audio(); audio != nil && audio.CodecName == "aac" {
