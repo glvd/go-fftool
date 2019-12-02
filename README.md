@@ -1,1 +1,3 @@
-# go-ffmpeg-cmd
+# go-fftool
+
+### A new ffmpeg tool to make slice
