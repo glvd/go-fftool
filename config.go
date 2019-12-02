@@ -17,7 +17,7 @@ const sliceM3u8ScaleTemplate = `-y -i %s -strict -2 -c:v %s -c:a %s -bsf:v h264_
 const scaleOutputTemplate = ",-vf,scale=-2:%d"
 const bitRateOutputTemplate = ",-b:v,%dK"
 const frameRateOutputTemplate = ",-r,%3.2f"
-const sliceOuputTemplate = ",-bsf:v,h264_mp4toannexb,-f,hls,-hls_list_size,0,-hls_time,%d,-hls_segment_filename,%s,%s"
+const sliceOutputTemplate = ",-bsf:v,h264_mp4toannexb,-f,hls,-hls_list_size,0,-hls_time,%d,-hls_segment_filename,%s,%s"
 const gpuOutputTemplate = ",-hwaccel,cuvid,-c:v,h264_cuvid,-c:v,%s"
 
 const defaultTemplate = `-y,-i,%s,-strict,-2,-c:v,%s,-c:a,%s%s,%s`
