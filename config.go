@@ -106,6 +106,7 @@ func (c *Config) init() {
 func (c *Config) Args(intput, output string) string {
 	var exts []interface{}
 	if c.Scale != -1 {
+		log.Infow("scale", "scale", c.Scale, "value", scaleVale(c.Scale))
 		exts = append(exts, fmt.Sprintf(scaleOutputTemplate, scaleVale(c.Scale)))
 	}
 	if c.BitRate != 0 {
@@ -130,7 +131,7 @@ func outputTemplate(input, cv, ca, output string, exts ...interface{}) string {
 
 func scaleVale(scale Scale) int64 {
 	i := int(scale)
-	if len(scaleList) >= i {
+	if len(scaleList) <= i {
 		return 0
 	}
 	return scaleList[i]

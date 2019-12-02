@@ -115,3 +115,67 @@ func TestConfig_OptimizeWithFormat(t *testing.T) {
 		})
 	}
 }
+
+// TestConfig_Args ...
+func TestConfig_Args(t *testing.T) {
+	type fields struct {
+		Scale           Scale
+		BitRate         int64
+		FrameRate       float64
+		Output          string
+		VideoFormat     string
+		AudioFormat     string
+		M3U8Name        string
+		SegmentFileName string
+		HLSTime         int
+	}
+	type args struct {
+		intput string
+		output string
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   string
+	}{
+		{
+			name: "args1",
+			fields: fields{
+				Scale:           0,
+				BitRate:         0,
+				FrameRate:       0,
+				Output:          "",
+				VideoFormat:     "",
+				AudioFormat:     "",
+				M3U8Name:        "",
+				SegmentFileName: "",
+				HLSTime:         0,
+			},
+			args: args{
+				intput: "d:\\video\\周杰伦 唱歌贼难听.2019.1080P.h264.aac.Japanese.None.mp4",
+				output: "d:\\temp\\",
+			},
+			want: "",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := DefaultConfig()
+			//c := &Config{
+			//	Scale:           tt.fields.Scale,
+			//	BitRate:         tt.fields.BitRate,
+			//	FrameRate:       tt.fields.FrameRate,
+			//	Output:          tt.fields.Output,
+			//	VideoFormat:     tt.fields.VideoFormat,
+			//	AudioFormat:     tt.fields.AudioFormat,
+			//	M3U8Name:        tt.fields.M3U8Name,
+			//	SegmentFileName: tt.fields.SegmentFileName,
+			//	HLSTime:         tt.fields.HLSTime,
+			//}
+			if got := c.Args(tt.args.intput, tt.args.output); got != tt.want {
+				t.Errorf("Args() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

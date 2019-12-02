@@ -25,7 +25,9 @@ func (ff *FFMpeg) Version() (string, error) {
 
 // Run ...
 func (ff FFMpeg) Run(ctx context.Context, input, output string) (e error) {
-	ff.config.Args()
+	//c := ff.config.Clone()
+
+	ff.config.Args(input, output)
 
 	return ff.cmd.RunContext(ctx, "", nil)
 }
