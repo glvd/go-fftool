@@ -113,7 +113,6 @@ func (c *Config) Args(input, output string) string {
 
 	if c.UseGPU && c.VideoFormat != "copy" {
 		c.VideoFormat = "h264_nvenc"
-		exts = append(exts, gpuOutputTemplate)
 	}
 
 	if c.Scale != -1 {
