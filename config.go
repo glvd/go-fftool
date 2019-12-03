@@ -11,21 +11,18 @@ import (
 	"github.com/goextension/log"
 )
 
-//const sliceM3u8FFmpegTemplate = `-y -i %s -strict -2 -ss %s -to %s -c:v %s -c:a %s -bsf:v h264_mp4toannexb -vsync 0 -f hls -hls_list_size 0 -hls_time %d -hls_segment_filename %s %s`
-const sliceM3u8FFmpegTemplate = `-y -i %s -strict -2 -c:v %s -c:a %s -bsf:v h264_mp4toannexb -f hls -hls_list_size 0 -hls_time %d -hls_segment_filename %s %s`
-const sliceM3u8ScaleTemplate = `-y -i %s -strict -2 -c:v %s -c:a %s -bsf:v h264_mp4toannexb %s -f hls -hls_list_size 0 -hls_time %d -hls_segment_filename %s %s`
+const sliceOutputTemplate = "-bsf:v,h264_mp4toannexb,-f,hls,-hls_list_size,0,-hls_time,%d,-hls_segment_filename,%s,%s"
 const scaleOutputTemplate = ",-vf,scale=-2:%d"
 
 //TODO:scale not support
-const cuvidScaleOutputTemplate = ",-vf,scale_npp=-2:%d"
-const bitRateOutputTemplate = ",-b:v,%dK"
-const frameRateOutputTemplate = ",-r,%3.2f"
-const sliceOutputTemplate = ",-bsf:v,h264_mp4toannexb,-f,hls,-hls_list_size,0,-hls_time,%d,-hls_segment_filename,%s,%s"
-const cudaOutputTemplate = ",-hwaccel,cuda"
+const cuvidScaleOutputTemplate = "-vf,scale_npp=-2:%d"
+const bitRateOutputTemplate = "-b:v,%dK"
+const frameRateOutputTemplate = "-r,%3.2f"
+const cudaOutputTemplate = "-hwaccel,cuda"
 
-const cuvidOutputTemplate = ",-hwaccel,cuvid,-c:v,h264_cuvid"
+const cuvidOutputTemplate = "-hwaccel,cuvid,-c:v,h264_cuvid"
 
-const defaultTemplate = `-y%s,-i,%s,-strict,-2,-c:v,%s,-c:a,%s%s,%s`
+const defaultTemplate = `-y%s,-i,%s,-strict,-2,-c:v,%s,-c:a,%s,%s,%s`
 
 // None ...
 const (
@@ -184,13 +181,12 @@ func (c *Config) Args(input, output string) string {
 	if c.FrameRate != 0 {
 		exts = append(exts, fmt.Sprintf(frameRateOutputTemplate, c.FrameRate))
 	}
-
-	if !c.NeedSlice {
-		output = filepath.Join(c.AbsOutput(), c.OutputName)
-	} else {
+	output = filepath.Join(c.AbsOutput(), c.OutputName)
+	if c.NeedSlice {
 		if filepath.Ext(c.OutputName) != "" {
 			panic(fmt.Sprintf("slice cannot output with name %s", c.OutputName))
 		}
+		output = fmt.Sprintf(sliceOutputTemplate, c.HLSTime, filepath.Join(output, c.SegmentFileName), filepath.Join(output, c.M3U8Name))
 	}
 
 	return outputTemplate(c.ProcessCore, input, c.VideoFormat, c.AudioFormat, output, exts...)
@@ -203,9 +199,9 @@ func outputTemplate(p ProcessCore, input, cv, ca, output string, exts ...interfa
 	}
 	def := ""
 	if p == ProcessCPU {
-		def = fmt.Sprintf(defaultTemplate, "", input, cv, ca, strings.Join(outExt, ""), output)
+		def = fmt.Sprintf(defaultTemplate, "", input, cv, ca, strings.Join(outExt, ","), output)
 	} else {
-		def = fmt.Sprintf(defaultTemplate, cudaOutputTemplate, input, cv, ca, strings.Join(outExt, ""), output)
+		def = fmt.Sprintf(defaultTemplate, cudaOutputTemplate, input, cv, ca, strings.Join(outExt, ","), output)
 	}
 	log.Infow("format", "def", def)
 	return fmt.Sprintf(def, exts...)
