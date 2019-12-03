@@ -91,6 +91,7 @@ type Config struct {
 	Scale           Scale
 	ProcessCore     ProcessCore
 	NeedSlice       bool
+	UseKey          bool
 	BitRate         int64
 	FrameRate       float64
 	OutputPath      string //output path
