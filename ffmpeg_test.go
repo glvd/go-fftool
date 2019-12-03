@@ -293,7 +293,6 @@ func TestConfig_Args(t *testing.T) {
 			if got := outputArgs(&tt.fields, tt.args.intput); got != "" {
 				t.Logf("Args() = %v", strings.ReplaceAll(got, ",", " "))
 			}
-
 		})
 	}
 }

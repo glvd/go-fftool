@@ -99,6 +99,12 @@ func outputArgs(c *Config, input string) string {
 			c.OutputName = uuid.New().String()
 		}
 		output = fmt.Sprintf(sliceOutputTemplate, c.HLSTime, filepath.Join(output, c.SegmentFileName), filepath.Join(output, c.M3U8Name))
+	} else {
+		if filepath.Ext(c.OutputName) == "" {
+			//fix media output name
+			output = filepath.Join(c.AbsOutput(), c.OutputName+".mp4")
+		}
+
 	}
 
 	return outputTemplate(c.ProcessCore, input, c.videoFormat, c.audioFormat, output, exts...)
