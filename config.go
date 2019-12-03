@@ -3,7 +3,6 @@ package fftool
 import (
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
 	"math"
 	"path/filepath"
 	"strconv"
@@ -157,40 +156,6 @@ func (c *Config) AbsOutput() string {
 		return DefaultOutputPath
 	}
 	return abs
-}
-
-// Args ...
-func (c *Config) Args(input string) string {
-	var exts []interface{}
-
-	if c.ProcessCore != ProcessCPU && c.videoFormat != "copy" {
-		c.videoFormat = "h264_nvenc"
-	}
-
-	if c.Scale != -1 {
-		log.Infow("scale", "scale", c.Scale, "value", scaleVale(c.Scale))
-		if c.ProcessCore != ProcessCUVID {
-			exts = append(exts, fmt.Sprintf(scaleOutputTemplate, scaleVale(c.Scale)))
-		} else {
-			exts = append(exts, fmt.Sprintf(cuvidScaleOutputTemplate, scaleVale(c.Scale)))
-		}
-	}
-	if c.BitRate != 0 {
-		exts = append(exts, fmt.Sprintf(bitRateOutputTemplate, c.BitRate/1024))
-	}
-	if c.FrameRate != 0 {
-		exts = append(exts, fmt.Sprintf(frameRateOutputTemplate, c.FrameRate))
-	}
-	output := filepath.Join(c.AbsOutput(), c.OutputName)
-	if c.NeedSlice {
-		if filepath.Ext(c.OutputName) != "" {
-			//fix slice output name
-			c.OutputName = uuid.New().String()
-		}
-		output = fmt.Sprintf(sliceOutputTemplate, c.HLSTime, filepath.Join(output, c.SegmentFileName), filepath.Join(output, c.M3U8Name))
-	}
-
-	return outputTemplate(c.ProcessCore, input, c.videoFormat, c.audioFormat, output, exts...)
 }
 
 func outputTemplate(p ProcessCore, input, cv, ca, output string, exts ...interface{}) string {

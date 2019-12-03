@@ -80,7 +80,7 @@ func (c *Command) Run(args string) (string, error) {
 	c.init()
 	cmd := exec.Command(c.Name, cmdArgs(args)...)
 	//显示运行的命令
-	log.Infow("run", "args", cmd.Args)
+	log.Infow("run", "outputArgs", cmd.Args)
 	stdout, err := cmd.CombinedOutput()
 	if err != nil {
 		return string(stdout), errWrap(err, "run")
@@ -98,7 +98,7 @@ func (c *Command) RunContext(ctx context.Context, args string, info chan<- strin
 	c.init()
 	cmd := exec.CommandContext(ctx, c.Name, cmdArgs(args)...)
 	//显示运行的命令
-	log.Infow("run context", "args", strings.Join(cmd.Args, " "))
+	log.Infow("run context", "outputArgs", strings.Join(cmd.Args, " "))
 	stdout, e := cmd.StdoutPipe()
 	if e != nil {
 		return errWrap(e, "StdoutPipe")
