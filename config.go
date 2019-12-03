@@ -3,6 +3,7 @@ package fftool
 import (
 	"errors"
 	"fmt"
+	"github.com/google/uuid"
 	"math"
 	"path/filepath"
 	"strconv"
@@ -182,7 +183,8 @@ func (c *Config) Args(input, output string) string {
 	output = filepath.Join(c.AbsOutput(), c.OutputName)
 	if c.NeedSlice {
 		if filepath.Ext(c.OutputName) != "" {
-			panic(fmt.Sprintf("slice cannot output with name %s", c.OutputName))
+			//fix slice output name
+			c.OutputName = uuid.New().String()
 		}
 		output = fmt.Sprintf(sliceOutputTemplate, c.HLSTime, filepath.Join(output, c.SegmentFileName), filepath.Join(output, c.M3U8Name))
 	}

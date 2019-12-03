@@ -154,7 +154,7 @@ func TestConfig_Args(t *testing.T) {
 			want: "",
 		},
 		{
-			name: "args1",
+			name: "args2",
 			fields: Config{
 				Scale:           DefaultScale,
 				ProcessCore:     DefaultProcessCore,
@@ -175,13 +175,54 @@ func TestConfig_Args(t *testing.T) {
 			},
 			want: "",
 		},
+		{
+			name: "args3",
+			fields: Config{
+				Scale:           DefaultScale,
+				ProcessCore:     DefaultProcessCore,
+				NeedSlice:       DefaultSlice,
+				BitRate:         0,
+				FrameRate:       0,
+				OutputPath:      DefaultOutputPath,
+				OutputName:      uuid.New().String(),
+				videoFormat:     "libx264",
+				audioFormat:     "aac",
+				M3U8Name:        DefaultM3U8Name,
+				SegmentFileName: DefaultSegmentFileName,
+				HLSTime:         DefaultHLSTime,
+			},
+			args: args{
+				intput: "d:\\video\\周杰伦 唱歌贼难听.2019.1080P.h264.aac.Japanese.None.mp4",
+				output: "d:\\temp\\",
+			},
+			want: "",
+		},
+		{
+			name: "args3",
+			fields: Config{
+				Scale:           DefaultScale,
+				ProcessCore:     DefaultProcessCore,
+				NeedSlice:       DefaultSlice,
+				BitRate:         0,
+				FrameRate:       0,
+				OutputPath:      DefaultOutputPath,
+				OutputName:      DefaultOutputName,
+				videoFormat:     "libx264",
+				audioFormat:     "aac",
+				M3U8Name:        DefaultM3U8Name,
+				SegmentFileName: DefaultSegmentFileName,
+				HLSTime:         DefaultHLSTime,
+			},
+			args: args{
+				intput: "d:\\video\\周杰伦 唱歌贼难听.2019.1080P.h264.aac.Japanese.None.mp4",
+				output: "d:\\temp\\",
+			},
+			want: "",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := tt.fields
-			//c.OutputName = uuid.New().String()
-			//c.NeedSlice = true
-			//c.ProcessCore = ProcessCPU
 			if got := c.Args(tt.args.intput, tt.args.output); got != tt.want {
 				t.Errorf("Args() = %v, want %v", strings.ReplaceAll(got, ",", " "), tt.want)
 			}
