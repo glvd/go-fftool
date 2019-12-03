@@ -27,19 +27,13 @@ const cuvidOutputTemplate = ",-hwaccel,cuvid,-c:v,h264_cuvid"
 
 const defaultTemplate = `-y%s,-i,%s,-strict,-2,-c:v,%s,-c:a,%s%s,%s`
 
-// ProcessType ...
-type ProcessType int
-
 // None ...
 const (
-	ProcessNone ProcessType = -1
-	ProcessCPU  ProcessType = 1
-	ProcessCUDA ProcessType = iota
+	ProcessNone ProcessCore = -1
+	ProcessCPU  ProcessCore = 1
+	ProcessCUDA ProcessCore = iota
 	ProcessCUVID
 )
-
-// Scale ...
-type Scale int
 
 // Scale ...
 const (
@@ -51,6 +45,12 @@ const (
 	//Scale4K    Scale = 4
 	//Scale8K    Scale = 5
 )
+
+// ProcessCore ...
+type ProcessCore int
+
+// Scale ...
+type Scale int
 
 var scaleList = []int64{
 	0: 480,
@@ -91,27 +91,29 @@ type CutOut struct {
 // Config ...
 type Config struct {
 	Scale           Scale
-	ProcessType     ProcessType
+	ProcessCore     ProcessCore
 	NeedSlice       bool
 	BitRate         int64
 	FrameRate       float64
-	Output          string //output path
+	OutputPath      string //output path
 	VideoFormat     string
 	AudioFormat     string
 	M3U8Name        string
 	SegmentFileName string
 	HLSTime         int
+	OutputName      string
 }
 
 // DefaultConfig ...
 func DefaultConfig() *Config {
 	return &Config{
 		Scale:           Scale720P,
-		ProcessType:     ProcessCUDA,
+		ProcessCore:     ProcessCUDA,
 		NeedSlice:       false,
 		BitRate:         0,
 		FrameRate:       0,
-		Output:          "video_split_temp",
+		OutputPath:      "video_split_temp",
+		OutputName:      "media.mp4",
 		VideoFormat:     "libx264",
 		AudioFormat:     "aac",
 		M3U8Name:        "media.m3u8",
@@ -124,17 +126,29 @@ func (c *Config) init() {
 
 }
 
+// AbsOutput ...
+func (c *Config) AbsOutput() string {
+	if filepath.IsAbs(c.OutputPath) {
+		return c.OutputPath
+	}
+	abs, err := filepath.Abs(c.OutputPath)
+	if err != nil {
+		return ""
+	}
+	return abs
+}
+
 // Args ...
 func (c *Config) Args(input, output string) string {
 	var exts []interface{}
 
-	if c.ProcessType != ProcessCPU && c.VideoFormat != "copy" {
+	if c.ProcessCore != ProcessCPU && c.VideoFormat != "copy" {
 		c.VideoFormat = "h264_nvenc"
 	}
 
 	if c.Scale != -1 {
 		log.Infow("scale", "scale", c.Scale, "value", scaleVale(c.Scale))
-		if c.ProcessType != ProcessCUVID {
+		if c.ProcessCore != ProcessCUVID {
 			exts = append(exts, fmt.Sprintf(scaleOutputTemplate, scaleVale(c.Scale)))
 		} else {
 			exts = append(exts, fmt.Sprintf(cuvidScaleOutputTemplate, scaleVale(c.Scale)))
@@ -148,13 +162,13 @@ func (c *Config) Args(input, output string) string {
 	}
 
 	if !c.NeedSlice {
-		output = filepath.Join(output, filepath.Base(input))
+		output = filepath.Join(c.OutputPath, c.OutputName)
 	}
 
-	return outputTemplate(c.ProcessType, input, c.VideoFormat, c.AudioFormat, output, exts...)
+	return outputTemplate(c.ProcessCore, input, c.VideoFormat, c.AudioFormat, output, exts...)
 }
 
-func outputTemplate(p ProcessType, input, cv, ca, output string, exts ...interface{}) string {
+func outputTemplate(p ProcessCore, input, cv, ca, output string, exts ...interface{}) string {
 	var outExt []string
 	for range exts {
 		outExt = append(outExt, "%s")

@@ -102,7 +102,7 @@ func TestConfig_OptimizeWithFormat(t *testing.T) {
 				Scale:           tt.fields.Scale,
 				BitRate:         tt.fields.BitRate,
 				FrameRate:       tt.fields.FrameRate,
-				Output:          tt.fields.Output,
+				OutputPath:      tt.fields.Output,
 				VideoFormat:     tt.fields.VideoFormat,
 				AudioFormat:     tt.fields.AudioFormat,
 				M3U8Name:        tt.fields.M3U8Name,
@@ -169,14 +169,14 @@ func TestConfig_Args(t *testing.T) {
 			//	Scale:           tt.fields.Scale,
 			//	BitRate:         tt.fields.BitRate,
 			//	FrameRate:       tt.fields.FrameRate,
-			//	Output:          tt.fields.Output,
+			//	OutputPath:          tt.fields.OutputPath,
 			//	VideoFormat:     tt.fields.VideoFormat,
 			//	AudioFormat:     tt.fields.AudioFormat,
 			//	M3U8Name:        tt.fields.M3U8Name,
 			//	SegmentFileName: tt.fields.SegmentFileName,
 			//	HLSTime:         tt.fields.HLSTime,
 			//}
-			c.ProcessType = ProcessCPU
+			c.ProcessCore = ProcessCPU
 			if got := c.Args(tt.args.intput, tt.args.output); got != tt.want {
 				t.Errorf("Args() = %v, want %v", strings.ReplaceAll(got, ",", " "), tt.want)
 			}
