@@ -92,7 +92,7 @@ type CutOut struct {
 type Config struct {
 	Scale           Scale
 	ProcessType     ProcessType
-	IsSlice         bool
+	NeedSlice       bool
 	BitRate         int64
 	FrameRate       float64
 	Output          string //output path
@@ -108,7 +108,7 @@ func DefaultConfig() *Config {
 	return &Config{
 		Scale:           Scale720P,
 		ProcessType:     ProcessCUDA,
-		IsSlice:         false,
+		NeedSlice:       false,
 		BitRate:         0,
 		FrameRate:       0,
 		Output:          "video_split_temp",
@@ -147,7 +147,7 @@ func (c *Config) Args(input, output string) string {
 		exts = append(exts, fmt.Sprintf(frameRateOutputTemplate, c.FrameRate))
 	}
 
-	if !c.IsSlice {
+	if !c.NeedSlice {
 		output = filepath.Join(output, filepath.Base(input))
 	}
 
