@@ -231,7 +231,7 @@ func TestConfig_Args(t *testing.T) {
 			name: "args2",
 			fields: Config{
 				Scale:           DefaultScale,
-				ProcessCore:     DefaultProcessCore,
+				ProcessCore:     ProcessCPU,
 				NeedSlice:       DefaultSlice,
 				BitRate:         0,
 				FrameRate:       0,

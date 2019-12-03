@@ -2,7 +2,6 @@ package fftool
 
 import (
 	"errors"
-	"fmt"
 	"math"
 	"path/filepath"
 	"strconv"
@@ -17,8 +16,8 @@ const cuvidScaleOutputTemplate = ",-vf,scale_npp=-2:%d"
 const bitRateOutputTemplate = ",-b:v,%dK"
 const frameRateOutputTemplate = ",-r,%3.2f"
 
-const cudaOutputTemplate = "-hwaccel,cuda"
-const cuvidOutputTemplate = "-hwaccel,cuvid,-c:v,h264_cuvid"
+const cudaOutputTemplate = ",-hwaccel,cuda"
+const cuvidOutputTemplate = ",-hwaccel,cuvid,-c:v,h264_cuvid"
 
 const defaultTemplate = `-y%s,-i,%s,-strict,-2,-c:v,%s,-c:a,%s%s,%s`
 
@@ -156,23 +155,6 @@ func (c *Config) AbsOutput() string {
 		return DefaultOutputPath
 	}
 	return abs
-}
-
-func outputTemplate(p ProcessCore, input, cv, ca, output string, exts ...interface{}) string {
-	var outExt []string
-	for range exts {
-		outExt = append(outExt, "%s")
-	}
-	def := ""
-	if p == ProcessCPU {
-		def = fmt.Sprintf(defaultTemplate, "", input, cv, ca, strings.Join(outExt, " "), output)
-	} else if p == ProcessCUDA {
-		def = fmt.Sprintf(defaultTemplate, cudaOutputTemplate, input, cv, ca, strings.Join(outExt, " "), output)
-	} else if p == ProcessCUVID {
-		def = fmt.Sprintf(defaultTemplate, cuvidOutputTemplate, input, cv, ca, strings.Join(outExt, " "), output)
-	}
-	log.Infow("format", "def", def)
-	return fmt.Sprintf(def, exts...)
 }
 
 func scaleVale(scale Scale) int64 {
