@@ -96,29 +96,53 @@ type Config struct {
 	BitRate         int64
 	FrameRate       float64
 	OutputPath      string //output path
+	OutputName      string
 	VideoFormat     string
 	AudioFormat     string
 	M3U8Name        string
 	SegmentFileName string
 	HLSTime         int
-	OutputName      string
 }
+
+// DefaultOutputPath ...
+var DefaultOutputPath = "video_split_temp"
+
+// DefaultOutputName ...
+var DefaultOutputName = "media.mp4"
+
+// DefaultM3U8Name ...
+var DefaultM3U8Name = "media.m3u8"
+
+// DefaultSegmentFileName ...
+var DefaultSegmentFileName = "media-%05d.ts"
+
+// DefaultProcessCore ...
+var DefaultProcessCore = ProcessCUDA
+
+// DefaultSlice ...
+var DefaultSlice = false
+
+// DefaultHLSTime ...
+var DefaultHLSTime = 10
+
+// DefaultScale ...
+var DefaultScale = Scale720P
 
 // DefaultConfig ...
 func DefaultConfig() *Config {
 	return &Config{
 		Scale:           Scale720P,
-		ProcessCore:     ProcessCUDA,
-		NeedSlice:       false,
+		ProcessCore:     DefaultProcessCore,
+		NeedSlice:       DefaultSlice,
 		BitRate:         0,
 		FrameRate:       0,
-		OutputPath:      "video_split_temp",
-		OutputName:      "media.mp4",
+		OutputPath:      DefaultOutputPath,
+		OutputName:      DefaultOutputName,
 		VideoFormat:     "libx264",
 		AudioFormat:     "aac",
-		M3U8Name:        "media.m3u8",
-		SegmentFileName: "media-%05d.ts",
-		HLSTime:         10,
+		M3U8Name:        DefaultM3U8Name,
+		SegmentFileName: DefaultSegmentFileName,
+		HLSTime:         DefaultHLSTime,
 	}
 }
 
@@ -133,7 +157,7 @@ func (c *Config) AbsOutput() string {
 	}
 	abs, err := filepath.Abs(c.OutputPath)
 	if err != nil {
-		return ""
+		return DefaultOutputPath
 	}
 	return abs
 }
@@ -162,7 +186,11 @@ func (c *Config) Args(input, output string) string {
 	}
 
 	if !c.NeedSlice {
-		output = filepath.Join(c.OutputPath, c.OutputName)
+		output = filepath.Join(c.AbsOutput(), c.OutputName)
+	} else {
+		if filepath.Ext(c.OutputName) != "" {
+			panic(fmt.Sprintf("slice cannot output with name %s", c.OutputName))
+		}
 	}
 
 	return outputTemplate(c.ProcessCore, input, c.VideoFormat, c.AudioFormat, output, exts...)
