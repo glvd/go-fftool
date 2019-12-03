@@ -160,7 +160,7 @@ func (c *Config) AbsOutput() string {
 }
 
 // Args ...
-func (c *Config) Args(input, output string) string {
+func (c *Config) Args(input string) string {
 	var exts []interface{}
 
 	if c.ProcessCore != ProcessCPU && c.videoFormat != "copy" {
@@ -181,7 +181,7 @@ func (c *Config) Args(input, output string) string {
 	if c.FrameRate != 0 {
 		exts = append(exts, fmt.Sprintf(frameRateOutputTemplate, c.FrameRate))
 	}
-	output = filepath.Join(c.AbsOutput(), c.OutputName)
+	output := filepath.Join(c.AbsOutput(), c.OutputName)
 	if c.NeedSlice {
 		if filepath.Ext(c.OutputName) != "" {
 			//fix slice output name
@@ -235,11 +235,7 @@ func (c *Config) Clone() Config {
 }
 
 // OptimizeWithFormat ...
-func (c *Config) OptimizeWithFormat(sfmt *StreamFormat) (e error) {
-	return optimizeWithFormat(c, sfmt)
-}
-
-func optimizeWithFormat(c *Config, sfmt *StreamFormat) (e error) {
+func OptimizeWithFormat(c *Config, sfmt *StreamFormat) (e error) {
 	if sfmt == nil {
 		return errors.New("format is null")
 	}

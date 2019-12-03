@@ -32,7 +32,7 @@ func TestFFMpeg_Version(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ff := NewFFMpeg(*DefaultConfig())
+			ff := NewFFMpeg(DefaultConfig())
 
 			got, err := ff.Version()
 			if (err != nil) != tt.wantErr {
@@ -54,9 +54,8 @@ func TestFFMpeg_Run(t *testing.T) {
 		Name   string
 	}
 	type args struct {
-		ctx    context.Context
-		input  string
-		output string
+		ctx   context.Context
+		input string
 	}
 	tests := []struct {
 		name    string
@@ -68,9 +67,8 @@ func TestFFMpeg_Run(t *testing.T) {
 			name:   "run",
 			fields: fields{},
 			args: args{
-				ctx:    context.Background(),
-				input:  testVideo,
-				output: "d:\\temp\\",
+				ctx:   context.Background(),
+				input: testVideo,
 			},
 			wantErr: false,
 		},
@@ -78,16 +76,121 @@ func TestFFMpeg_Run(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cfg := DefaultConfig()
-			err := cfg.OptimizeWithFormat(testStreamFormat)
+			ff := NewFFMpeg(cfg)
+			newff, err := ff.OptimizeWithFormat(testStreamFormat)
 			if err != nil {
 				t.Errorf("OptimizeWithFormat() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			ff := NewFFMpeg(*cfg)
-
-			if err := ff.Run(tt.args.ctx, tt.args.input, tt.args.output); (err != nil) != tt.wantErr {
+			if err := newff.Run(tt.args.ctx, tt.args.input); (err != nil) != tt.wantErr {
 				t.Errorf("Run() error = %v, wantErr %v", err, tt.wantErr)
 			}
+		})
+	}
+}
+
+// TestFFMpeg_OptimizeWithFormat ...
+func TestFFMpeg_OptimizeWithFormat(t *testing.T) {
+	type fields struct {
+		Scale           Scale
+		BitRate         int64
+		FrameRate       float64
+		Output          string
+		VideoFormat     string
+		AudioFormat     string
+		M3U8Name        string
+		SegmentFileName string
+		HLSTime         int
+	}
+	type args struct {
+		sfmt *StreamFormat
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{
+			name: "1",
+			fields: fields{
+				Scale:           2,
+				BitRate:         0,
+				FrameRate:       0,
+				Output:          "",
+				VideoFormat:     "",
+				AudioFormat:     "",
+				M3U8Name:        "",
+				SegmentFileName: "",
+				HLSTime:         0,
+			},
+			args: args{
+				sfmt: sf,
+			},
+			want:    "",
+			wantErr: false,
+		},
+		{
+			name: "2",
+			fields: fields{
+				Scale:           1,
+				BitRate:         0,
+				FrameRate:       0,
+				Output:          "",
+				VideoFormat:     "",
+				AudioFormat:     "",
+				M3U8Name:        "",
+				SegmentFileName: "",
+				HLSTime:         0,
+			},
+			args: args{
+				sfmt: sf,
+			},
+			want:    "",
+			wantErr: false,
+		},
+		{
+			name: "3",
+			fields: fields{
+				Scale:           1,
+				BitRate:         0,
+				FrameRate:       0,
+				Output:          "",
+				VideoFormat:     "",
+				AudioFormat:     "",
+				M3U8Name:        "",
+				SegmentFileName: "",
+				HLSTime:         0,
+			},
+			args: args{
+				sfmt: nil,
+			},
+			want:    "",
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := &Config{
+				Scale:           tt.fields.Scale,
+				BitRate:         tt.fields.BitRate,
+				FrameRate:       tt.fields.FrameRate,
+				OutputPath:      tt.fields.Output,
+				videoFormat:     tt.fields.VideoFormat,
+				audioFormat:     tt.fields.AudioFormat,
+				M3U8Name:        tt.fields.M3U8Name,
+				SegmentFileName: tt.fields.SegmentFileName,
+				HLSTime:         tt.fields.HLSTime,
+			}
+
+			ff := NewFFMpeg(c)
+			_, err := ff.OptimizeWithFormat(tt.args.sfmt)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("OptimizeWithFormat() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			t.Logf("%+v", c)
 		})
 	}
 }
