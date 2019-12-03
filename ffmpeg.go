@@ -112,16 +112,17 @@ func outputArgs(c *Config, input string) string {
 
 func outputTemplate(p ProcessCore, input, cv, ca, output string, exts ...interface{}) string {
 	var outExt []string
+	exts = append(exts, output)
 	for range exts {
 		outExt = append(outExt, "%s")
 	}
-	def := ""
+	var def string
 	if p == ProcessCPU {
-		def = fmt.Sprintf(defaultTemplate, "", input, cv, ca, strings.Join(outExt, " "), output)
+		def = fmt.Sprintf(defaultTemplate, "", input, cv, ca, strings.Join(outExt, " "))
 	} else if p == ProcessCUDA {
-		def = fmt.Sprintf(defaultTemplate, cudaOutputTemplate, input, cv, ca, strings.Join(outExt, " "), output)
+		def = fmt.Sprintf(defaultTemplate, cudaOutputTemplate, input, cv, ca, strings.Join(outExt, " "))
 	} else if p == ProcessCUVID {
-		def = fmt.Sprintf(defaultTemplate, cuvidOutputTemplate, input, cv, ca, strings.Join(outExt, " "), output)
+		def = fmt.Sprintf(defaultTemplate, cuvidOutputTemplate, input, cv, ca, strings.Join(outExt, " "))
 	}
 	log.Infow("format", "def", def)
 	return fmt.Sprintf(def, exts...)

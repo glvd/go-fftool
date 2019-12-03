@@ -19,7 +19,7 @@ const frameRateOutputTemplate = ",-r,%3.2f"
 const cudaOutputTemplate = ",-hwaccel,cuda"
 const cuvidOutputTemplate = ",-hwaccel,cuvid,-c:v,h264_cuvid"
 
-const defaultTemplate = `-y%s,-i,%s,-strict,-2,-c:v,%s,-c:a,%s%s,%s`
+const defaultTemplate = `-y%s,-i,%s,-strict,-2,-c:v,%s,-c:a,%s%s`
 
 // None ...
 const (
