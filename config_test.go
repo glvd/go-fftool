@@ -1,6 +1,9 @@
 package fftool
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 var sf *StreamFormat
 
@@ -173,9 +176,9 @@ func TestConfig_Args(t *testing.T) {
 			//	SegmentFileName: tt.fields.SegmentFileName,
 			//	HLSTime:         tt.fields.HLSTime,
 			//}
-			c.UseGPU = true
+			c.ProcessType = ProcessCPU
 			if got := c.Args(tt.args.intput, tt.args.output); got != tt.want {
-				t.Errorf("Args() = %v, want %v", got, tt.want)
+				t.Errorf("Args() = %v, want %v", strings.ReplaceAll(got, ",", " "), tt.want)
 			}
 		})
 	}

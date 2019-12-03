@@ -78,7 +78,7 @@ func TestFFMpeg_Run(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cfg := DefaultConfig()
-			//cfg.UseGPU = true
+			//cfg.ProcessType = CUDA
 			err := cfg.OptimizeWithFormat(testStreamFormat)
 			if err != nil {
 				t.Errorf("OptimizeWithFormat() error = %v, wantErr %v", err, tt.wantErr)
