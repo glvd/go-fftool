@@ -104,8 +104,8 @@ func TestConfig_OptimizeWithFormat(t *testing.T) {
 				BitRate:         tt.fields.BitRate,
 				FrameRate:       tt.fields.FrameRate,
 				OutputPath:      tt.fields.Output,
-				VideoFormat:     tt.fields.VideoFormat,
-				AudioFormat:     tt.fields.AudioFormat,
+				videoFormat:     tt.fields.VideoFormat,
+				audioFormat:     tt.fields.AudioFormat,
 				M3U8Name:        tt.fields.M3U8Name,
 				SegmentFileName: tt.fields.SegmentFileName,
 				HLSTime:         tt.fields.HLSTime,
@@ -132,6 +132,7 @@ func TestConfig_Args(t *testing.T) {
 		M3U8Name        string
 		SegmentFileName string
 		HLSTime         int
+		OutputPath      string
 	}
 	type args struct {
 		intput string
@@ -139,22 +140,34 @@ func TestConfig_Args(t *testing.T) {
 	}
 	tests := []struct {
 		name   string
-		fields fields
+		fields Config
 		args   args
 		want   string
 	}{
 		{
+			name:   "args1",
+			fields: *DefaultConfig(),
+			args: args{
+				intput: "d:\\video\\周杰伦 唱歌贼难听.2019.1080P.h264.aac.Japanese.None.mp4",
+				output: "d:\\temp\\",
+			},
+			want: "",
+		},
+		{
 			name: "args1",
-			fields: fields{
-				Scale:           0,
+			fields: Config{
+				Scale:           DefaultScale,
+				ProcessCore:     DefaultProcessCore,
+				NeedSlice:       DefaultSlice,
 				BitRate:         0,
 				FrameRate:       0,
-				Output:          "",
-				VideoFormat:     "",
-				AudioFormat:     "",
-				M3U8Name:        "",
-				SegmentFileName: "",
-				HLSTime:         0,
+				OutputPath:      DefaultOutputPath,
+				OutputName:      uuid.New().String(),
+				videoFormat:     "libx264",
+				audioFormat:     "aac",
+				M3U8Name:        DefaultM3U8Name,
+				SegmentFileName: DefaultSegmentFileName,
+				HLSTime:         DefaultHLSTime,
 			},
 			args: args{
 				intput: "d:\\video\\周杰伦 唱歌贼难听.2019.1080P.h264.aac.Japanese.None.mp4",
@@ -165,21 +178,10 @@ func TestConfig_Args(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := DefaultConfig()
-			//c := &Config{
-			//	Scale:           tt.fields.Scale,
-			//	BitRate:         tt.fields.BitRate,
-			//	FrameRate:       tt.fields.FrameRate,
-			//	OutputPath:          tt.fields.OutputPath,
-			//	VideoFormat:     tt.fields.VideoFormat,
-			//	AudioFormat:     tt.fields.AudioFormat,
-			//	M3U8Name:        tt.fields.M3U8Name,
-			//	SegmentFileName: tt.fields.SegmentFileName,
-			//	HLSTime:         tt.fields.HLSTime,
-			//}
-			c.OutputName = uuid.New().String()
-			c.NeedSlice = true
-			c.ProcessCore = ProcessCPU
+			c := tt.fields
+			//c.OutputName = uuid.New().String()
+			//c.NeedSlice = true
+			//c.ProcessCore = ProcessCPU
 			if got := c.Args(tt.args.intput, tt.args.output); got != tt.want {
 				t.Errorf("Args() = %v, want %v", strings.ReplaceAll(got, ",", " "), tt.want)
 			}
