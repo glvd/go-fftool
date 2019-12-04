@@ -291,10 +291,12 @@ func optimizeFrameRate(c *Config, frameRate string) (e error) {
 func outputArgs(c *Config, input string) string {
 	var exts []interface{}
 
+	//gpu decode config
 	if c.ProcessCore != ProcessCPU && c.videoFormat != "copy" {
 		c.videoFormat = "h264_nvenc"
 	}
 
+	//add scale setting
 	if c.Scale != -1 {
 		log.Infow("scale", "scale", c.Scale, "value", scaleVale(c.Scale))
 		if c.ProcessCore != ProcessCUVID {
@@ -303,37 +305,47 @@ func outputArgs(c *Config, input string) string {
 			exts = append(exts, fmt.Sprintf(cuvidScaleOutputTemplate, scaleVale(c.Scale)))
 		}
 	}
+	//add bitrate arguments
 	if c.BitRate != 0 {
 		exts = append(exts, fmt.Sprintf(bitRateOutputTemplate, c.BitRate/1024))
 	}
+	//add frame rate arguments
 	if c.FrameRate != 0 {
 		exts = append(exts, fmt.Sprintf(frameRateOutputTemplate, c.FrameRate))
 	}
 
 	output := ""
 	path := c.Output()
+
+	//generate slice arguments
 	if c.NeedSlice {
 		output = fmt.Sprintf(sliceOutputTemplate, c.HLSTime, filepath.Join(path, c.SegmentFileName), filepath.Join(path, c.M3U8Name))
 	} else {
 		output = filepath.Join(path, c.OutputName)
 	}
+
+	//output arguments
 	return outputTemplate(c.ProcessCore, input, c.videoFormat, c.audioFormat, output, exts...)
 }
 
-func outputTemplate(p ProcessCore, input, cv, ca, output string, exts ...interface{}) string {
+func outputTemplate(core ProcessCore, input, cv, ca, output string, exts ...interface{}) string {
 	var outExt []string
 	exts = append(exts, ","+output)
 	for range exts {
 		outExt = append(outExt, "%s")
 	}
-	var def string
-	if p == ProcessCPU {
-		def = fmt.Sprintf(defaultTemplate, "", input, cv, ca, strings.Join(outExt, ""))
-	} else if p == ProcessCUDA {
-		def = fmt.Sprintf(defaultTemplate, cudaOutputTemplate, input, cv, ca, strings.Join(outExt, ""))
-	} else if p == ProcessCUVID {
-		def = fmt.Sprintf(defaultTemplate, cuvidOutputTemplate, input, cv, ca, strings.Join(outExt, ""))
+	var tmpl string
+	//cuda/cpu/cuvid arguments case
+	switch core {
+	case ProcessCPU:
+		tmpl = fmt.Sprintf(defaultTemplate, "", input, cv, ca, strings.Join(outExt, ""))
+	case ProcessCUDA:
+		tmpl = fmt.Sprintf(defaultTemplate, cudaOutputTemplate, input, cv, ca, strings.Join(outExt, ""))
+	case ProcessCUVID:
+		tmpl = fmt.Sprintf(defaultTemplate, cuvidOutputTemplate, input, cv, ca, strings.Join(outExt, ""))
+	default:
+		panic(fmt.Sprintf("wrong core type:%d", core))
 	}
-	log.Infow("format", "def", def)
-	return fmt.Sprintf(def, exts...)
+	log.Infow("format", "tmpl", tmpl)
+	return fmt.Sprintf(tmpl, exts...)
 }
