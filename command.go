@@ -115,12 +115,13 @@ func (c *Command) RunContext(ctx context.Context, args string, info chan<- strin
 	}
 
 	reader := bufio.NewReader(exio.MultiReader(stderr, stdout))
+	var lines []byte
 	for {
 		select {
 		case <-ctx.Done():
 			return errWrap(ctx.Err(), "done")
 		default:
-			lines, _, e := reader.ReadLine()
+			lines, _, e = reader.ReadLine()
 			if e != nil || io.EOF == e {
 				goto END
 			}

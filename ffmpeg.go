@@ -78,7 +78,7 @@ func (ff FFMpeg) Run(ctx context.Context, input string) (e error) {
 	for i2 := range outlog {
 		ss := strings.Split(i2, "\r")
 		for _, i3 := range ss {
-			log.Infow("runmsg", "log", strings.TrimSpace(i3))
+			log.Info("runmsg", "log", strings.TrimSpace(i3))
 		}
 	}
 	wg.Wait()
