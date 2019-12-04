@@ -2,6 +2,8 @@ package fftool
 
 import (
 	"errors"
+	"fmt"
+	"github.com/google/uuid"
 	"math"
 	"path/filepath"
 	"strconv"
@@ -84,6 +86,7 @@ type CutOut struct {
 
 // Config ...
 type Config struct {
+	output          string
 	videoFormat     string
 	audioFormat     string
 	Scale           Scale
@@ -145,8 +148,13 @@ func (c *Config) init() {
 
 }
 
-// AbsOutput ...
-func (c *Config) AbsOutput() string {
+// Output ...
+func (c *Config) Output() string {
+	return c.output
+}
+
+// AbsPath ...
+func (c *Config) AbsPath() string {
 	if filepath.IsAbs(c.OutputPath) {
 		return c.OutputPath
 	}
@@ -258,4 +266,65 @@ func optimizeFrameRate(c *Config, frameRate string) (e error) {
 	}
 	log.Infow("info", "framerate", c.FrameRate, "il", il, "ir", ir, "il/ir", il/ir)
 	return nil
+}
+
+func outputArgs(c *Config, input string) string {
+	var exts []interface{}
+
+	if c.ProcessCore != ProcessCPU && c.videoFormat != "copy" {
+		c.videoFormat = "h264_nvenc"
+	}
+
+	if c.Scale != -1 {
+		log.Infow("scale", "scale", c.Scale, "value", scaleVale(c.Scale))
+		if c.ProcessCore != ProcessCUVID {
+			exts = append(exts, fmt.Sprintf(scaleOutputTemplate, scaleVale(c.Scale)))
+		} else {
+			exts = append(exts, fmt.Sprintf(cuvidScaleOutputTemplate, scaleVale(c.Scale)))
+		}
+	}
+	if c.BitRate != 0 {
+		exts = append(exts, fmt.Sprintf(bitRateOutputTemplate, c.BitRate/1024))
+	}
+	if c.FrameRate != 0 {
+		exts = append(exts, fmt.Sprintf(frameRateOutputTemplate, c.FrameRate))
+	}
+
+	if c.output == "" {
+		if c.NeedSlice {
+			if filepath.Ext(c.OutputName) != "" {
+				//fix slice output name
+				log.Infow("runme")
+				c.OutputName = uuid.New().String()
+
+			}
+			c.output = filepath.Join(c.AbsPath(), c.OutputName)
+			c.output = fmt.Sprintf(sliceOutputTemplate, c.HLSTime, filepath.Join(c.output, c.SegmentFileName), filepath.Join(c.output, c.M3U8Name))
+		} else {
+			if filepath.Ext(c.OutputName) == "" {
+				//fix media output name
+				c.OutputName += ".mp4"
+			}
+			c.output = filepath.Join(c.AbsPath(), c.OutputName)
+		}
+	}
+	return outputTemplate(c.ProcessCore, input, c.videoFormat, c.audioFormat, c.output, exts...)
+}
+
+func outputTemplate(p ProcessCore, input, cv, ca, output string, exts ...interface{}) string {
+	var outExt []string
+	exts = append(exts, output)
+	for range exts {
+		outExt = append(outExt, "%s")
+	}
+	var def string
+	if p == ProcessCPU {
+		def = fmt.Sprintf(defaultTemplate, "", input, cv, ca, strings.Join(outExt, " "))
+	} else if p == ProcessCUDA {
+		def = fmt.Sprintf(defaultTemplate, cudaOutputTemplate, input, cv, ca, strings.Join(outExt, " "))
+	} else if p == ProcessCUVID {
+		def = fmt.Sprintf(defaultTemplate, cuvidOutputTemplate, input, cv, ca, strings.Join(outExt, " "))
+	}
+	log.Infow("format", "def", def)
+	return fmt.Sprintf(def, exts...)
 }
