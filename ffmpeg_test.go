@@ -197,8 +197,8 @@ func TestFFMpeg_OptimizeWithFormat(t *testing.T) {
 	}
 }
 
-// TestConfig_Args ...
-func TestConfig_Args(t *testing.T) {
+// TestoutputArgs ...
+func TestoutputArgs(t *testing.T) {
 	type fields struct {
 		Scale           Scale
 		BitRate         int64
