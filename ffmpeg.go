@@ -92,19 +92,22 @@ func outputArgs(c *Config, input string) string {
 		exts = append(exts, fmt.Sprintf(frameRateOutputTemplate, c.FrameRate))
 	}
 
-	output := filepath.Join(c.AbsOutput(), c.OutputName)
+	output := ""
 	if c.NeedSlice {
 		if filepath.Ext(c.OutputName) != "" {
 			//fix slice output name
+			log.Infow("runme")
 			c.OutputName = uuid.New().String()
+
 		}
+		output = filepath.Join(c.AbsOutput(), c.OutputName)
 		output = fmt.Sprintf(sliceOutputTemplate, c.HLSTime, filepath.Join(output, c.SegmentFileName), filepath.Join(output, c.M3U8Name))
 	} else {
 		if filepath.Ext(c.OutputName) == "" {
 			//fix media output name
-			output = filepath.Join(c.AbsOutput(), c.OutputName+".mp4")
+			c.OutputName += ".mp4"
 		}
-
+		output = filepath.Join(c.AbsOutput(), c.OutputName)
 	}
 
 	return outputTemplate(c.ProcessCore, input, c.videoFormat, c.audioFormat, output, exts...)
