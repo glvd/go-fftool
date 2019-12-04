@@ -12,38 +12,48 @@ import (
 
 // FFMpeg ...
 type FFMpeg struct {
+	err    error
 	config *Config
 	cmd    *Command
 	Name   string
 }
 
-func (ff *FFMpeg) init() {
+func (ff *FFMpeg) init() error {
 	if ff.cmd == nil {
 		ff.cmd = New(ff.Name)
 	}
+	if ff.err != nil {
+		return ff.err
+	}
+	return nil
 }
 
 // Version ...
 func (ff *FFMpeg) Version() (string, error) {
-	ff.init()
+	if err := ff.init(); err != nil {
+		return "", err
+	}
+
 	return ff.cmd.Run("-version")
 }
 
 // OptimizeWithFormat ...
-func (ff *FFMpeg) OptimizeWithFormat(sfmt *StreamFormat) (newFF *FFMpeg, e error) {
+func (ff *FFMpeg) OptimizeWithFormat(sfmt *StreamFormat) (newFF *FFMpeg) {
 	cfg := ff.config.Clone()
-	e = OptimizeWithFormat(&cfg, sfmt)
-	if e != nil {
-		return nil, e
-	}
 	newFF = NewFFMpeg(&cfg)
 	newFF.Name = ff.Name
+	e := OptimizeWithFormat(&cfg, sfmt)
+	if e != nil {
+		newFF.err = e
+	}
 	return
 }
 
 // Run ...
 func (ff FFMpeg) Run(ctx context.Context, input string) (e error) {
-	ff.init()
+	if err := ff.init(); err != nil {
+		return err
+	}
 	args := outputArgs(ff.config, input)
 
 	outlog := make(chan string)
@@ -58,6 +68,11 @@ func (ff FFMpeg) Run(ctx context.Context, input string) (e error) {
 	}
 	wg.Wait()
 	return e
+}
+
+// Error ...
+func (ff *FFMpeg) Error() error {
+	return ff.err
 }
 
 // NewFFMpeg ...
