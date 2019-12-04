@@ -76,6 +76,8 @@ var frameRateList = []float64{
 //Crypto ...
 type Crypto struct {
 	Key string
+	IV  string
+	URL string
 }
 
 // CutOut ...
@@ -92,7 +94,8 @@ type Config struct {
 	Scale           Scale
 	ProcessCore     ProcessCore
 	NeedSlice       bool
-	UseKey          bool
+	UseCrypt        bool
+	Crypto          Crypto
 	BitRate         int64
 	FrameRate       float64
 	OutputPath      string //output path
@@ -157,6 +160,11 @@ func (c *Config) abs() {
 		return
 	}
 	c.OutputPath = abs
+}
+
+// SetCrypt ...
+func (c *Config) SetCrypt(crypto Crypto) {
+
 }
 
 // Output ...
