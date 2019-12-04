@@ -189,7 +189,7 @@ func TestFFMpeg_OptimizeWithFormat(t *testing.T) {
 			ff := NewFFMpeg(c)
 			newff := ff.OptimizeWithFormat(tt.args.sfmt)
 			if (newff.Error() != nil) != tt.wantErr {
-				t.Errorf("OptimizeWithFormat() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("OptimizeWithFormat() error = %v, wantErr %v", newff.Error(), tt.wantErr)
 				return
 			}
 			t.Logf("%+v", c)
@@ -197,8 +197,8 @@ func TestFFMpeg_OptimizeWithFormat(t *testing.T) {
 	}
 }
 
-// TestoutputArgs ...
-func TestoutputArgs(t *testing.T) {
+// Test_outputArgs ...
+func Test_outputArgs(t *testing.T) {
 	type fields struct {
 		Scale           Scale
 		BitRate         int64
