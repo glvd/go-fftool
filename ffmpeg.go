@@ -53,7 +53,6 @@ func (ff FFMpeg) Run(ctx context.Context, input string) (e error) {
 	if err := ff.init(); err != nil {
 		return errWrap(err, "init")
 	}
-	args := outputArgs(ff.config, input)
 
 	stat, e := os.Stat(ff.config.Output())
 	if e != nil {
@@ -66,6 +65,8 @@ func (ff FFMpeg) Run(ctx context.Context, input string) (e error) {
 	if e == nil && !stat.IsDir() {
 		return errors.New("target is not dir")
 	}
+
+	args := outputArgs(ff.config, input)
 
 	outlog := make(chan string)
 	wg := &sync.WaitGroup{}
