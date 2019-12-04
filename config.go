@@ -91,11 +91,10 @@ type Config struct {
 	output          string
 	videoFormat     string
 	audioFormat     string
+	crypto          *Crypto
 	Scale           Scale
 	ProcessCore     ProcessCore
 	NeedSlice       bool
-	UseCrypt        bool
-	Crypto          Crypto
 	BitRate         int64
 	FrameRate       float64
 	OutputPath      string //output path
@@ -164,7 +163,7 @@ func (c *Config) abs() {
 
 // SetCrypt ...
 func (c *Config) SetCrypt(crypto Crypto) {
-
+	c.crypto = &crypto
 }
 
 // Output ...
