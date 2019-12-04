@@ -64,7 +64,7 @@ func (ff FFMpeg) Run(ctx context.Context, input string) (e error) {
 		e = ff.cmd.RunContext(ctx, args, outlog)
 	}()
 	for i2 := range outlog {
-		log.Infow("run", "info", strings.TrimSpace(i2))
+		log.Infow("runmsg", "log", strings.TrimSpace(i2))
 	}
 	wg.Wait()
 	return e
