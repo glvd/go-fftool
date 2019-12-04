@@ -78,6 +78,7 @@ func TestFFMpeg_Run(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cfg := DefaultConfig()
+			cfg.NeedSlice = true
 			ff := NewFFMpeg(cfg)
 			newff := ff.OptimizeWithFormat(testStreamFormat)
 			if newff.Error() != nil {

@@ -148,21 +148,33 @@ func (c *Config) init() {
 
 }
 
-// Output ...
-func (c *Config) Output() string {
-	return c.output
-}
-
-// AbsPath ...
-func (c *Config) AbsPath() string {
+func (c *Config) abs() {
 	if filepath.IsAbs(c.OutputPath) {
-		return c.OutputPath
+		return
 	}
 	abs, err := filepath.Abs(c.OutputPath)
 	if err != nil {
-		return DefaultOutputPath
+		return
 	}
-	return abs
+	c.OutputPath = abs
+}
+
+// Output ...
+func (c *Config) Output() string {
+	c.abs()
+	if c.NeedSlice {
+		if filepath.Ext(c.OutputName) != "" {
+			//fix slice output name
+			c.OutputName = uuid.New().String()
+
+		}
+		return filepath.Join(c.OutputPath, c.OutputName)
+	}
+	if filepath.Ext(c.OutputName) == "" {
+		//fix media output name
+		c.OutputName += ".mp4"
+	}
+	return c.OutputPath
 }
 
 func scaleVale(scale Scale) int64 {
@@ -290,40 +302,29 @@ func outputArgs(c *Config, input string) string {
 		exts = append(exts, fmt.Sprintf(frameRateOutputTemplate, c.FrameRate))
 	}
 
-	if c.output == "" {
-		if c.NeedSlice {
-			if filepath.Ext(c.OutputName) != "" {
-				//fix slice output name
-				log.Infow("runme")
-				c.OutputName = uuid.New().String()
-
-			}
-			c.output = filepath.Join(c.AbsPath(), c.OutputName)
-			c.output = fmt.Sprintf(sliceOutputTemplate, c.HLSTime, filepath.Join(c.output, c.SegmentFileName), filepath.Join(c.output, c.M3U8Name))
-		} else {
-			if filepath.Ext(c.OutputName) == "" {
-				//fix media output name
-				c.OutputName += ".mp4"
-			}
-			c.output = filepath.Join(c.AbsPath(), c.OutputName)
-		}
+	output := ""
+	path := c.Output()
+	if c.NeedSlice {
+		output = fmt.Sprintf(sliceOutputTemplate, c.HLSTime, filepath.Join(path, c.SegmentFileName), filepath.Join(path, c.M3U8Name))
+	} else {
+		output = filepath.Join(path, c.OutputName)
 	}
-	return outputTemplate(c.ProcessCore, input, c.videoFormat, c.audioFormat, c.output, exts...)
+	return outputTemplate(c.ProcessCore, input, c.videoFormat, c.audioFormat, output, exts...)
 }
 
 func outputTemplate(p ProcessCore, input, cv, ca, output string, exts ...interface{}) string {
 	var outExt []string
-	exts = append(exts, output)
+	exts = append(exts, ","+output)
 	for range exts {
 		outExt = append(outExt, "%s")
 	}
 	var def string
 	if p == ProcessCPU {
-		def = fmt.Sprintf(defaultTemplate, "", input, cv, ca, strings.Join(outExt, " "))
+		def = fmt.Sprintf(defaultTemplate, "", input, cv, ca, strings.Join(outExt, ""))
 	} else if p == ProcessCUDA {
-		def = fmt.Sprintf(defaultTemplate, cudaOutputTemplate, input, cv, ca, strings.Join(outExt, " "))
+		def = fmt.Sprintf(defaultTemplate, cudaOutputTemplate, input, cv, ca, strings.Join(outExt, ""))
 	} else if p == ProcessCUVID {
-		def = fmt.Sprintf(defaultTemplate, cuvidOutputTemplate, input, cv, ca, strings.Join(outExt, " "))
+		def = fmt.Sprintf(defaultTemplate, cuvidOutputTemplate, input, cv, ca, strings.Join(outExt, ""))
 	}
 	log.Infow("format", "def", def)
 	return fmt.Sprintf(def, exts...)
