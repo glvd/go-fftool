@@ -1,5 +1,10 @@
 package fftool
 
+import (
+	"strconv"
+	"strings"
+)
+
 // OpenSSL ...
 type OpenSSL struct {
 	cmd  *Command
@@ -23,16 +28,32 @@ func (ssl *OpenSSL) Run(args string) (string, error) {
 	return ssl.cmd.Run(args)
 }
 
+// Base64 ...
+func (ssl *OpenSSL) Base64(size int) string {
+	s := strconv.Itoa(size)
+	run, err := ssl.Run(strings.Join([]string{"-base", s}, ","))
+	if err != nil {
+		return ""
+	}
+	return run
+}
+
+// Hex ...
+func (ssl *OpenSSL) Hex(size int) string {
+	s := strconv.Itoa(size)
+	run, err := ssl.Run(strings.Join([]string{"-hex", s}, ","))
+	if LogError(err) {
+		return ""
+	}
+	return run
+}
+
 // HLSCrypto ...
 func (ssl *OpenSSL) HLSCrypto() *Crypto {
 	ssl.init()
-	run, err := ssl.cmd.Run("-base64,32")
-	if err != nil {
-		return nil
-	}
 	return &Crypto{
 		KeyInfoPath: "",
-		Key:         run,
+		Key:         ssl.Base64(32),
 		IV:          "",
 		URL:         "",
 	}

@@ -1,23 +1,32 @@
 package fftool
 
 import (
-	"fmt"
 	"github.com/goextension/log"
+	"strings"
 )
 
-// Error ...
-type Error interface {
-	Err() error
+type errWrap struct {
+	err error
+	msg string
 }
 
-func errWrap(e error, msg string) error {
-	return fmt.Errorf("%s:%w", msg, e)
+// Error ...
+func (e *errWrap) Error() string {
+	return strings.Join([]string{e.msg, e.err.Error()}, ":")
+}
+
+// Err ...
+func Err(e error, msg string) error {
+	return &errWrap{
+		err: e,
+		msg: msg,
+	}
 }
 
 // LogError ...
-func LogError(err Error) bool {
-	if err.Err() != nil {
-		log.Error(err.Err())
+func LogError(err error) bool {
+	if err != nil {
+		log.Error(err.Error())
 		return true
 	}
 	return false

@@ -23,10 +23,15 @@ func GenerateCrypto() *Crypto {
 
 	run, err := ssl.Run("-hex,16")
 	if err != nil {
-		return nil
+		c.err = Err(err, "ssl(-hex,16)")
+		return c
 	}
 	c.IV = run
+	return c
+}
 
+// SaveToFile ...
+func (c *Crypto) SaveToFile(path string) {
 	split, _ := filepath.Split(path)
 	stat, err := os.Stat(split)
 	if err != nil {
@@ -41,9 +46,9 @@ func GenerateCrypto() *Crypto {
 	ioutil.WriteFile(path)
 }
 
-// SaveToFile ...
-func (c *Crypto) SaveToFile(path string) {
-
+// Error ...
+func (c *Crypto) Error() error {
+	return c.err
 }
 
 func outputKeyInfoString(url, key, iv string) []byte {

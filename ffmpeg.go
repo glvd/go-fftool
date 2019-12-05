@@ -51,7 +51,7 @@ func (ff *FFMpeg) OptimizeWithFormat(sfmt *StreamFormat) (newFF *FFMpeg) {
 // Run ...
 func (ff FFMpeg) Run(ctx context.Context, input string) (e error) {
 	if err := ff.init(); err != nil {
-		return errWrap(err, "init")
+		return Err(err, "init")
 	}
 
 	stat, e := os.Stat(ff.config.Output())
@@ -59,7 +59,7 @@ func (ff FFMpeg) Run(ctx context.Context, input string) (e error) {
 		if os.IsNotExist(e) {
 			_ = os.MkdirAll(ff.config.Output(), 0755)
 		} else {
-			return errWrap(e, "stat")
+			return Err(e, "stat")
 		}
 	}
 	if e == nil && !stat.IsDir() {
