@@ -1,7 +1,6 @@
 package fftool
 
 import (
-	"strconv"
 	"strings"
 )
 
@@ -30,8 +29,7 @@ func (ssl *OpenSSL) Run(args string) (string, error) {
 
 // Base64 ...
 func (ssl *OpenSSL) Base64(size int) string {
-	s := strconv.Itoa(size)
-	run, err := ssl.Run(strings.Join([]string{"rand", "-base64", s}, ","))
+	run, err := ssl.Run(formatArgs("rand,-base64,%d", size))
 	if err != nil {
 		return ""
 	}
@@ -40,8 +38,7 @@ func (ssl *OpenSSL) Base64(size int) string {
 
 // Hex ...
 func (ssl *OpenSSL) Hex(size int) string {
-	s := strconv.Itoa(size)
-	run, err := ssl.Run(strings.Join([]string{"rand", "-hex", s}, ","))
+	run, err := ssl.Run(formatArgs("rand,-hex,%d", size))
 	if LogError(err) {
 		return ""
 	}

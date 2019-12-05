@@ -145,6 +145,11 @@ func cmdArgs(args string) []string {
 	return strings.Split(args, ",")
 }
 
+// Args ...
+func Args(s ...string) string {
+	return strings.Join(s, ",")
+}
+
 // formatArgs ...
 func formatArgs(source string, args ...interface{}) string {
 	return fmt.Sprintf(source, args...)
