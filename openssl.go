@@ -30,8 +30,8 @@ func (ssl *OpenSSL) Run(args string) (string, error) {
 // Base64 ...
 func (ssl *OpenSSL) Base64(size int) string {
 	run, err := ssl.Run(formatArgs("rand,-base64,%d", size))
-	if err != nil {
-		return ""
+	if LogError(err) {
+		panic(err)
 	}
 	return strings.TrimSpace(run)
 }
@@ -40,18 +40,7 @@ func (ssl *OpenSSL) Base64(size int) string {
 func (ssl *OpenSSL) Hex(size int) string {
 	run, err := ssl.Run(formatArgs("rand,-hex,%d", size))
 	if LogError(err) {
-		return ""
+		panic(err)
 	}
 	return strings.TrimSpace(run)
-}
-
-// HLSCrypto ...
-func (ssl *OpenSSL) HLSCrypto() *Crypto {
-	ssl.init()
-	return &Crypto{
-		KeyInfoPath: "",
-		Key:         ssl.Base64(32),
-		IV:          "",
-		URL:         "",
-	}
 }

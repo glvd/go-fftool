@@ -1,7 +1,9 @@
 package fftool
 
 import (
+	"bytes"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -11,27 +13,37 @@ type Crypto struct {
 	err         error
 	KeyInfoPath string
 	Key         string
+	KeyPath     string
+	UseIV       bool
 	IV          string
 	URL         string
 }
 
 // GenerateCrypto ...
-func GenerateCrypto() *Crypto {
-	ssl := NewOpenSSL()
-	c := ssl.HLSCrypto()
-
-	run, err := ssl.Run("-hex,16")
-	if err != nil {
-		c.err = Err(err, "ssl(-hex,16)")
-		return c
+func GenerateCrypto(ssl *OpenSSL, useIV bool) *Crypto {
+	c := Crypto{
+		err:         nil,
+		KeyInfoPath: "",
+		Key:         ssl.Base64(32),
+		UseIV:       useIV,
+		IV:          "",
+		URL:         "",
 	}
-	c.IV = run
-	return c
+
+	if useIV {
+		c.IV = ssl.Hex(16)
+	}
+
+	if c.Key == "" || (useIV && c.IV == "") {
+		c.err = fmt.Errorf("generate crypto error(key:%v,useIV:%v,iv:%v", c.Key, useIV, c.IV)
+	}
+
+	return &c
 }
 
-// SaveToFile ...
-func (c *Crypto) SaveToFile(path string) {
-	split, _ := filepath.Split(path)
+// SaveKey ...
+func (c *Crypto) SaveKey() error {
+	split, _ := filepath.Split(c.KeyPath)
 	stat, err := os.Stat(split)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -39,9 +51,31 @@ func (c *Crypto) SaveToFile(path string) {
 		}
 	}
 	if err == nil && !stat.IsDir() {
-		panic(fmt.Sprintf("wrong target path:%s", split))
+		return fmt.Errorf("wrong target path:%s", split)
 	}
+	return ioutil.WriteFile(c.KeyPath, []byte(c.Key), 0755)
+}
 
+// SaveKeyInfo ...
+func (c *Crypto) SaveKeyInfo() error {
+	split, _ := filepath.Split(c.KeyPath)
+	stat, err := os.Stat(split)
+	if err != nil {
+		if os.IsNotExist(err) {
+			_ = os.MkdirAll(split, 0755)
+		}
+	}
+	if err == nil && !stat.IsDir() {
+		return fmt.Errorf("wrong target path:%s", split)
+	}
+	buff := bytes.NewBufferString(c.URL)
+	buff.WriteString("\n")
+	buff.WriteString(c.KeyPath)
+	buff.WriteString("\n")
+	if c.UseIV {
+		buff.WriteString(c.IV)
+	}
+	return ioutil.WriteFile(c.KeyInfoPath, buff.Bytes(), 0755)
 }
 
 // Error ...
