@@ -17,6 +17,12 @@ func (ssl *OpenSSL) init() {
 	}
 }
 
+// Run ...
+func (ssl *OpenSSL) Run(args string) (string, error) {
+	ssl.init()
+	return ssl.cmd.Run(args)
+}
+
 // HLSCrypto ...
 func (ssl *OpenSSL) HLSCrypto() *Crypto {
 	ssl.init()

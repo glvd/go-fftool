@@ -2,7 +2,6 @@ package fftool
 
 import (
 	"fmt"
-	"github.com/goextension/tool"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -10,6 +9,7 @@ import (
 
 //Crypto ...
 type Crypto struct {
+	err         error
 	KeyInfoPath string
 	Key         string
 	IV          string
@@ -17,10 +17,17 @@ type Crypto struct {
 }
 
 // GenerateCrypto ...
-func GenerateCrypto(path string) Crypto {
-	key := tool.GenerateRandomString(16)
-	iv := tool.GenerateRandomString(16)
-	split, file := filepath.Split(path)
+func GenerateCrypto() *Crypto {
+	ssl := NewOpenSSL()
+	c := ssl.HLSCrypto()
+
+	run, err := ssl.Run("-hex,16")
+	if err != nil {
+		return nil
+	}
+	c.IV = run
+
+	split, _ := filepath.Split(path)
 	stat, err := os.Stat(split)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -32,6 +39,11 @@ func GenerateCrypto(path string) Crypto {
 	}
 
 	ioutil.WriteFile(path)
+}
+
+// SaveToFile ...
+func (c *Crypto) SaveToFile(path string) {
+
 }
 
 func outputKeyInfoString(url, key, iv string) []byte {
