@@ -2,7 +2,6 @@ package fftool
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -43,7 +42,6 @@ func (c *Crypto) SaveToFile(path string) {
 		panic(fmt.Sprintf("wrong target path:%s", split))
 	}
 
-	ioutil.WriteFile(path)
 }
 
 // Error ...
@@ -52,5 +50,5 @@ func (c *Crypto) Error() error {
 }
 
 func outputKeyInfoString(url, key, iv string) []byte {
-
+	return nil
 }

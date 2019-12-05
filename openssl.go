@@ -31,21 +31,21 @@ func (ssl *OpenSSL) Run(args string) (string, error) {
 // Base64 ...
 func (ssl *OpenSSL) Base64(size int) string {
 	s := strconv.Itoa(size)
-	run, err := ssl.Run(strings.Join([]string{"-base", s}, ","))
+	run, err := ssl.Run(strings.Join([]string{"rand", "-base64", s}, ","))
 	if err != nil {
 		return ""
 	}
-	return run
+	return strings.TrimSpace(run)
 }
 
 // Hex ...
 func (ssl *OpenSSL) Hex(size int) string {
 	s := strconv.Itoa(size)
-	run, err := ssl.Run(strings.Join([]string{"-hex", s}, ","))
+	run, err := ssl.Run(strings.Join([]string{"rand", "-hex", s}, ","))
 	if LogError(err) {
 		return ""
 	}
-	return run
+	return strings.TrimSpace(run)
 }
 
 // HLSCrypto ...

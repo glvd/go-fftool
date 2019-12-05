@@ -83,7 +83,7 @@ func (c *Command) Run(args string) (string, error) {
 	log.Infow("run", "outputArgs", cmd.Args)
 	stdout, err := cmd.CombinedOutput()
 	if err != nil {
-		return string(stdout), errWrap(err, "run")
+		return string(stdout), Err(err, "run")
 	}
 	return string(stdout), nil
 }
@@ -101,17 +101,17 @@ func (c *Command) RunContext(ctx context.Context, args string, info chan<- strin
 	log.Infow("run context", "outputArgs", strings.Join(cmd.Args, " "))
 	stdout, e := cmd.StdoutPipe()
 	if e != nil {
-		return errWrap(e, "StdoutPipe")
+		return Err(e, "StdoutPipe")
 	}
 
 	stderr, e := cmd.StderrPipe()
 	if e != nil {
-		return errWrap(e, "StderrPipe")
+		return Err(e, "StderrPipe")
 	}
 
 	e = cmd.Start()
 	if e != nil {
-		return errWrap(e, "start")
+		return Err(e, "start")
 	}
 
 	reader := bufio.NewReader(exio.MultiReader(stderr, stdout))
@@ -119,7 +119,7 @@ func (c *Command) RunContext(ctx context.Context, args string, info chan<- strin
 	for {
 		select {
 		case <-ctx.Done():
-			return errWrap(ctx.Err(), "done")
+			return Err(ctx.Err(), "done")
 		default:
 			lines, _, e = reader.ReadLine()
 			if e != nil || io.EOF == e {
