@@ -66,8 +66,13 @@ func (c *Crypto) SaveKeyInfo() error {
 		}
 	}
 	if err == nil && !stat.IsDir() {
-		return fmt.Errorf("wrong target path:%s", split)
+		return fmt.Errorf("wrong target path:(%v)", split)
 	}
+
+	if c.URL == "" {
+		return fmt.Errorf("wrong url address:(%v)", c.URL)
+	}
+
 	buff := bytes.NewBufferString(c.URL)
 	buff.WriteString("\n")
 	buff.WriteString(c.KeyPath)
