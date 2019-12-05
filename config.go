@@ -73,13 +73,6 @@ var frameRateList = []float64{
 	//Scale4K:    float64(30000)/1001 - 0.005,
 }
 
-//Crypto ...
-type Crypto struct {
-	Key string
-	IV  string
-	URL string
-}
-
 // CutOut ...
 type CutOut struct {
 	StartTime string
