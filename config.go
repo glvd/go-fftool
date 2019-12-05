@@ -12,7 +12,8 @@ import (
 	"github.com/goextension/log"
 )
 
-const sliceOutputTemplate = "-bsf:v,h264_mp4toannexb,-f,hls,-hls_list_size,0,-hls_time,%d,-hls_segment_filename,%s,%s"
+const sliceOutputTemplate = "-bsf:v,h264_mp4toannexb,-f,hls,-hls_list_size,0%s,-hls_time,%d,-hls_segment_filename,%s,%s"
+const cryptoOutputTemplate = ",-hls_key_info_file,%s"
 const scaleOutputTemplate = ",-vf,scale=-2:%d"
 const cuvidScaleOutputTemplate = ",-vf,scale_npp=-2:%d"
 const bitRateOutputTemplate = ",-b:v,%dK"
@@ -157,6 +158,14 @@ func (c *Config) abs() {
 // SetCrypt ...
 func (c *Config) SetCrypt(crypto Crypto) {
 	c.crypto = &crypto
+}
+
+// CryptoInfo ...
+func (c *Config) CryptoInfo() string {
+	if c.crypto != nil {
+		return fmt.Sprintf(cryptoOutputTemplate, c.crypto.KeyInfoPath)
+	}
+	return ""
 }
 
 // Output ...
@@ -311,7 +320,7 @@ func outputArgs(c *Config, input string) string {
 
 	//generate slice arguments
 	if c.NeedSlice {
-		output = fmt.Sprintf(sliceOutputTemplate, c.HLSTime, filepath.Join(path, c.SegmentFileName), filepath.Join(path, c.M3U8Name))
+		output = fmt.Sprintf(sliceOutputTemplate, c.CryptoInfo(), c.HLSTime, filepath.Join(path, c.SegmentFileName), filepath.Join(path, c.M3U8Name))
 	} else {
 		output = filepath.Join(path, c.OutputName)
 	}
