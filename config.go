@@ -96,6 +96,7 @@ type Config struct {
 	M3U8Name        string
 	SegmentFileName string
 	HLSTime         int
+	KeyOutput       bool
 }
 
 // DefaultOutputPath ...
@@ -122,18 +123,30 @@ var DefaultHLSTime = 10
 // DefaultScale ...
 var DefaultScale = Scale720P
 
+// DefaultKeyName ...
+var DefaultKeyName = "m3u8_key"
+
+// DefaultKeyInfoName ...
+var DefaultKeyInfoName = "m3u8_key_info"
+
+// DefaultKeyPath ...
+var DefaultKeyPath = "output_key"
+
 // DefaultConfig ...
 func DefaultConfig() *Config {
 	return &Config{
+		output:          "",
+		videoFormat:     "libx264",
+		audioFormat:     "aac",
+		crypto:          nil,
 		Scale:           Scale720P,
 		ProcessCore:     DefaultProcessCore,
 		NeedSlice:       DefaultSlice,
 		BitRate:         0,
 		FrameRate:       0,
+		KeyOutput:       true,
 		OutputPath:      DefaultOutputPath,
 		OutputName:      DefaultOutputName,
-		videoFormat:     "libx264",
-		audioFormat:     "aac",
 		M3U8Name:        DefaultM3U8Name,
 		SegmentFileName: DefaultSegmentFileName,
 		HLSTime:         DefaultHLSTime,
@@ -144,15 +157,16 @@ func (c *Config) init() {
 
 }
 
-func (c *Config) abs() {
-	if filepath.IsAbs(c.OutputPath) {
-		return
+func abs(path string) string {
+	if filepath.IsAbs(path) {
+		return path
 	}
-	abs, err := filepath.Abs(c.OutputPath)
+	abs, err := filepath.Abs(path)
 	if err != nil {
-		return
+		LogError(err)
+		return ""
 	}
-	c.OutputPath = abs
+	return abs
 }
 
 // SetCrypt ...
@@ -168,14 +182,29 @@ func (c *Config) CryptoInfo() string {
 	return ""
 }
 
+// SaveKey ...
+func (c *Config) SaveKey() error {
+	if c.crypto != nil && c.KeyOutput {
+		c.crypto.URL = DefaultKeyName
+		c.crypto.KeyInfoPath = filepath.Join(abs(DefaultKeyPath), c.OutputName, DefaultKeyInfoName)
+		c.crypto.KeyPath = filepath.Join(abs(DefaultKeyPath), c.OutputName, DefaultKeyName)
+		if err := c.crypto.SaveKey(); err != nil {
+			return err
+		}
+		if err := c.crypto.SaveKeyInfo(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // Output ...
 func (c *Config) Output() string {
-	c.abs()
+	c.OutputPath = abs(c.OutputPath)
 	if c.NeedSlice {
 		if filepath.Ext(c.OutputName) != "" {
 			//fix slice output name
 			c.OutputName = uuid.New().String()
-
 		}
 		return filepath.Join(c.OutputPath, c.OutputName)
 	}
@@ -320,6 +349,11 @@ func outputArgs(c *Config, input string) string {
 
 	//generate slice arguments
 	if c.NeedSlice {
+		err := c.SaveKey()
+		if err != nil {
+			LogError(err)
+			return ""
+		}
 		output = fmt.Sprintf(sliceOutputTemplate, c.CryptoInfo(), c.HLSTime, filepath.Join(path, c.SegmentFileName), filepath.Join(path, c.M3U8Name))
 	} else {
 		output = filepath.Join(path, c.OutputName)
