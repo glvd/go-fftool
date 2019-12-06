@@ -89,6 +89,7 @@ type Config struct {
 	crypto          *Crypto
 	Scale           Scale
 	ProcessCore     ProcessCore
+	ProcessID       string
 	BitRate         int64
 	FrameRate       float64
 	OutputPath      string //output path
@@ -156,7 +157,6 @@ func DefaultConfig() *Config {
 }
 
 type cfgAction interface {
-	do() string
 	output() string
 }
 
@@ -165,15 +165,8 @@ type sliceConfig struct {
 }
 
 func (cfg *sliceConfig) output() string {
-	return fmt.Sprintf(sliceOutputTemplate, cfg.CryptoInfo(), cfg.HLSTime, filepath.Join(cfg.FixPath(), cfg.SegmentFileName), filepath.Join(cfg.FixPath(), cfg.M3U8Name))
-}
-
-func (cfg *sliceConfig) do() string {
-	if filepath.Ext(cfg.OutputName) != "" {
-		//fix slice output name
-		cfg.OutputName = uuid.New().String()
-	}
-	return filepath.Join(cfg.OutputPath, cfg.OutputName)
+	log.Infow("path", "output", cfg.ProcessPath())
+	return fmt.Sprintf(sliceOutputTemplate, cfg.CryptoInfo(), cfg.HLSTime, filepath.Join(cfg.ProcessPath(), cfg.SegmentFileName), filepath.Join(cfg.ProcessPath(), cfg.M3U8Name))
 }
 
 type defaultConfig struct {
@@ -181,19 +174,11 @@ type defaultConfig struct {
 }
 
 func (cfg *defaultConfig) output() string {
-	return filepath.Join(cfg.FixPath(), cfg.OutputName)
-}
-
-func (cfg *defaultConfig) do() string {
-	if filepath.Ext(cfg.OutputName) == "" {
-		//fix media output name
-		cfg.OutputName += ".mp4"
-	}
-	return cfg.OutputPath
+	return filepath.Join(cfg.ProcessPath(), cfg.OutputName)
 }
 
 func (c *Config) init() {
-	c.FixPath()
+	c.ProcessID = uuid.New().String()
 }
 
 // SetSlice ...
@@ -234,8 +219,8 @@ func (c *Config) CryptoInfo() string {
 func (c *Config) SaveKey() error {
 	if c.crypto != nil && c.KeyOutput {
 		c.crypto.URL = DefaultKeyName
-		c.crypto.KeyInfoPath = filepath.Join(abs(DefaultKeyPath), c.OutputName, DefaultKeyInfoName)
-		c.crypto.KeyPath = filepath.Join(abs(DefaultKeyPath), c.OutputName, DefaultKeyName)
+		c.crypto.KeyInfoPath = filepath.Join(abs(DefaultKeyPath), c.ProcessID, DefaultKeyInfoName)
+		c.crypto.KeyPath = filepath.Join(abs(DefaultKeyPath), c.ProcessID, DefaultKeyName)
 		if err := c.crypto.SaveKey(); err != nil {
 			return err
 		}
@@ -246,10 +231,10 @@ func (c *Config) SaveKey() error {
 	return nil
 }
 
-// FixPath ...
-func (c *Config) FixPath() string {
+// ProcessPath ...
+func (c *Config) ProcessPath() string {
 	c.OutputPath = abs(c.OutputPath)
-	return c.action.do()
+	return filepath.Join(c.OutputPath, c.ProcessID)
 }
 
 func scaleVale(scale Scale) int64 {

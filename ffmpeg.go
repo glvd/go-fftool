@@ -24,6 +24,9 @@ func (ff *FFMpeg) init() error {
 	if ff.err != nil {
 		return ff.err
 	}
+
+	ff.config.init()
+
 	return nil
 }
 
@@ -54,10 +57,10 @@ func (ff FFMpeg) Run(ctx context.Context, input string) (e error) {
 		return Err(err, "init")
 	}
 
-	stat, e := os.Stat(ff.config.FixPath())
+	stat, e := os.Stat(ff.config.ProcessPath())
 	if e != nil {
 		if os.IsNotExist(e) {
-			_ = os.MkdirAll(ff.config.FixPath(), 0755)
+			_ = os.MkdirAll(ff.config.ProcessPath(), 0755)
 		} else {
 			return Err(e, "stat")
 		}

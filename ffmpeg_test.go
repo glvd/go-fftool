@@ -76,7 +76,7 @@ func TestFFMpeg_Run(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cfg := DefaultConfig()
-			cfg.SetSlice(true)
+			cfg.SetSlice(false)
 			c := GenerateCrypto(NewOpenSSL(), true)
 
 			cfg.SetCrypt(*c)
