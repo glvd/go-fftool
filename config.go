@@ -82,13 +82,13 @@ type CutOut struct {
 
 // Config ...
 type Config struct {
+	action          cfgAction
 	output          string
 	videoFormat     string
 	audioFormat     string
 	crypto          *Crypto
 	Scale           Scale
 	ProcessCore     ProcessCore
-	NeedSlice       bool
 	BitRate         int64
 	FrameRate       float64
 	OutputPath      string //output path
@@ -134,14 +134,14 @@ var DefaultKeyPath = "output_key"
 
 // DefaultConfig ...
 func DefaultConfig() *Config {
-	return &Config{
-		output:          "",
-		videoFormat:     "libx264",
-		audioFormat:     "aac",
-		crypto:          nil,
-		Scale:           Scale720P,
-		ProcessCore:     DefaultProcessCore,
-		NeedSlice:       DefaultSlice,
+	cfg := &Config{
+		output:      "",
+		videoFormat: "libx264",
+		audioFormat: "aac",
+		crypto:      nil,
+		Scale:       Scale720P,
+		ProcessCore: DefaultProcessCore,
+		//NeedSlice:       DefaultSlice,
 		BitRate:         0,
 		FrameRate:       0,
 		KeyOutput:       true,
@@ -151,22 +151,58 @@ func DefaultConfig() *Config {
 		SegmentFileName: DefaultSegmentFileName,
 		HLSTime:         DefaultHLSTime,
 	}
+	cfg.action = &defaultConfig{cfg}
+	return cfg
+}
+
+type cfgAction interface {
+	do() string
+	output() string
+}
+
+type sliceConfig struct {
+	*Config
+}
+
+func (cfg *sliceConfig) output() string {
+	return fmt.Sprintf(sliceOutputTemplate, cfg.CryptoInfo(), cfg.HLSTime, filepath.Join(cfg.Output(), cfg.SegmentFileName), filepath.Join(cfg.Output(), cfg.M3U8Name))
+}
+
+func (cfg *sliceConfig) do() string {
+	if filepath.Ext(cfg.OutputName) != "" {
+		//fix slice output name
+		cfg.OutputName = uuid.New().String()
+	}
+	return filepath.Join(cfg.OutputPath, cfg.OutputName)
+}
+
+type defaultConfig struct {
+	*Config
+}
+
+func (cfg *defaultConfig) output() string {
+	return filepath.Join(cfg.Output(), cfg.OutputName)
+}
+
+func (cfg *defaultConfig) do() string {
+	if filepath.Ext(cfg.OutputName) == "" {
+		//fix media output name
+		cfg.OutputName += ".mp4"
+	}
+	return cfg.OutputPath
 }
 
 func (c *Config) init() {
-	c.OutputPath = abs(c.OutputPath)
-	if c.NeedSlice {
-		if filepath.Ext(c.OutputName) != "" {
-			//fix slice output name
-			c.OutputName = uuid.New().String()
-		}
-		c.output = filepath.Join(c.OutputPath, c.OutputName)
+
+}
+
+// SetSlice ...
+func (c *Config) SetSlice(b bool) {
+	if b {
+		c.action = &sliceConfig{c}
+		return
 	}
-	if filepath.Ext(c.OutputName) == "" {
-		//fix media output name
-		c.OutputName += ".mp4"
-	}
-	c.output = c.OutputPath
+	c.action = &defaultConfig{c}
 }
 
 func abs(path string) string {
@@ -212,8 +248,8 @@ func (c *Config) SaveKey() error {
 
 // Output ...
 func (c *Config) Output() string {
-
-	return c.OutputPath
+	c.OutputPath = abs(c.OutputPath)
+	return c.action.do()
 }
 
 func scaleVale(scale Scale) int64 {
@@ -345,18 +381,9 @@ func outputArgs(c *Config, input string) string {
 		exts = append(exts, fmt.Sprintf(frameRateOutputTemplate, c.FrameRate))
 	}
 
-	output := ""
-	path := c.Output()
-
 	//generate slice arguments
-	if c.NeedSlice {
-		output = fmt.Sprintf(sliceOutputTemplate, c.CryptoInfo(), c.HLSTime, filepath.Join(path, c.SegmentFileName), filepath.Join(path, c.M3U8Name))
-	} else {
-		output = filepath.Join(path, c.OutputName)
-	}
-
 	//output arguments
-	return outputTemplate(c.ProcessCore, input, c.videoFormat, c.audioFormat, output, exts...)
+	return outputTemplate(c.ProcessCore, input, c.videoFormat, c.audioFormat, c.action.output(), exts...)
 }
 
 func outputTemplate(core ProcessCore, input, cv, ca, output string, exts ...interface{}) string {
