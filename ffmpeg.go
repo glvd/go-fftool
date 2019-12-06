@@ -66,6 +66,10 @@ func (ff FFMpeg) Run(ctx context.Context, input string) (e error) {
 		return errors.New("target is not dir")
 	}
 
+	e = ff.config.SaveKey()
+	if e != nil {
+		return Err(e, "savekey")
+	}
 	args := outputArgs(ff.config, input)
 
 	outlog := make(chan string)

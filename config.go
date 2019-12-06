@@ -154,7 +154,19 @@ func DefaultConfig() *Config {
 }
 
 func (c *Config) init() {
-
+	c.OutputPath = abs(c.OutputPath)
+	if c.NeedSlice {
+		if filepath.Ext(c.OutputName) != "" {
+			//fix slice output name
+			c.OutputName = uuid.New().String()
+		}
+		c.output = filepath.Join(c.OutputPath, c.OutputName)
+	}
+	if filepath.Ext(c.OutputName) == "" {
+		//fix media output name
+		c.OutputName += ".mp4"
+	}
+	c.output = c.OutputPath
 }
 
 func abs(path string) string {
@@ -200,18 +212,7 @@ func (c *Config) SaveKey() error {
 
 // Output ...
 func (c *Config) Output() string {
-	c.OutputPath = abs(c.OutputPath)
-	if c.NeedSlice {
-		if filepath.Ext(c.OutputName) != "" {
-			//fix slice output name
-			c.OutputName = uuid.New().String()
-		}
-		return filepath.Join(c.OutputPath, c.OutputName)
-	}
-	if filepath.Ext(c.OutputName) == "" {
-		//fix media output name
-		c.OutputName += ".mp4"
-	}
+
 	return c.OutputPath
 }
 
@@ -349,11 +350,6 @@ func outputArgs(c *Config, input string) string {
 
 	//generate slice arguments
 	if c.NeedSlice {
-		err := c.SaveKey()
-		if err != nil {
-			LogError(err)
-			return ""
-		}
 		output = fmt.Sprintf(sliceOutputTemplate, c.CryptoInfo(), c.HLSTime, filepath.Join(path, c.SegmentFileName), filepath.Join(path, c.M3U8Name))
 	} else {
 		output = filepath.Join(path, c.OutputName)
