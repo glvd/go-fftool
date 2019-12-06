@@ -119,17 +119,13 @@ func (c *Crypto) SaveKeyInfo() error {
 	}
 
 	if c.URL == "" {
-		return fmt.Errorf("wrong url address:(%v)", c.URL)
+		//return fmt.Errorf("wrong url address:(%v)", c.URL)
+		c.URL = filepath.Base(c.KeyPath)
 	}
-
-	buff := bytes.NewBufferString(c.URL)
-	buff.WriteString("\n")
-	buff.WriteString(c.KeyPath)
-	buff.WriteString("\n")
-	if c.UseIV {
-		buff.WriteString(c.IV)
-	}
-	return ioutil.WriteFile(c.KeyInfoPath, buff.Bytes(), 0755)
+	buff := outputKeyInfoString(c.URL, c.KeyPath, c.IV, c.UseIV)
+	absPath := abs(c.KeyInfoPath)
+	log.Infow("crypto", "path", absPath)
+	return ioutil.WriteFile(absPath, buff.Bytes(), 0755)
 }
 
 // Error ...
@@ -137,6 +133,13 @@ func (c *Crypto) Error() error {
 	return c.err
 }
 
-func outputKeyInfoString(url, key, iv string) []byte {
-	return nil
+func outputKeyInfoString(url, keypath, iv string, useIV bool) *bytes.Buffer {
+	buff := bytes.NewBufferString(url)
+	buff.WriteString("\n")
+	buff.WriteString(keypath)
+	buff.WriteString("\n")
+	if useIV {
+		buff.WriteString(iv)
+	}
+	return buff
 }

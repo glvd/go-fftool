@@ -26,7 +26,7 @@ func TestGenerateCrypto(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := GenerateCrypto(tt.args.ssl, tt.args.useIV); got.Error() == nil {
+			if got := GenerateCrypto(tt.args.ssl, tt.args.useIV); got.Error() != nil {
 				t.Errorf("GenerateCrypto() = %v", got.err)
 			}
 		})
@@ -53,9 +53,9 @@ func TestCrypto_SaveKey(t *testing.T) {
 			name: "savekey",
 			fields: fields{
 				err:         nil,
-				KeyInfoPath: "",
+				KeyInfoPath: DefaultKeyInfoName,
 				Key:         "",
-				KeyPath:     "randkey",
+				KeyPath:     DefaultKeyName,
 				UseIV:       false,
 				IV:          "",
 				URL:         "",
@@ -94,9 +94,9 @@ func TestCrypto_SaveKeyInfo(t *testing.T) {
 			name: "savekeyinfo",
 			fields: fields{
 				err:         nil,
-				KeyInfoPath: "keyinfo",
+				KeyInfoPath: DefaultKeyInfoName,
 				Key:         "",
-				KeyPath:     "randkey",
+				KeyPath:     DefaultKeyName,
 				UseIV:       true,
 				IV:          "",
 				URL:         "",
