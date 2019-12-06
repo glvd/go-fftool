@@ -46,7 +46,7 @@ func (ff *FFMpeg) OptimizeWithFormat(sfmt *StreamFormat) (newFF *FFMpeg) {
 	newFF.Name = ff.Name
 	e := OptimizeWithFormat(cfg, sfmt)
 	if e != nil {
-		newFF.err = e
+		newFF.err = Err(e, "optimized")
 	}
 	return
 }
