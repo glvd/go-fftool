@@ -14,7 +14,7 @@ import (
 	"github.com/goextension/log"
 )
 
-// DefaultCommandPath ...
+// DefaultCommandPath default point to current dir
 var DefaultCommandPath = ""
 
 // CommandRunner ...
