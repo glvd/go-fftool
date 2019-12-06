@@ -15,7 +15,7 @@ import (
 )
 
 // DefaultCommandPath ...
-var DefaultCommandPath = "bin"
+var DefaultCommandPath = ""
 
 // CommandRunner ...
 type CommandRunner interface {
