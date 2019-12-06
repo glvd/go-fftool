@@ -158,10 +158,19 @@ func DefaultConfig() *Config {
 
 type cfgAction interface {
 	output() string
+	do() error
 }
 
 type sliceConfig struct {
 	*Config
+}
+
+func (cfg *sliceConfig) do() (e error) {
+	e = cfg.SaveKey()
+	if e != nil {
+		return Err(e, "savekey")
+	}
+	return nil
 }
 
 func (cfg *sliceConfig) output() string {
@@ -171,6 +180,10 @@ func (cfg *sliceConfig) output() string {
 
 type defaultConfig struct {
 	*Config
+}
+
+func (cfg *defaultConfig) do() error {
+	return nil
 }
 
 func (cfg *defaultConfig) output() string {
@@ -257,8 +270,15 @@ func resolutionScale(v int64) Scale {
 }
 
 // Clone ...
-func (c *Config) Clone() Config {
-	return *c
+func (c *Config) Clone() *Config {
+	cfg := *c
+	if v, b := cfg.action.(*defaultConfig); b {
+		v.Config = &cfg
+	}
+	if v, b := cfg.action.(*sliceConfig); b {
+		v.Config = &cfg
+	}
+	return &cfg
 }
 
 // OptimizeWithFormat ...

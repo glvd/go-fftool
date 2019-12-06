@@ -42,9 +42,9 @@ func (ff *FFMpeg) Version() (string, error) {
 // OptimizeWithFormat ...
 func (ff *FFMpeg) OptimizeWithFormat(sfmt *StreamFormat) (newFF *FFMpeg) {
 	cfg := ff.config.Clone()
-	newFF = NewFFMpeg(&cfg)
+	newFF = NewFFMpeg(cfg)
 	newFF.Name = ff.Name
-	e := OptimizeWithFormat(&cfg, sfmt)
+	e := OptimizeWithFormat(cfg, sfmt)
 	if e != nil {
 		newFF.err = e
 	}
@@ -69,9 +69,9 @@ func (ff FFMpeg) Run(ctx context.Context, input string) (e error) {
 		return errors.New("target is not dir")
 	}
 
-	e = ff.config.SaveKey()
+	e = ff.config.action.do()
 	if e != nil {
-		return Err(e, "savekey")
+		return Err(e, "actiondo")
 	}
 	args := outputArgs(ff.config, input)
 
