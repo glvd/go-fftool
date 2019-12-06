@@ -49,7 +49,6 @@ func LoadCrypto(path string) (c *Crypto) {
 				return
 			}
 			c.Key = string(key)
-
 		case 1:
 			c.URL = string(line)
 		case 2:
