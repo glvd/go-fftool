@@ -1,8 +1,11 @@
 package fftool
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
+	"github.com/goextension/log"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -17,6 +20,53 @@ type Crypto struct {
 	UseIV       bool
 	IV          string
 	URL         string
+}
+
+// LoadCrypto ...
+func LoadCrypto(path string) (c *Crypto) {
+	c = &Crypto{}
+	path = abs(path)
+	open, err := os.Open(path)
+	if err != nil {
+		c.err = Err(err, "crypto open")
+	}
+	reader := bufio.NewReader(open)
+
+	c.KeyInfoPath = path
+	line, _, err := reader.ReadLine()
+	for i := 0; err == nil; i++ {
+		switch i {
+		case 0:
+			c.KeyPath = string(line)
+
+			if !filepath.IsAbs(c.KeyPath) {
+				c.KeyPath = filepath.Join(filepath.Dir(path), c.KeyPath)
+			}
+
+			key, err := ioutil.ReadFile(c.KeyPath)
+			if err != nil {
+				c.err = Err(err, "crypto read key")
+				return
+			}
+			c.Key = string(key)
+
+		case 1:
+			c.URL = string(line)
+		case 2:
+			c.IV = string(line)
+			if c.IV != "" {
+				c.UseIV = true
+			}
+		default:
+			log.Infow("crypto", "read", string(line))
+		}
+		line, _, err = reader.ReadLine()
+	}
+
+	if err != io.EOF {
+		c.err = Err(err, "crypto read info")
+	}
+	return
 }
 
 // GenerateCrypto ...

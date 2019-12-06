@@ -115,3 +115,37 @@ func TestCrypto_SaveKeyInfo(t *testing.T) {
 		})
 	}
 }
+
+// TestLoadCrypto ...
+func TestLoadCrypto(t *testing.T) {
+	type args struct {
+		path string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantC   *Crypto
+		wantErr bool
+	}{
+		{
+			name: "test1",
+			args: args{
+				path: `D:\workspace\golang\project\go-fftool\output_key\5f2e2a10-f6df-450f-834d-97c17cc70396\m3u8_key_info`,
+			},
+			wantC:   nil,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotC := LoadCrypto(tt.args.path)
+			if (gotC.Error() != nil) != tt.wantErr {
+				t.Errorf("LoadCrypto() error = %v, wantErr %v", gotC.Error(), tt.wantErr)
+				return
+			}
+			if gotC != nil {
+				t.Logf("LoadCrypto() gotC = %+v", gotC)
+			}
+		})
+	}
+}
