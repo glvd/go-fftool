@@ -54,10 +54,10 @@ func (ff FFMpeg) Run(ctx context.Context, input string) (e error) {
 		return Err(err, "init")
 	}
 
-	stat, e := os.Stat(ff.config.Output())
+	stat, e := os.Stat(ff.config.FixPath())
 	if e != nil {
 		if os.IsNotExist(e) {
-			_ = os.MkdirAll(ff.config.Output(), 0755)
+			_ = os.MkdirAll(ff.config.FixPath(), 0755)
 		} else {
 			return Err(e, "stat")
 		}

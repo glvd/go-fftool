@@ -165,7 +165,7 @@ type sliceConfig struct {
 }
 
 func (cfg *sliceConfig) output() string {
-	return fmt.Sprintf(sliceOutputTemplate, cfg.CryptoInfo(), cfg.HLSTime, filepath.Join(cfg.Output(), cfg.SegmentFileName), filepath.Join(cfg.Output(), cfg.M3U8Name))
+	return fmt.Sprintf(sliceOutputTemplate, cfg.CryptoInfo(), cfg.HLSTime, filepath.Join(cfg.FixPath(), cfg.SegmentFileName), filepath.Join(cfg.FixPath(), cfg.M3U8Name))
 }
 
 func (cfg *sliceConfig) do() string {
@@ -181,7 +181,7 @@ type defaultConfig struct {
 }
 
 func (cfg *defaultConfig) output() string {
-	return filepath.Join(cfg.Output(), cfg.OutputName)
+	return filepath.Join(cfg.FixPath(), cfg.OutputName)
 }
 
 func (cfg *defaultConfig) do() string {
@@ -193,7 +193,7 @@ func (cfg *defaultConfig) do() string {
 }
 
 func (c *Config) init() {
-
+	c.FixPath()
 }
 
 // SetSlice ...
@@ -246,8 +246,8 @@ func (c *Config) SaveKey() error {
 	return nil
 }
 
-// Output ...
-func (c *Config) Output() string {
+// FixPath ...
+func (c *Config) FixPath() string {
 	c.OutputPath = abs(c.OutputPath)
 	return c.action.do()
 }

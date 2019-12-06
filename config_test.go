@@ -18,6 +18,7 @@ func init() {
 
 // Test_outputArgs ...
 func Test_outputArgs(t *testing.T) {
+	cfg := DefaultConfig()
 	type fields struct {
 		Scale           Scale
 		BitRate         int64
@@ -49,9 +50,9 @@ func Test_outputArgs(t *testing.T) {
 		{
 			name: "args2",
 			fields: Config{
+				action:          &defaultConfig{cfg},
 				Scale:           DefaultScale,
 				ProcessCore:     ProcessCPU,
-				NeedSlice:       DefaultSlice,
 				BitRate:         0,
 				FrameRate:       0,
 				OutputPath:      DefaultOutputPath,
@@ -69,9 +70,9 @@ func Test_outputArgs(t *testing.T) {
 		{
 			name: "args3",
 			fields: Config{
+				action:          &defaultConfig{cfg},
 				Scale:           DefaultScale,
 				ProcessCore:     DefaultProcessCore,
-				NeedSlice:       DefaultSlice,
 				BitRate:         0,
 				FrameRate:       0,
 				OutputPath:      DefaultOutputPath,
@@ -89,13 +90,13 @@ func Test_outputArgs(t *testing.T) {
 		{
 			name: "args4",
 			fields: Config{
+				action:          &defaultConfig{cfg},
 				output:          "",
 				videoFormat:     "libx264",
 				audioFormat:     "aac",
 				crypto:          nil,
 				Scale:           DefaultScale,
 				ProcessCore:     DefaultProcessCore,
-				NeedSlice:       true,
 				BitRate:         0,
 				FrameRate:       0,
 				OutputPath:      DefaultOutputPath,
@@ -111,13 +112,13 @@ func Test_outputArgs(t *testing.T) {
 		{
 			name: "args5",
 			fields: Config{
+				action:          &defaultConfig{cfg},
 				output:          "",
 				videoFormat:     "libx264",
 				audioFormat:     "aac",
 				crypto:          GenerateCrypto(NewOpenSSL(), true),
 				Scale:           DefaultScale,
 				ProcessCore:     DefaultProcessCore,
-				NeedSlice:       true,
 				BitRate:         0,
 				FrameRate:       0,
 				OutputPath:      DefaultOutputPath,
@@ -125,6 +126,7 @@ func Test_outputArgs(t *testing.T) {
 				M3U8Name:        DefaultM3U8Name,
 				SegmentFileName: DefaultSegmentFileName,
 				HLSTime:         DefaultHLSTime,
+				KeyOutput:       false,
 			},
 			args: args{
 				intput: "d:\\video\\周杰伦 唱歌贼难听.2019.1080P.h264.aac.Japanese.None.mp4",
