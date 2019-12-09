@@ -307,7 +307,7 @@ func OptimizeWithFormat(c *Config, sfmt *StreamFormat) (e error) {
 		return e
 	}
 
-	if video.CodecName == "h264" && c.Scale == 0 {
+	if video.CodecName == "h264" && c.Scale == -1 {
 		c.videoFormat = "copy"
 	}
 
