@@ -43,6 +43,26 @@ const (
 	//Scale8K    Scale = 5
 )
 
+// Config ...
+type Config struct {
+	action          cfgAction
+	output          string
+	videoFormat     string
+	audioFormat     string
+	crypto          *Crypto
+	Scale           Scale
+	ProcessCore     ProcessCore
+	ProcessID       string
+	BitRate         int64
+	FrameRate       float64
+	OutputPath      string //output path
+	OutputName      string
+	M3U8Name        string
+	SegmentFileName string
+	HLSTime         int
+	KeyOutput       bool
+}
+
 // ProcessCore ...
 type ProcessCore int
 
@@ -78,26 +98,6 @@ var frameRateList = []float64{
 type CutOut struct {
 	StartTime string
 	EndTime   string
-}
-
-// Config ...
-type Config struct {
-	action          cfgAction
-	output          string
-	videoFormat     string
-	audioFormat     string
-	crypto          *Crypto
-	Scale           Scale
-	ProcessCore     ProcessCore
-	ProcessID       string
-	BitRate         int64
-	FrameRate       float64
-	OutputPath      string //output path
-	OutputName      string
-	M3U8Name        string
-	SegmentFileName string
-	HLSTime         int
-	KeyOutput       bool
 }
 
 // DefaultOutputPath ...
