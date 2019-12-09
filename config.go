@@ -249,7 +249,8 @@ func (c *Config) ProcessPath() string {
 	return filepath.Join(c.OutputPath, c.ProcessID)
 }
 
-func scaleVale(scale Scale) int64 {
+// ScaleValue ...
+func ScaleValue(scale Scale) int64 {
 	i := int(scale)
 	if len(scaleList) <= i {
 		return 0
@@ -369,11 +370,11 @@ func outputArgs(c *Config, input string) string {
 
 	//add scale setting
 	if c.Scale != -1 {
-		log.Infow("scale", "scale", c.Scale, "value", scaleVale(c.Scale))
+		log.Infow("scale", "scale", c.Scale, "value", ScaleValue(c.Scale))
 		if c.ProcessCore != ProcessCUVID {
-			exts = append(exts, fmt.Sprintf(scaleOutputTemplate, scaleVale(c.Scale)))
+			exts = append(exts, fmt.Sprintf(scaleOutputTemplate, ScaleValue(c.Scale)))
 		} else {
-			exts = append(exts, fmt.Sprintf(cuvidScaleOutputTemplate, scaleVale(c.Scale)))
+			exts = append(exts, fmt.Sprintf(cuvidScaleOutputTemplate, ScaleValue(c.Scale)))
 		}
 	}
 	//add bitrate arguments
