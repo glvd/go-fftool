@@ -97,6 +97,11 @@ func (ff *FFMpeg) Error() error {
 	return ff.err
 }
 
+// Config ...
+func (ff FFMpeg) Config() Config {
+	return *ff.config
+}
+
 // NewFFMpeg ...
 func NewFFMpeg(config *Config) *FFMpeg {
 	ff := &FFMpeg{
