@@ -136,13 +136,12 @@ var DefaultKeyPath = "output_key"
 // DefaultConfig ...
 func DefaultConfig() *Config {
 	cfg := &Config{
-		output:      "",
-		videoFormat: "libx264",
-		audioFormat: "aac",
-		crypto:      nil,
-		Scale:       Scale720P,
-		ProcessCore: DefaultProcessCore,
-		//NeedSlice:       DefaultSlice,
+		output:          "",
+		videoFormat:     "libx264",
+		audioFormat:     "aac",
+		crypto:          nil,
+		Scale:           Scale720P,
+		ProcessCore:     DefaultProcessCore,
 		BitRate:         0,
 		FrameRate:       0,
 		KeyOutput:       true,
