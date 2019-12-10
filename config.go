@@ -193,12 +193,13 @@ func (c *Config) init() {
 	c.ProcessID = uuid.New().String()
 }
 
-// SetSlice ...
-func (c *Config) SetSlice(b bool) {
-	if b {
-		c.action = &sliceConfig{c}
-		return
-	}
+// SliceOn ...
+func (c *Config) SliceOn() {
+	c.action = &sliceConfig{c}
+}
+
+// SliceOff ...
+func (c *Config) SliceOff() {
 	c.action = &defaultConfig{c}
 }
 
