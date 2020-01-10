@@ -2,6 +2,7 @@ package fftool
 
 import (
 	"context"
+	"sync"
 	"testing"
 )
 
@@ -79,18 +80,13 @@ func TestFFMpeg_Run(t *testing.T) {
 				input: testVideo,
 			},
 			wantErr: false,
-		}, {
-			name:   "run3",
-			fields: fields{},
-			args: args{
-				ctx:   context.Background(),
-				input: testVideo,
-			},
-			wantErr: false,
 		},
 	}
+	wg := &sync.WaitGroup{}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
 			cfg := DefaultConfig()
 			cfg.Slice = true
 			c := GenerateCrypto(NewOpenSSL(), true)
@@ -108,8 +104,9 @@ func TestFFMpeg_Run(t *testing.T) {
 			}); (err != nil) != tt.wantErr {
 				t.Errorf("Run() error = %v, wantErr %v", err, tt.wantErr)
 			}
-		})
+		}()
 	}
+	wg.Wait()
 }
 
 // TestFFMpeg_OptimizeWithFormat ...
