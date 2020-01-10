@@ -46,14 +46,14 @@ const (
 
 // Config ...
 type Config struct {
-	_once           sync.Once
-	output          string
-	videoFormat     string
-	audioFormat     string
+	once            sync.Once
+	processID       string
 	crypto          *Crypto
+	output          string
+	VideoFormat     string
+	AudioFormat     string
 	Scale           Scale
 	ProcessCore     ProcessCore
-	ProcessID       string
 	BitRate         int64
 	FrameRate       float64
 	OutputPath      string //output path
@@ -140,13 +140,12 @@ var DefaultKeyPath = "output_key"
 func DefaultConfig() *Config {
 	cfg := &Config{
 		output:          "",
-		videoFormat:     "libx264",
-		audioFormat:     "aac",
+		VideoFormat:     "libx264",
+		AudioFormat:     "aac",
 		crypto:          nil,
 		Slice:           true,
 		Scale:           Scale720P,
 		ProcessCore:     DefaultProcessCore,
-		ProcessID:       uuid.New().String(),
 		BitRate:         0,
 		FrameRate:       0,
 		KeyOutput:       true,
@@ -158,11 +157,6 @@ func DefaultConfig() *Config {
 		HLSTime:         DefaultHLSTime,
 	}
 	return cfg
-}
-
-type cfgAction interface {
-	output() string
-	do() error
 }
 
 type sliceConfig struct {
@@ -194,10 +188,6 @@ func (cfg *defaultConfig) output() string {
 	return filepath.Join(cfg.ProcessPath(), cfg.OutputName)
 }
 
-func (c *Config) init() {
-	c.ProcessID = uuid.New().String()
-}
-
 func abs(path string) string {
 	if filepath.IsAbs(path) {
 		return path
@@ -223,6 +213,14 @@ func (c *Config) CryptoInfo() string {
 	return ""
 }
 
+// ProcessID ...
+func (c *Config) ProcessID() string {
+	c.once.Do(func() {
+		c.processID = uuid.New().String()
+	})
+	return c.processID
+}
+
 // ActionOutput ...
 func (c *Config) ActionOutput() string {
 	if c.Slice {
@@ -235,8 +233,8 @@ func (c *Config) ActionOutput() string {
 func (c *Config) SaveKey() error {
 	if c.crypto != nil && c.KeyOutput {
 		c.crypto.URL = DefaultKeyName
-		c.crypto.KeyInfoPath = filepath.Join(abs(c.KeyPath), c.ProcessID, DefaultKeyInfoName)
-		c.crypto.KeyPath = filepath.Join(abs(c.KeyPath), c.ProcessID, DefaultKeyName)
+		c.crypto.KeyInfoPath = filepath.Join(abs(c.KeyPath), c.ProcessID(), DefaultKeyInfoName)
+		c.crypto.KeyPath = filepath.Join(abs(c.KeyPath), c.ProcessID(), DefaultKeyName)
 		if err := c.crypto.SaveKey(); err != nil {
 			return err
 		}
@@ -250,7 +248,15 @@ func (c *Config) SaveKey() error {
 // ProcessPath ...
 func (c *Config) ProcessPath() string {
 	c.OutputPath = abs(c.OutputPath)
-	return filepath.Join(c.OutputPath, c.ProcessID)
+	return filepath.Join(c.OutputPath, c.ProcessID())
+}
+
+// Action ...
+func (c *Config) Action() error {
+	if c.Slice {
+		return c.SaveKey()
+	}
+	return nil
 }
 
 // ScaleValue ...
@@ -300,11 +306,11 @@ func OptimizeWithFormat(c *Config, sfmt *StreamFormat) (e error) {
 	}
 
 	if video.CodecName == "h264" && c.Scale == -1 {
-		c.videoFormat = "copy"
+		c.VideoFormat = "copy"
 	}
 
 	if audio := sfmt.Audio(); audio != nil && audio.CodecName == "aac" {
-		c.audioFormat = "copy"
+		c.AudioFormat = "copy"
 	}
 
 	return nil
@@ -356,8 +362,8 @@ func outputArgs(c *Config, input string) string {
 	var exts []interface{}
 
 	//gpu decode config
-	if c.ProcessCore != ProcessCPU && c.videoFormat != "copy" {
-		c.videoFormat = "h264_nvenc"
+	if c.ProcessCore != ProcessCPU && c.VideoFormat != "copy" {
+		c.VideoFormat = "h264_nvenc"
 	}
 
 	//add scale setting
@@ -380,7 +386,7 @@ func outputArgs(c *Config, input string) string {
 
 	//generate slice arguments
 	//output arguments
-	return outputTemplate(c.ProcessCore, input, c.videoFormat, c.audioFormat, c.action.output(), exts...)
+	return outputTemplate(c.ProcessCore, input, c.VideoFormat, c.AudioFormat, c.ActionOutput(), exts...)
 }
 
 func outputTemplate(core ProcessCore, input, cv, ca, output string, exts ...interface{}) string {

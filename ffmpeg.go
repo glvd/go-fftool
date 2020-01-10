@@ -60,9 +60,9 @@ func (ff FFMpeg) Run(ctx context.Context, input string, opts ...RunOptions) (e e
 		return errors.New("target is not dir")
 	}
 
-	e = cfg.action.do()
+	e = cfg.Action()
 	if e != nil {
-		return Err(e, "actiondo")
+		return Err(e, "action do")
 	}
 	args := outputArgs(cfg, input)
 
