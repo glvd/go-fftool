@@ -64,7 +64,23 @@ func TestFFMpeg_Run(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name:   "run",
+			name:   "run1",
+			fields: fields{},
+			args: args{
+				ctx:   context.Background(),
+				input: testVideo,
+			},
+			wantErr: false,
+		}, {
+			name:   "run2",
+			fields: fields{},
+			args: args{
+				ctx:   context.Background(),
+				input: testVideo,
+			},
+			wantErr: false,
+		}, {
+			name:   "run3",
 			fields: fields{},
 			args: args{
 				ctx:   context.Background(),
