@@ -93,11 +93,7 @@ func (ff *FFMpeg) Error() error {
 
 // NewFFMpeg ...
 func NewFFMpeg() *FFMpeg {
-	_mpegOnce.Do(func() {
-		_mpeg = &FFMpeg{
-			Name: "ffmpeg",
-		}
-	})
-
-	return _mpeg
+	return &FFMpeg{
+		Name: "ffmpeg",
+	}
 }

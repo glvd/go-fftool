@@ -3,7 +3,6 @@ package fftool
 import (
 	"encoding/json"
 	"strings"
-	"sync"
 )
 
 const ffprobeStreamFormatTemplate = `-v,quiet,-print_format,json,-show_format,-show_streams,%s`
@@ -94,17 +93,6 @@ type StreamTags struct {
 type FFProbe struct {
 	cmd  *Command
 	Name string
-}
-
-var _probeOnce sync.Once
-var _probe *FFProbe
-
-// NewFFProbe ...
-func NewFFProbe() *FFProbe {
-	_probeOnce.Do(func() {
-		_probe = &FFProbe{Name: "ffprobe"}
-	})
-	return _probe
 }
 
 func (ff *FFProbe) init() {
@@ -208,4 +196,11 @@ func getResolution(n int64, sta, end int) int {
 		break
 	}
 	return resolution[sta]
+}
+
+// NewFFProbe ...
+func NewFFProbe() *FFProbe {
+	return &FFProbe{
+		Name: "ffprobe",
+	}
 }
