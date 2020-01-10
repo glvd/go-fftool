@@ -94,6 +94,6 @@ func (ff *FFMpeg) Error() error {
 // NewFFMpeg ...
 func NewFFMpeg() *FFMpeg {
 	return &FFMpeg{
-		Name: "ffmpeg",
+		Name: DefaultMpegName,
 	}
 }

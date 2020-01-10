@@ -201,6 +201,6 @@ func getResolution(n int64, sta, end int) int {
 // NewFFProbe ...
 func NewFFProbe() *FFProbe {
 	return &FFProbe{
-		Name: "ffprobe",
+		Name: DefaultProbeName,
 	}
 }

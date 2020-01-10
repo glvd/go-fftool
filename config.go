@@ -136,6 +136,12 @@ var DefaultKeyInfoName = "m3u8_key_info"
 // DefaultKeyPath ...
 var DefaultKeyPath = "output_key"
 
+// DefaultProbeName ...
+var DefaultProbeName = "ffprobe"
+
+// DefaultMpegName ...
+var DefaultMpegName = "ffmpeg"
+
 // DefaultConfig ...
 func DefaultConfig() *Config {
 	cfg := &Config{
@@ -143,7 +149,7 @@ func DefaultConfig() *Config {
 		VideoFormat:     "libx264",
 		AudioFormat:     "aac",
 		crypto:          nil,
-		Slice:           true,
+		Slice:           DefaultSlice,
 		Scale:           Scale720P,
 		ProcessCore:     DefaultProcessCore,
 		BitRate:         0,
