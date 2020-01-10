@@ -224,7 +224,7 @@ func (c *Config) ProcessID() string {
 // ActionOutput ...
 func (c *Config) ActionOutput() string {
 	if c.Slice {
-		fmt.Sprintf(sliceOutputTemplate, c.CryptoInfo(), c.HLSTime, filepath.Join(c.ProcessPath(), c.SegmentFileName), filepath.Join(c.ProcessPath(), c.M3U8Name))
+		return fmt.Sprintf(sliceOutputTemplate, c.CryptoInfo(), c.HLSTime, filepath.Join(c.ProcessPath(), c.SegmentFileName), filepath.Join(c.ProcessPath(), c.M3U8Name))
 	}
 	return filepath.Join(c.ProcessPath(), c.OutputName)
 }
@@ -407,6 +407,6 @@ func outputTemplate(core ProcessCore, input, cv, ca, output string, exts ...inte
 	default:
 		panic(fmt.Sprintf("wrong core type:%d", core))
 	}
-	log.Infow("format", "tmpl", tmpl)
+	log.Infow("format", "tmpl", tmpl, "output", output)
 	return fmt.Sprintf(tmpl, exts...)
 }

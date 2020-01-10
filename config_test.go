@@ -19,7 +19,6 @@ func init() {
 
 // Test_outputArgs ...
 func Test_outputArgs(t *testing.T) {
-	cfg := DefaultConfig()
 	type fields struct {
 		Scale           Scale
 		BitRate         int64
