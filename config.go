@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/goextension/log"
 )
@@ -45,7 +46,7 @@ const (
 
 // Config ...
 type Config struct {
-	action          cfgAction
+	_once           sync.Once
 	output          string
 	videoFormat     string
 	audioFormat     string
@@ -61,6 +62,8 @@ type Config struct {
 	SegmentFileName string
 	HLSTime         int
 	KeyOutput       bool
+	Slice           bool
+	KeyPath         string
 }
 
 // ProcessCore ...
@@ -140,18 +143,20 @@ func DefaultConfig() *Config {
 		videoFormat:     "libx264",
 		audioFormat:     "aac",
 		crypto:          nil,
+		Slice:           true,
 		Scale:           Scale720P,
 		ProcessCore:     DefaultProcessCore,
+		ProcessID:       uuid.New().String(),
 		BitRate:         0,
 		FrameRate:       0,
 		KeyOutput:       true,
+		KeyPath:         DefaultKeyPath,
 		OutputPath:      DefaultOutputPath,
 		OutputName:      DefaultOutputName,
 		M3U8Name:        DefaultM3U8Name,
 		SegmentFileName: DefaultSegmentFileName,
 		HLSTime:         DefaultHLSTime,
 	}
-	cfg.action = &defaultConfig{cfg}
 	return cfg
 }
 
@@ -193,16 +198,6 @@ func (c *Config) init() {
 	c.ProcessID = uuid.New().String()
 }
 
-// SliceOn ...
-func (c *Config) SliceOn() {
-	c.action = &sliceConfig{c}
-}
-
-// SliceOff ...
-func (c *Config) SliceOff() {
-	c.action = &defaultConfig{c}
-}
-
 func abs(path string) string {
 	if filepath.IsAbs(path) {
 		return path
@@ -228,12 +223,20 @@ func (c *Config) CryptoInfo() string {
 	return ""
 }
 
+// ActionOutput ...
+func (c *Config) ActionOutput() string {
+	if c.Slice {
+		fmt.Sprintf(sliceOutputTemplate, c.CryptoInfo(), c.HLSTime, filepath.Join(c.ProcessPath(), c.SegmentFileName), filepath.Join(c.ProcessPath(), c.M3U8Name))
+	}
+	return filepath.Join(c.ProcessPath(), c.OutputName)
+}
+
 // SaveKey ...
 func (c *Config) SaveKey() error {
 	if c.crypto != nil && c.KeyOutput {
 		c.crypto.URL = DefaultKeyName
-		c.crypto.KeyInfoPath = filepath.Join(abs(DefaultKeyPath), c.ProcessID, DefaultKeyInfoName)
-		c.crypto.KeyPath = filepath.Join(abs(DefaultKeyPath), c.ProcessID, DefaultKeyName)
+		c.crypto.KeyInfoPath = filepath.Join(abs(c.KeyPath), c.ProcessID, DefaultKeyInfoName)
+		c.crypto.KeyPath = filepath.Join(abs(c.KeyPath), c.ProcessID, DefaultKeyName)
 		if err := c.crypto.SaveKey(); err != nil {
 			return err
 		}
@@ -268,18 +271,6 @@ func resolutionScale(v int64) Scale {
 		return Scale1080P
 	}
 	return Scale720P
-}
-
-// Clone ...
-func (c *Config) Clone() *Config {
-	cfg := *c
-	if v, b := cfg.action.(*defaultConfig); b {
-		v.Config = &cfg
-	}
-	if v, b := cfg.action.(*sliceConfig); b {
-		v.Config = &cfg
-	}
-	return &cfg
 }
 
 // OptimizeWithFormat ...

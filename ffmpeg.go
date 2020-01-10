@@ -11,11 +11,13 @@ import (
 
 // FFMpeg ...
 type FFMpeg struct {
-	err    error
-	config *Config
-	cmd    *Command
-	Name   string
+	err  error
+	cmd  *Command
+	Name string
 }
+
+// RunOptions ...
+type RunOptions func(config *Config) *Config
 
 func (ff *FFMpeg) init() error {
 	if ff.cmd == nil {
@@ -24,9 +26,6 @@ func (ff *FFMpeg) init() error {
 	if ff.err != nil {
 		return ff.err
 	}
-
-	ff.config.init()
-
 	return nil
 }
 
@@ -39,28 +38,20 @@ func (ff *FFMpeg) Version() (string, error) {
 	return ff.cmd.Run("-version")
 }
 
-// OptimizeWithFormat ...
-func (ff *FFMpeg) OptimizeWithFormat(sfmt *StreamFormat) (newFF *FFMpeg) {
-	cfg := ff.config.Clone()
-	newFF = NewFFMpeg(cfg)
-	newFF.Name = ff.Name
-	e := OptimizeWithFormat(cfg, sfmt)
-	if e != nil {
-		newFF.err = Err(e, "optimized")
-	}
-	return
-}
-
 // Run ...
-func (ff FFMpeg) Run(ctx context.Context, input string) (e error) {
+func (ff FFMpeg) Run(ctx context.Context, input string, opts ...RunOptions) (e error) {
 	if err := ff.init(); err != nil {
 		return Err(err, "init")
 	}
+	cfg := DefaultConfig()
+	for _, opt := range opts {
+		cfg = opt(cfg)
+	}
 
-	stat, e := os.Stat(ff.config.ProcessPath())
+	stat, e := os.Stat(cfg.ProcessPath())
 	if e != nil {
 		if os.IsNotExist(e) {
-			_ = os.MkdirAll(ff.config.ProcessPath(), 0755)
+			_ = os.MkdirAll(cfg.ProcessPath(), 0755)
 		} else {
 			return Err(e, "stat")
 		}
@@ -69,11 +60,11 @@ func (ff FFMpeg) Run(ctx context.Context, input string) (e error) {
 		return errors.New("target is not dir")
 	}
 
-	e = ff.config.action.do()
+	e = cfg.action.do()
 	if e != nil {
 		return Err(e, "actiondo")
 	}
-	args := outputArgs(ff.config, input)
+	args := outputArgs(cfg, input)
 
 	outlog := make(chan string)
 	wg := &sync.WaitGroup{}
@@ -97,16 +88,10 @@ func (ff *FFMpeg) Error() error {
 	return ff.err
 }
 
-// Config ...
-func (ff FFMpeg) Config() Config {
-	return *ff.config
-}
-
 // NewFFMpeg ...
-func NewFFMpeg(config *Config) *FFMpeg {
+func NewFFMpeg() *FFMpeg {
 	ff := &FFMpeg{
-		config: config,
-		Name:   "ffmpeg",
+		Name: "ffmpeg",
 	}
 
 	return ff
