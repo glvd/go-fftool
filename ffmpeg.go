@@ -16,6 +16,9 @@ type FFMpeg struct {
 	Name string
 }
 
+var _mpeg *FFMpeg
+var _mpegOnce sync.Once
+
 // RunOptions ...
 type RunOptions func(config *Config) *Config
 
@@ -90,9 +93,11 @@ func (ff *FFMpeg) Error() error {
 
 // NewFFMpeg ...
 func NewFFMpeg() *FFMpeg {
-	ff := &FFMpeg{
-		Name: "ffmpeg",
-	}
+	_mpegOnce.Do(func() {
+		_mpeg = &FFMpeg{
+			Name: "ffmpeg",
+		}
+	})
 
-	return ff
+	return _mpeg
 }

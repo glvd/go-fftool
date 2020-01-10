@@ -3,6 +3,7 @@ package fftool
 import (
 	"encoding/json"
 	"strings"
+	"sync"
 )
 
 const ffprobeStreamFormatTemplate = `-v,quiet,-print_format,json,-show_format,-show_streams,%s`
@@ -89,40 +90,21 @@ type StreamTags struct {
 	HandlerName string `json:"handler_name"`
 }
 
-//var resolution = []int{120, 144, 160, 200, 240, 320, 360, 480, 540, 576, 600, 640, 720, 768, 800, 864, 900, 960, 1024, 1050, 1080, 1152, 1200, 1280, 1440, 1536, 1600, 1620, 1800, 1824, 1920, 2048, 2160, 2400, 2560, 2880, 3072, 3200, 4096, 4320, 4800}
-var resolution = []int{240, 360, 480, 720, 1080, 1920, 2560, 4096, 4800}
-
-func getResolution(n int64, sta, end int) int {
-	size := len(resolution)
-	if end == -1 || end > size {
-		end = size
-	}
-
-	for {
-		idx := (sta + end) / 2
-		if idx > sta {
-			if int64(resolution[idx]) > n {
-				end = idx
-			} else {
-				sta = idx
-			}
-			continue
-		}
-		break
-	}
-	return resolution[sta]
-}
-
 // FFProbe ...
 type FFProbe struct {
 	cmd  *Command
 	Name string
 }
 
+var _probeOnce sync.Once
+var _probe *FFProbe
+
 // NewFFProbe ...
 func NewFFProbe() *FFProbe {
-	ff := &FFProbe{Name: "ffprobe"}
-	return ff
+	_probeOnce.Do(func() {
+		_probe = &FFProbe{Name: "ffprobe"}
+	})
+	return _probe
 }
 
 func (ff *FFProbe) init() {
@@ -202,4 +184,28 @@ func (info *FileInfo) ToString() string {
 	infos = append(infos, info.Language)
 	infos = append(infos, info.Caption)
 	return strings.Join(infos, ".") + info.Ext
+}
+
+//var resolution = []int{120, 144, 160, 200, 240, 320, 360, 480, 540, 576, 600, 640, 720, 768, 800, 864, 900, 960, 1024, 1050, 1080, 1152, 1200, 1280, 1440, 1536, 1600, 1620, 1800, 1824, 1920, 2048, 2160, 2400, 2560, 2880, 3072, 3200, 4096, 4320, 4800}
+var resolution = []int{240, 360, 480, 720, 1080, 1920, 2560, 4096, 4800}
+
+func getResolution(n int64, sta, end int) int {
+	size := len(resolution)
+	if end == -1 || end > size {
+		end = size
+	}
+
+	for {
+		idx := (sta + end) / 2
+		if idx > sta {
+			if int64(resolution[idx]) > n {
+				end = idx
+			} else {
+				sta = idx
+			}
+			continue
+		}
+		break
+	}
+	return resolution[sta]
 }
