@@ -159,35 +159,6 @@ func DefaultConfig() *Config {
 	return cfg
 }
 
-type sliceConfig struct {
-	*Config
-}
-
-func (cfg *sliceConfig) do() (e error) {
-	e = cfg.SaveKey()
-	if e != nil {
-		return Err(e, "savekey")
-	}
-	return nil
-}
-
-func (cfg *sliceConfig) output() string {
-	log.Infow("path", "output", cfg.ProcessPath())
-	return fmt.Sprintf(sliceOutputTemplate, cfg.CryptoInfo(), cfg.HLSTime, filepath.Join(cfg.ProcessPath(), cfg.SegmentFileName), filepath.Join(cfg.ProcessPath(), cfg.M3U8Name))
-}
-
-type defaultConfig struct {
-	*Config
-}
-
-func (cfg *defaultConfig) do() error {
-	return nil
-}
-
-func (cfg *defaultConfig) output() string {
-	return filepath.Join(cfg.ProcessPath(), cfg.OutputName)
-}
-
 func abs(path string) string {
 	if filepath.IsAbs(path) {
 		return path
