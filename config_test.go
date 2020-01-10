@@ -51,7 +51,6 @@ func Test_outputArgs(t *testing.T) {
 		{
 			name: "args2",
 			fields: Config{
-				action:          &defaultConfig{cfg},
 				Scale:           DefaultScale,
 				ProcessCore:     ProcessCPU,
 				BitRate:         0,
@@ -71,7 +70,6 @@ func Test_outputArgs(t *testing.T) {
 		{
 			name: "args3",
 			fields: Config{
-				action:          &defaultConfig{cfg},
 				Scale:           DefaultScale,
 				ProcessCore:     DefaultProcessCore,
 				BitRate:         0,

@@ -32,7 +32,7 @@ func TestFFMpeg_Version(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ff := NewFFMpeg(DefaultConfig())
+			ff := NewFFMpeg()
 
 			got, err := ff.Version()
 			if (err != nil) != tt.wantErr {
@@ -76,17 +76,17 @@ func TestFFMpeg_Run(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cfg := DefaultConfig()
-			cfg.SliceOn()
+			cfg.Slice = true
 			c := GenerateCrypto(NewOpenSSL(), true)
 
 			cfg.SetCrypt(*c)
-			ff := NewFFMpeg(cfg)
-			newff := ff.OptimizeWithFormat(testStreamFormat)
-			if newff.Error() != nil {
-				t.Errorf("OptimizeWithFormat() error = %v, wantErr %v", newff.Error(), tt.wantErr)
+			ff := NewFFMpeg()
+			e := OptimizeWithFormat(cfg, testStreamFormat)
+			if e != nil {
+				t.Errorf("OptimizeWithFormat() error = %v, wantErr %v", e, tt.wantErr)
 				return
 			}
-			if err := newff.Run(tt.args.ctx, tt.args.input); (err != nil) != tt.wantErr {
+			if err := ff.Run(tt.args.ctx, tt.args.input); (err != nil) != tt.wantErr {
 				t.Errorf("Run() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -188,13 +188,17 @@ func TestFFMpeg_OptimizeWithFormat(t *testing.T) {
 				HLSTime:         tt.fields.HLSTime,
 			}
 
-			ff := NewFFMpeg(c)
-			newff := ff.OptimizeWithFormat(tt.args.sfmt)
-			if (newff.Error() != nil) != tt.wantErr {
-				t.Errorf("OptimizeWithFormat() error = %v, wantErr %v", newff.Error(), tt.wantErr)
+			ff := NewFFMpeg()
+			e := OptimizeWithFormat(c, tt.args.sfmt)
+			if (e != nil) != tt.wantErr {
+				t.Errorf("OptimizeWithFormat() error = %v, wantErr %v", e, tt.wantErr)
 				return
 			}
-			t.Logf("%+v", c)
+			if _, err := ff.Version(); err != nil {
+				t.Errorf("Version() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			t.Logf("config:%+v\n", c)
 		})
 	}
 }
