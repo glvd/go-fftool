@@ -26,6 +26,9 @@ func new() *Factory {
 }
 
 // Initialize ...
-func Initialize() {
-
+func Initialize(ops ...Options) {
+	_factory.once.Do(func() {
+		_factory.probe = fftool.NewFFProbe()
+		_factory.mpeg = fftool.NewFFMpeg()
+	})
 }

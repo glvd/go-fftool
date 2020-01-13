@@ -11,7 +11,7 @@ var sf *StreamFormat
 func init() {
 	DefaultCommandPath = `D:\workspace\golang\project\go-fftool\bin`
 	var e error
-	sf, e = NewFFProbe().StreamFormat(`d:\video\女大学生的沙龙室.Room.Salon.College.Girls.2018.HD720P.X264.AAC.Korean.CHS.mp4`)
+	sf, e = NewFFProbe().StreamFormat(`D:\video\test.mp4`)
 	if e != nil {
 		panic(e)
 	}

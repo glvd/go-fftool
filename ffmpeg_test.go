@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-var testVideo = `D:\video\周杰伦 唱歌贼难听.2019.1080P.h264.aac.Japanese.None.mp4`
+var testVideo = `D:\video\test.mp4`
 var testStreamFormat *StreamFormat
 
 func init() {

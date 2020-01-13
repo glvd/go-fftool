@@ -13,36 +13,20 @@ import (
 type FFMpeg struct {
 	err  error
 	cmd  *Command
-	Name string
+	name string
 }
 
 // RunOptions ...
 type RunOptions func(config *Config) *Config
 
-func (ff *FFMpeg) init() error {
-	if ff.cmd == nil {
-		ff.cmd = NewCommand(ff.Name)
-	}
-	if ff.err != nil {
-		return ff.err
-	}
-	return nil
-}
-
 // Version ...
 func (ff *FFMpeg) Version() (string, error) {
-	if err := ff.init(); err != nil {
-		return "", err
-	}
-
 	return ff.cmd.Run("-version")
 }
 
 // Run ...
 func (ff FFMpeg) Run(ctx context.Context, input string, opts ...RunOptions) (e error) {
-	if err := ff.init(); err != nil {
-		return Err(err, "init")
-	}
+
 	cfg := DefaultConfig()
 	for _, opt := range opts {
 		cfg = opt(cfg)
@@ -90,7 +74,10 @@ func (ff *FFMpeg) Error() error {
 
 // NewFFMpeg ...
 func NewFFMpeg() *FFMpeg {
-	return &FFMpeg{
-		Name: DefaultMpegName,
+	ff := &FFMpeg{
+		name: DefaultMpegName,
 	}
+	ff.cmd = NewCommand(ff.name)
+
+	return ff
 }

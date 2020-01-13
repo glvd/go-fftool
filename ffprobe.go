@@ -92,18 +92,11 @@ type StreamTags struct {
 // FFProbe ...
 type FFProbe struct {
 	cmd  *Command
-	Name string
-}
-
-func (ff *FFProbe) init() {
-	if ff.cmd == nil {
-		ff.cmd = NewCommand(ff.Name)
-	}
+	name string
 }
 
 // StreamFormat ...
 func (ff *FFProbe) StreamFormat(file string) (*StreamFormat, error) {
-	ff.init()
 	s, e := ff.cmd.Run(formatArgs(ffprobeStreamFormatTemplate, file))
 	if e != nil {
 		return nil, e
@@ -200,7 +193,9 @@ func getResolution(n int64, sta, end int) int {
 
 // NewFFProbe ...
 func NewFFProbe() *FFProbe {
-	return &FFProbe{
-		Name: DefaultProbeName,
+	ff := &FFProbe{
+		name: DefaultProbeName,
 	}
+	ff.cmd = NewCommand(ff.name)
+	return ff
 }
