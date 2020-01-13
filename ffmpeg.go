@@ -3,6 +3,7 @@ package fftool
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/goextension/log"
 	"os"
 	"strings"
@@ -17,7 +18,7 @@ type FFMpeg struct {
 }
 
 // RunOptions ...
-type RunOptions func(config Config) Config
+type RunOptions func(config *Config) *Config
 
 // Name ...
 func (ff FFMpeg) Name() string {
@@ -35,6 +36,10 @@ func (ff FFMpeg) Run(ctx context.Context, input string, opts ...RunOptions) (e e
 	for _, opt := range opts {
 		cfg = opt(cfg)
 	}
+	if cfg.processID != "" {
+		return fmt.Errorf("run with a exist id:%+v", cfg.processID)
+	}
+
 	log.Infow("process id", "id", cfg.ProcessID())
 	stat, e := os.Stat(cfg.ProcessPath())
 	if e != nil {

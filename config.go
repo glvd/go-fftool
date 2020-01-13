@@ -42,6 +42,12 @@ const (
 	//Scale8K    Scale = 5
 )
 
+// ProcessCore ...
+type ProcessCore int
+
+// Scale ...
+type Scale int
+
 // Config ...
 type Config struct {
 	processID       string
@@ -63,11 +69,11 @@ type Config struct {
 	KeyPath         string
 }
 
-// ProcessCore ...
-type ProcessCore int
-
-// Scale ...
-type Scale int
+// CutOut ...
+type CutOut struct {
+	StartTime string
+	EndTime   string
+}
 
 var scaleList = []int64{
 	0: 480,
@@ -92,12 +98,6 @@ var frameRateList = []float64{
 	Scale1080P: float64(30000)/1001 - 0.005,
 	//Scale2K:    float64(30000)/1001 - 0.005,
 	//Scale4K:    float64(30000)/1001 - 0.005,
-}
-
-// CutOut ...
-type CutOut struct {
-	StartTime string
-	EndTime   string
 }
 
 // DefaultOutputPath ...
@@ -140,12 +140,12 @@ var DefaultProbeName = "ffprobe"
 var DefaultMpegName = "ffmpeg"
 
 // DefaultConfig ...
-func DefaultConfig() Config {
-	return Config{
+func DefaultConfig() *Config {
+	return &Config{
+		crypto:          nil,
 		output:          "",
 		VideoFormat:     "libx264",
 		AudioFormat:     "aac",
-		crypto:          nil,
 		Slice:           DefaultSlice,
 		Scale:           Scale720P,
 		ProcessCore:     DefaultProcessCore,
