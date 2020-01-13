@@ -93,12 +93,12 @@ func TestFFMpeg_Run(t *testing.T) {
 
 			cfg.SetCrypt(*c)
 			ff := NewFFMpeg()
-			e := OptimizeWithFormat(&cfg, testStreamFormat)
+			e := OptimizeWithFormat(cfg, testStreamFormat)
 			if e != nil {
 				t.Errorf("OptimizeWithFormat() error = %v, wantErr %v", e, tt.wantErr)
 				return
 			}
-			if err := ff.Run(tt.args.ctx, tt.args.input, func(config Config) Config {
+			if err := ff.Run(tt.args.ctx, tt.args.input, func(config *Config) *Config {
 				return cfg
 			}); (err != nil) != tt.wantErr {
 				t.Errorf("Run() error = %v, wantErr %v", err, tt.wantErr)
