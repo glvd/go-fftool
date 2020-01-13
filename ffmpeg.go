@@ -16,9 +16,6 @@ type FFMpeg struct {
 	Name string
 }
 
-var _mpeg *FFMpeg
-var _mpegOnce sync.Once
-
 // RunOptions ...
 type RunOptions func(config *Config) *Config
 
