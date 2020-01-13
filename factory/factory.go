@@ -40,6 +40,10 @@ func Initialize(opts ...Options) {
 		fftool.DefaultProbeName = dop.ProbeName
 	}
 
+	if dop.CommandPath != "" {
+		fftool.DefaultCommandPath = dop.CommandPath
+	}
+
 	_factory.once.Do(func() {
 		_factory.probe = fftool.NewFFProbe()
 		_factory.mpeg = fftool.NewFFMpeg()
