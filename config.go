@@ -188,6 +188,10 @@ func (c *Config) CryptoInfo() string {
 
 // ProcessID ...
 func (c *Config) ProcessID() string {
+	return c.processID
+}
+
+func (c *Config) newProcessID() string {
 	if c.processID == "" {
 		c.processID = uuid.New().String()
 	}

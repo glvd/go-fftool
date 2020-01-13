@@ -17,8 +17,16 @@ type FFMpeg struct {
 	name string
 }
 
+// MpegOption ...
+type MpegOption struct {
+	Debug  bool
+	Config *Config
+	Input  string
+	Output string
+}
+
 // RunOptions ...
-type RunOptions func(config *Config) *Config
+type RunOptions func(opts *MpegOption)
 
 // Name ...
 func (ff FFMpeg) Name() string {
@@ -31,20 +39,25 @@ func (ff *FFMpeg) Version() (string, error) {
 }
 
 // Run ...
-func (ff FFMpeg) Run(ctx context.Context, input string, opts ...RunOptions) (e error) {
-	cfg := DefaultConfig()
-	for _, opt := range opts {
-		cfg = opt(cfg)
+func (ff FFMpeg) Run(ctx context.Context, opts ...RunOptions) (e error) {
+	m := &MpegOption{
+		Config: DefaultConfig(),
+		Input:  "",
+		Output: "",
 	}
-	if cfg.processID != "" {
-		return fmt.Errorf("run with a exist id:%+v", cfg.processID)
+	for _, opt := range opts {
+		opt(m)
+	}
+	if m.Config.processID != "" {
+		return fmt.Errorf("run with a exist id:%+v", m.Config.processID)
 	}
 
-	log.Infow("process id", "id", cfg.ProcessID())
-	stat, e := os.Stat(cfg.ProcessPath())
+	log.Infow("process id", "id", m.Config.newProcessID())
+	m.Output = m.Config.ProcessPath()
+	stat, e := os.Stat(m.Config.ProcessPath())
 	if e != nil {
 		if os.IsNotExist(e) {
-			_ = os.MkdirAll(cfg.ProcessPath(), 0755)
+			_ = os.MkdirAll(m.Config.ProcessPath(), 0755)
 		} else {
 			return Err(e, "stat")
 		}
@@ -52,12 +65,11 @@ func (ff FFMpeg) Run(ctx context.Context, input string, opts ...RunOptions) (e e
 	if e == nil && !stat.IsDir() {
 		return errors.New("target is not dir")
 	}
-
-	e = cfg.Action()
+	e = m.Config.Action()
 	if e != nil {
 		return Err(e, "action do")
 	}
-	args := outputArgs(&cfg, input)
+	args := outputArgs(m.Config, m.Input)
 
 	outlog := make(chan string)
 	wg := &sync.WaitGroup{}
@@ -67,6 +79,9 @@ func (ff FFMpeg) Run(ctx context.Context, input string, opts ...RunOptions) (e e
 		e = ff.cmd.RunContext(ctx, args, outlog)
 	}()
 	for i2 := range outlog {
+		if !m.Debug {
+			continue
+		}
 		ss := strings.Split(i2, "\r")
 		for _, i3 := range ss {
 			log.Infow("runmsg", "log", strings.TrimSpace(i3))
