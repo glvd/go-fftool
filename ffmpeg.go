@@ -6,6 +6,7 @@ import (
 	"github.com/goextension/log"
 	"github.com/google/uuid"
 	"os"
+	"strings"
 	"sync"
 )
 
@@ -23,7 +24,7 @@ type MpegOption struct {
 }
 
 // RunOptions ...
-type RunOptions func(cfg *Config)
+type RunOptions func(cfg *Config) *Config
 
 // Name ...
 func (ff FFMpeg) Name() string {
@@ -42,7 +43,7 @@ func (ff FFMpeg) Run(ctx context.Context, input string, opts ...RunOptions) (e e
 
 	config.processID = pid
 	for _, opt := range opts {
-		opt(config)
+		config = opt(config)
 	}
 	if config.processID == "" {
 		config.processID = pid
@@ -66,12 +67,28 @@ func (ff FFMpeg) Run(ctx context.Context, input string, opts ...RunOptions) (e e
 	}
 	args := outputArgs(config, input)
 
+	var outLog chan string
+	if config.LogOutput {
+		outLog = make(chan string)
+	}
+
+	log.Infow("runmsg", "init", outLog == nil)
+
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		e = ff.cmd.RunContext(ctx, args, config.LogOutput)
+		e = ff.cmd.RunContext(ctx, args, outLog)
 	}()
+
+	if config.LogOutput {
+		for i2 := range outLog {
+			ss := strings.Split(i2, "\r")
+			for _, i3 := range ss {
+				log.Infow("runmsg", "outLog", strings.TrimSpace(i3))
+			}
+		}
+	}
 	wg.Wait()
 	return e
 }

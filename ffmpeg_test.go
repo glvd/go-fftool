@@ -98,8 +98,9 @@ func TestFFMpeg_Run(t *testing.T) {
 				t.Errorf("OptimizeWithFormat() error = %v, wantErr %v", e, tt.wantErr)
 				return
 			}
-			if err := ff.Run(tt.args.ctx, tt.args.input, func(config *Config) {
-				config = cfg
+			cfg.LogOutput = true
+			if err := ff.Run(tt.args.ctx, tt.args.input, func(config *Config) *Config {
+				return cfg
 			}); (err != nil) != tt.wantErr {
 				t.Errorf("Run() error = %v, wantErr %v", err, tt.wantErr)
 			}

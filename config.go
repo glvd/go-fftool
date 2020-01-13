@@ -52,7 +52,7 @@ type Config struct {
 	processID       string
 	crypto          *Crypto
 	output          string
-	LogOutput       chan string
+	LogOutput       bool
 	VideoFormat     string
 	AudioFormat     string
 	Scale           Scale
