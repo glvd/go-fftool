@@ -12,8 +12,12 @@ type Factory struct {
 	mpeg  *fftool.FFMpeg
 }
 
-var _factory = new()
+var _factory *Factory
 var _once sync.Once
+
+func init() {
+	new()
+}
 
 // New ...
 func new() *Factory {
