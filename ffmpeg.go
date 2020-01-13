@@ -78,6 +78,5 @@ func NewFFMpeg() *FFMpeg {
 		name: DefaultMpegName,
 	}
 	ff.cmd = NewCommand(ff.name)
-
 	return ff
 }
