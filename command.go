@@ -43,8 +43,8 @@ func (c *Command) SetPath(path string) {
 	c.path = path
 }
 
-// New ...
-func New(name string) *Command {
+// NewCommand ...
+func NewCommand(name string) *Command {
 	return &Command{
 		path: DefaultCommandPath,
 		Name: name,

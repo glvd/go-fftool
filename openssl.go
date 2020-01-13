@@ -17,7 +17,7 @@ func NewOpenSSL() *OpenSSL {
 
 func (ssl *OpenSSL) init() {
 	if ssl.cmd == nil {
-		ssl.cmd = New(ssl.Name)
+		ssl.cmd = NewCommand(ssl.Name)
 	}
 }
 

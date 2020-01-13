@@ -24,7 +24,7 @@ type RunOptions func(config *Config) *Config
 
 func (ff *FFMpeg) init() error {
 	if ff.cmd == nil {
-		ff.cmd = New(ff.Name)
+		ff.cmd = NewCommand(ff.Name)
 	}
 	if ff.err != nil {
 		return ff.err

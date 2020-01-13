@@ -97,7 +97,7 @@ type FFProbe struct {
 
 func (ff *FFProbe) init() {
 	if ff.cmd == nil {
-		ff.cmd = New(ff.Name)
+		ff.cmd = NewCommand(ff.Name)
 	}
 }
 
