@@ -89,10 +89,29 @@ type StreamTags struct {
 	HandlerName string `json:"handler_name"`
 }
 
+// FileInfo ...
+type FileInfo struct {
+	Ext       string //扩展名
+	Caption   string //字幕
+	Language  string //语种
+	Audio     string //音频
+	Video     string //视频
+	Sharpness string //清晰度
+	Date      string //年份
+	CName     string //中文名
+	EName     string //英文名
+	Prefix    string //前缀(广告信息)
+}
+
 // FFProbe ...
 type FFProbe struct {
 	cmd  *Command
 	name string
+}
+
+// Name ...
+func (ff *FFProbe) Name() string {
+	return ff.name
 }
 
 // StreamFormat ...
@@ -132,20 +151,6 @@ func (f *StreamFormat) Audio() *Stream {
 		}
 	}
 	return nil
-}
-
-// FileInfo ...
-type FileInfo struct {
-	Ext       string //扩展名
-	Caption   string //字幕
-	Language  string //语种
-	Audio     string //音频
-	Video     string //视频
-	Sharpness string //清晰度
-	Date      string //年份
-	CName     string //中文名
-	EName     string //英文名
-	Prefix    string //前缀(广告信息)
 }
 
 // ToString ...

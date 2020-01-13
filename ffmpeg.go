@@ -19,6 +19,11 @@ type FFMpeg struct {
 // RunOptions ...
 type RunOptions func(config *Config) *Config
 
+// Name ...
+func (ff FFMpeg) Name() string {
+	return ff.name
+}
+
 // Version ...
 func (ff *FFMpeg) Version() (string, error) {
 	return ff.cmd.Run("-version")
