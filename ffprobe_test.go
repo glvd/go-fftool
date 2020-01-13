@@ -23,14 +23,14 @@ func TestFFProbe_StreamFormat(t *testing.T) {
 		{
 			name: "test1",
 			args: args{
-				file: `d:\video\周杰伦 唱歌贼难听.2019.1080P.h264.aac.Japanese.None.mp4`,
+				file: `d:\video\test1.mp4`,
 			},
 			wantErr: false,
 		},
 		{
 			name: "test2",
 			args: args{
-				file: `d:\video\女大学生的沙龙室.Room.Salon.College.Girls.2018.HD720P.X264.AAC.Korean.CHS.mp4`,
+				file: `d:\video\test2.mp4`,
 			},
 			wantErr: false,
 		},

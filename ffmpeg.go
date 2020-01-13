@@ -17,7 +17,7 @@ type FFMpeg struct {
 }
 
 // RunOptions ...
-type RunOptions func(config *Config) *Config
+type RunOptions func(config Config) Config
 
 // Name ...
 func (ff FFMpeg) Name() string {
@@ -31,12 +31,11 @@ func (ff *FFMpeg) Version() (string, error) {
 
 // Run ...
 func (ff FFMpeg) Run(ctx context.Context, input string, opts ...RunOptions) (e error) {
-
 	cfg := DefaultConfig()
 	for _, opt := range opts {
 		cfg = opt(cfg)
 	}
-
+	log.Infow("process id", "id", cfg.ProcessID())
 	stat, e := os.Stat(cfg.ProcessPath())
 	if e != nil {
 		if os.IsNotExist(e) {
@@ -53,7 +52,7 @@ func (ff FFMpeg) Run(ctx context.Context, input string, opts ...RunOptions) (e e
 	if e != nil {
 		return Err(e, "action do")
 	}
-	args := outputArgs(cfg, input)
+	args := outputArgs(&cfg, input)
 
 	outlog := make(chan string)
 	wg := &sync.WaitGroup{}

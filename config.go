@@ -3,14 +3,12 @@ package fftool
 import (
 	"errors"
 	"fmt"
+	"github.com/goextension/log"
 	"github.com/google/uuid"
 	"math"
 	"path/filepath"
 	"strconv"
 	"strings"
-	"sync"
-
-	"github.com/goextension/log"
 )
 
 const sliceOutputTemplate = "-bsf:v,h264_mp4toannexb,-f,hls,-hls_list_size,0%s,-hls_time,%d,-hls_segment_filename,%s,%s"
@@ -46,7 +44,6 @@ const (
 
 // Config ...
 type Config struct {
-	once            sync.Once
 	processID       string
 	crypto          *Crypto
 	output          string
@@ -143,8 +140,8 @@ var DefaultProbeName = "ffprobe"
 var DefaultMpegName = "ffmpeg"
 
 // DefaultConfig ...
-func DefaultConfig() *Config {
-	cfg := &Config{
+func DefaultConfig() Config {
+	return Config{
 		output:          "",
 		VideoFormat:     "libx264",
 		AudioFormat:     "aac",
@@ -162,7 +159,6 @@ func DefaultConfig() *Config {
 		SegmentFileName: DefaultSegmentFileName,
 		HLSTime:         DefaultHLSTime,
 	}
-	return cfg
 }
 
 func abs(path string) string {
@@ -192,9 +188,9 @@ func (c *Config) CryptoInfo() string {
 
 // ProcessID ...
 func (c *Config) ProcessID() string {
-	c.once.Do(func() {
+	if c.processID == "" {
 		c.processID = uuid.New().String()
-	})
+	}
 	return c.processID
 }
 
