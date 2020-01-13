@@ -3,10 +3,9 @@ package fftool
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/goextension/log"
+	"github.com/google/uuid"
 	"os"
-	"strings"
 	"sync"
 )
 
@@ -21,12 +20,10 @@ type FFMpeg struct {
 type MpegOption struct {
 	Debug  bool
 	Config *Config
-	Input  string
-	Output string
 }
 
 // RunOptions ...
-type RunOptions func(opts *MpegOption)
+type RunOptions func(cfg *Config)
 
 // Name ...
 func (ff FFMpeg) Name() string {
@@ -39,25 +36,23 @@ func (ff *FFMpeg) Version() (string, error) {
 }
 
 // Run ...
-func (ff FFMpeg) Run(ctx context.Context, opts ...RunOptions) (e error) {
-	m := &MpegOption{
-		Config: DefaultConfig(),
-		Input:  "",
-		Output: "",
-	}
+func (ff FFMpeg) Run(ctx context.Context, input string, opts ...RunOptions) (e error) {
+	pid := uuid.New().String()
+	config := DefaultConfig()
+
+	config.processID = pid
 	for _, opt := range opts {
-		opt(m)
+		opt(config)
 	}
-	if m.Config.processID != "" {
-		return fmt.Errorf("run with a exist id:%+v", m.Config.processID)
+	if config.processID == "" {
+		config.processID = pid
 	}
 
-	log.Infow("process id", "id", m.Config.newProcessID())
-	m.Output = m.Config.ProcessPath()
-	stat, e := os.Stat(m.Config.ProcessPath())
+	log.Infow("process id", "id", config.ProcessID())
+	stat, e := os.Stat(config.ProcessPath())
 	if e != nil {
 		if os.IsNotExist(e) {
-			_ = os.MkdirAll(m.Config.ProcessPath(), 0755)
+			_ = os.MkdirAll(config.ProcessPath(), 0755)
 		} else {
 			return Err(e, "stat")
 		}
@@ -65,28 +60,18 @@ func (ff FFMpeg) Run(ctx context.Context, opts ...RunOptions) (e error) {
 	if e == nil && !stat.IsDir() {
 		return errors.New("target is not dir")
 	}
-	e = m.Config.Action()
+	e = config.Action()
 	if e != nil {
 		return Err(e, "action do")
 	}
-	args := outputArgs(m.Config, m.Input)
+	args := outputArgs(config, input)
 
-	outlog := make(chan string)
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		e = ff.cmd.RunContext(ctx, args, outlog)
+		e = ff.cmd.RunContext(ctx, args, config.LogOutput)
 	}()
-	for i2 := range outlog {
-		if !m.Debug {
-			continue
-		}
-		ss := strings.Split(i2, "\r")
-		for _, i3 := range ss {
-			log.Infow("runmsg", "log", strings.TrimSpace(i3))
-		}
-	}
 	wg.Wait()
 	return e
 }

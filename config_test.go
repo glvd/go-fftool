@@ -42,7 +42,7 @@ func Test_outputArgs(t *testing.T) {
 	}{
 		{
 			name:   "args1",
-			fields: DefaultConfig(),
+			fields: *DefaultConfig(),
 			args: args{
 				intput: "d:\\video\\周杰伦 唱歌贼难听.2019.1080P.h264.aac.Japanese.None.mp4",
 			},

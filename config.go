@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/goextension/log"
-	"github.com/google/uuid"
 	"math"
 	"path/filepath"
 	"strconv"
@@ -53,6 +52,7 @@ type Config struct {
 	processID       string
 	crypto          *Crypto
 	output          string
+	LogOutput       chan string
 	VideoFormat     string
 	AudioFormat     string
 	Scale           Scale
@@ -188,13 +188,6 @@ func (c *Config) CryptoInfo() string {
 
 // ProcessID ...
 func (c *Config) ProcessID() string {
-	return c.processID
-}
-
-func (c *Config) newProcessID() string {
-	if c.processID == "" {
-		c.processID = uuid.New().String()
-	}
 	return c.processID
 }
 
