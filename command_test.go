@@ -2,7 +2,9 @@ package tool
 
 import (
 	"context"
+	"os"
 	"path/filepath"
+	"reflect"
 	"sync"
 	"testing"
 )
@@ -121,6 +123,36 @@ func TestCommand_Run(t *testing.T) {
 			}
 			if got != "" {
 				t.Logf("Run() got = %v", got)
+			}
+		})
+	}
+}
+
+func TestEnviron(t *testing.T) {
+	type args struct {
+		env  []string
+		path string
+	}
+	tests := []struct {
+		name string
+		args args
+		want []string
+	}{
+		{
+			name: "",
+			args: args{
+				env:  []string{os.Getenv("PATH")},
+				path: "bin",
+			},
+			want: nil,
+		},
+	}
+	c := NewCommand("ffmpeg")
+	c.environ()
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := c.environ(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Environ() = %v \n want %v", got, os.Getenv("PATH"))
 			}
 		})
 	}

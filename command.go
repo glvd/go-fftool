@@ -33,26 +33,38 @@ type Command struct {
 }
 
 var _ CommandRunner = &Command{}
+var _env []string
+
+// environ ...
+func (c *Command) environ() []string {
+	if _env == nil {
+		_, e := exec.LookPath(filepath.Join(c.BinPath(), c.bin))
+		if e == nil {
+			if err := os.Setenv("PATH", strings.Join([]string{os.Getenv("PATH"), c.BinPath()}, string(os.PathListSeparator))); err != nil {
+				panic(err)
+			}
+		}
+		_env = os.Environ()
+	}
+	return _env
+}
 
 // Path ...
 func (c *Command) BinPath() string {
 	if filepath.IsAbs(c.path) {
-		return filepath.Join(c.path, c.bin)
+		return filepath.Join(c.path)
 	}
-	return filepath.Join(getCurrentDir(), c.path, c.bin)
-}
-
-// SetPath ...
-func (c *Command) SetPath(path string) {
-	c.path = path
+	return filepath.Join(getCurrentDir(), c.path)
 }
 
 // NewCommand ...
 func NewCommand(name string) *Command {
-	return &Command{
+	c := &Command{
 		path: DefaultCommandPath,
 		bin:  binaryExt(name),
 	}
+	c.environ()
+	return c
 }
 
 func getCurrentDir() string {
@@ -67,6 +79,7 @@ func getCurrentDir() string {
 // Run ...
 func (c *Command) Run(args string) (string, error) {
 	cmd := exec.Command(c.BinPath(), cmdArgs(args)...)
+	cmd.Env = c.environ()
 	//显示运行的命令
 	log.Infow("run", "outputArgs", cmd.Args)
 	stdout, err := cmd.CombinedOutput()
@@ -83,6 +96,7 @@ func (c *Command) Message(f func(message string)) {
 // RunContext ...
 func (c *Command) RunContext(ctx context.Context, args string) (e error) {
 	cmd := exec.CommandContext(ctx, c.BinPath(), cmdArgs(args)...)
+	cmd.Env = c.environ()
 	//显示运行的命令
 	log.Infow("run context", "outputArgs", strings.Join(cmd.Args, " "))
 	stdout, e := cmd.StdoutPipe()

@@ -31,10 +31,7 @@ func TestOpenSSL_Hex(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ssl := &OpenSSL{
-				cmd:  tt.fields.cmd,
-				Name: tt.fields.Name,
-			}
+			ssl := NewOpenSSL()
 			if got := ssl.Hex(tt.args.size); len(got) != len(tt.want) {
 				t.Errorf("Hex() = %v, want %v", len(got), len(tt.want))
 			}
@@ -73,7 +70,7 @@ func TestOpenSSL_Base64(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			ssl := &OpenSSL{
 				cmd:  tt.fields.cmd,
-				Name: tt.fields.Name,
+				name: tt.fields.Name,
 			}
 			if got := ssl.Base64(tt.args.size); len(got) != len(tt.want) {
 				t.Errorf("Base64() = %v, want %v", got, tt.want)

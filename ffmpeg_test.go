@@ -2,6 +2,8 @@ package tool
 
 import (
 	"context"
+	"fmt"
+	"github.com/goextension/log/zap"
 	"sync"
 	"testing"
 )
@@ -10,6 +12,7 @@ var testVideo = `D:\video\集锦-挪威混剪8.1-4k_360.mp4`
 var testStreamFormat *StreamFormat
 
 func init() {
+	RegisterLogger(zap.NewZapFileSugar())
 	var err error
 	p := NewFFProbe()
 	testStreamFormat, err = p.StreamFormat(testVideo)
@@ -41,7 +44,7 @@ func TestFFMpeg_Version(t *testing.T) {
 				return
 			}
 			if got != "" {
-				t.Log(got)
+				fmt.Println(got)
 			}
 		})
 	}

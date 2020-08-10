@@ -7,23 +7,20 @@ import (
 // OpenSSL ...
 type OpenSSL struct {
 	cmd  *Command
-	Name string
+	name string
 }
 
 // NewOpenSSL ...
 func NewOpenSSL() *OpenSSL {
-	return &OpenSSL{Name: "openssl"}
-}
-
-func (ssl *OpenSSL) init() {
-	if ssl.cmd == nil {
-		ssl.cmd = NewCommand(ssl.Name)
+	ssl := &OpenSSL{
+		name: DefaultOpenSSLName,
 	}
+	ssl.cmd = NewCommand(ssl.name)
+	return ssl
 }
 
 // Run ...
 func (ssl *OpenSSL) Run(args string) (string, error) {
-	ssl.init()
 	return ssl.cmd.Run(args)
 }
 

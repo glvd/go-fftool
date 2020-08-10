@@ -138,6 +138,8 @@ var DefaultProbeName = "ffprobe"
 // DefaultMpegName ...
 var DefaultMpegName = "ffmpeg"
 
+var DefaultOpenSSLName = "openssl"
+
 // DefaultConfig ...
 func DefaultConfig() *Config {
 	return &Config{
