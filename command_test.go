@@ -3,14 +3,13 @@ package tool
 import (
 	"context"
 	"os"
-	"path/filepath"
 	"reflect"
 	"sync"
 	"testing"
 )
 
 func init() {
-	DefaultCommandPath = filepath.Join(`D:\workspace\golang\project\go-fftool`, DefaultCommandPath)
+	//DefaultCommandPath = filepath.Join(`D:\workspace\golang\project\go-fftool`, DefaultCommandPath)
 }
 
 // TestCommand_RunContext ...

@@ -78,7 +78,7 @@ func getCurrentDir() string {
 
 // Run ...
 func (c *Command) Run(args string) (string, error) {
-	cmd := exec.Command(c.BinPath(), cmdArgs(args)...)
+	cmd := exec.Command(c.bin, cmdArgs(args)...)
 	cmd.Env = c.environ()
 	//显示运行的命令
 	log.Infow("run", "outputArgs", cmd.Args)

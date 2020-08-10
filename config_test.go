@@ -9,7 +9,7 @@ import (
 var sf *StreamFormat
 
 func init() {
-	DefaultCommandPath = `D:\workspace\golang\project\go-fftool\bin`
+	//DefaultCommandPath = `D:\workspace\golang\project\go-fftool\bin`
 	var e error
 	sf, e = NewFFProbe().StreamFormat(`D:\video\集锦-挪威混剪8.1-4k_360.mp4`)
 	if e != nil {
