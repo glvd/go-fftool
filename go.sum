@@ -3,6 +3,8 @@ github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/glvd/go-fftool v0.0.9 h1:CfhUW/KZcwtBLjizDcrNz7fdZ3JDq6We5FIoIKAD5gA=
+github.com/glvd/go-fftool v0.0.9/go.mod h1:KpKbaiA/CqvK+Ds/Id9jazxfFy9yFL6Dh7WGxyk3tpY=
 github.com/goextension/io v0.0.0-20191016080154-50dbafac3df3 h1:HMUnXbss3UpPgb33MfmuK1U070QIA/FjFEiRjMY/Cmk=
 github.com/goextension/io v0.0.0-20191016080154-50dbafac3df3/go.mod h1:5QLWw/fpUT0jzZyldpv46Nezl5QnV1AsozrnyG1cKFA=
 github.com/goextension/log v0.0.2 h1:/KMuT22zzIMHe4qD7rR8dnfXWSFAyp+10pTC4fWLztI=

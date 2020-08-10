@@ -1,6 +1,6 @@
 package factory
 
-import "github.com/glvd/go-fftool"
+import "github.com/glvd/go-media-tool"
 
 // Option ...
 type Option struct {

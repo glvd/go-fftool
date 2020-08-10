@@ -1,7 +1,7 @@
 package factory
 
 import (
-	"github.com/glvd/go-fftool"
+	"github.com/glvd/go-media-tool"
 	"sync"
 )
 
