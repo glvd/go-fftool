@@ -61,17 +61,17 @@ func TestCommand_RunContext(t *testing.T) {
 			}
 			wg := &sync.WaitGroup{}
 			wg.Add(1)
+
+			c.message = func(s string) {
+				log.Info(s)
+			}
 			go func() {
-				if err := c.RunContext(tt.args.ctx, tt.args.args, tt.args.info); (err != nil) != tt.wantErr {
+				if err := c.RunContext(tt.args.ctx, tt.args.args); (err != nil) != tt.wantErr {
 					t.Errorf("RunContext() error = %v, wantErr %v", err, tt.wantErr)
 				}
 				wg.Done()
 			}()
-			if tt.args.info != nil {
-				for v := range tt.args.info {
-					log.Info(v)
-				}
-			}
+
 			wg.Wait()
 		})
 	}

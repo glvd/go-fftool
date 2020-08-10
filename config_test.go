@@ -11,9 +11,9 @@ var sf *StreamFormat
 func init() {
 	DefaultCommandPath = `D:\workspace\golang\project\go-fftool\bin`
 	var e error
-	sf, e = NewFFProbe().StreamFormat(`D:\video\test1.mp4`)
+	sf, e = NewFFProbe().StreamFormat(`D:\video\集锦-挪威混剪8.1-4k_360.mp4`)
 	if e != nil {
-		panic(e)
+		//ignore
 	}
 }
 
@@ -44,7 +44,7 @@ func Test_outputArgs(t *testing.T) {
 			name:   "args1",
 			fields: *DefaultConfig(),
 			args: args{
-				intput: "d:\\video\\周杰伦 唱歌贼难听.2019.1080P.h264.aac.Japanese.None.mp4",
+				intput: "d:\\video\\集锦-挪威混剪8.1-4k_360.mp4",
 			},
 		},
 		{

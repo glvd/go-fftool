@@ -6,14 +6,14 @@ import (
 	"github.com/google/uuid"
 	"os"
 	"strings"
-	"sync"
 )
 
 // FFMpeg ...
 type FFMpeg struct {
-	err  error
-	cmd  *Command
-	name string
+	cmd    *Command
+	config *Config
+	name   string
+	msg    func(s string)
 }
 
 // MpegOption ...
@@ -22,8 +22,7 @@ type MpegOption struct {
 	Config *Config
 }
 
-// RunOptions ...
-type RunOptions func(cfg *Config) *Config
+type ConfigOptions func(cfg *Config)
 
 // Name ...
 func (ff FFMpeg) Name() string {
@@ -35,24 +34,21 @@ func (ff *FFMpeg) Version() (string, error) {
 	return ff.cmd.Run("-version")
 }
 
+func (ff *FFMpeg) HandleMessage(msg func(s string)) {
+	ff.msg = msg
+}
+
 // Run ...
-func (ff FFMpeg) Run(ctx context.Context, input string, opts ...RunOptions) (e error) {
+func (ff FFMpeg) Run(ctx context.Context, input string) (e error) {
 	pid := uuid.New().String()
-	config := DefaultConfig()
 
-	config.processID = pid
-	for _, opt := range opts {
-		config = opt(config)
-	}
-	if config.processID == "" {
-		config.processID = pid
-	}
+	ff.config.processID = pid
 
-	log.Infow("process id", "id", config.ProcessID())
-	stat, e := os.Stat(config.ProcessPath())
+	log.Infow("process id", "id", ff.config.ProcessID())
+	stat, e := os.Stat(ff.config.ProcessPath())
 	if e != nil {
 		if os.IsNotExist(e) {
-			_ = os.MkdirAll(config.ProcessPath(), 0755)
+			_ = os.MkdirAll(ff.config.ProcessPath(), 0755)
 		} else {
 			return Err(e, "stat")
 		}
@@ -60,48 +56,44 @@ func (ff FFMpeg) Run(ctx context.Context, input string, opts ...RunOptions) (e e
 	if e == nil && !stat.IsDir() {
 		return errors.New("target is not dir")
 	}
-	e = config.Action()
+	e = ff.config.Action()
 	if e != nil {
 		return Err(e, "action do")
 	}
-	args := outputArgs(config, input)
+	args := outputArgs(ff.config, input)
 
-	var outLog chan string
-	if config.LogOutput {
-		outLog = make(chan string)
+	if ff.msg != nil {
+		ff.cmd.Message(ff.messageCallback)
 	}
 
-	log.Infow("runmsg", "init", outLog == nil)
+	e = ff.cmd.RunContext(ctx, args)
 
-	wg := &sync.WaitGroup{}
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		e = ff.cmd.RunContext(ctx, args, outLog)
-	}()
-
-	if config.LogOutput {
-		for i2 := range outLog {
-			ss := strings.Split(i2, "\r")
-			for _, i3 := range ss {
-				log.Infow("runmsg", "outLog", strings.TrimSpace(i3))
-			}
-		}
-	}
-	wg.Wait()
 	return e
 }
 
-// Error ...
-func (ff *FFMpeg) Error() error {
-	return ff.err
+func (ff *FFMpeg) messageCallback(message string) {
+	if ff.msg != nil {
+		ff.msg(message)
+	}
+	if ff.config.LogOutput {
+		str := strings.Split(message, "\r")
+		for i := range str {
+			log.Infow(strings.TrimSpace(str[i]))
+		}
+	}
 }
 
 // NewFFMpeg ...
-func NewFFMpeg() *FFMpeg {
+func NewFFMpeg(opts ...ConfigOptions) *FFMpeg {
 	ff := &FFMpeg{
-		name: DefaultMpegName,
+		name:   DefaultMpegName,
+		config: DefaultConfig(),
 	}
+
+	for _, opt := range opts {
+		opt(ff.config)
+	}
+
 	ff.cmd = NewCommand(ff.name)
 	return ff
 }

@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-var testVideo = `D:\video\test1.mp4`
+var testVideo = `D:\video\集锦-挪威混剪8.1-4k_360.mp4`
 var testStreamFormat *StreamFormat
 
 func init() {
@@ -14,7 +14,7 @@ func init() {
 	p := NewFFProbe()
 	testStreamFormat, err = p.StreamFormat(testVideo)
 	if err != nil {
-		panic(err)
+		//ignore err
 	}
 }
 
@@ -92,16 +92,16 @@ func TestFFMpeg_Run(t *testing.T) {
 			c := GenerateCrypto(NewOpenSSL(), true)
 
 			cfg.SetCrypt(*c)
-			ff := NewFFMpeg()
+			cfg.LogOutput = true
+			ff := NewFFMpeg(func(c *Config) {
+				*c = *cfg
+			})
 			e := OptimizeWithFormat(cfg, testStreamFormat)
 			if e != nil {
 				t.Errorf("OptimizeWithFormat() error = %v, wantErr %v", e, tt.wantErr)
 				return
 			}
-			cfg.LogOutput = true
-			if err := ff.Run(tt.args.ctx, tt.args.input, func(config *Config) *Config {
-				return cfg
-			}); (err != nil) != tt.wantErr {
+			if err := ff.Run(tt.args.ctx, tt.args.input); (err != nil) != tt.wantErr {
 				t.Errorf("Run() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		}()
