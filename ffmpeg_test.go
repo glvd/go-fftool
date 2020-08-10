@@ -34,14 +34,14 @@ func TestFFMpeg_Version(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ff := NewFFMpeg()
-
-			got, err := ff.Version()
+			got, err := ff.cmd.Run("-version")
+			//got, err := ff.Version()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Version() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if got != "" {
-				t.Logf("Version() got = %v", got)
+				t.Log(got)
 			}
 		})
 	}

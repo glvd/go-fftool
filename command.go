@@ -100,30 +100,27 @@ func (c *Command) RunContext(ctx context.Context, args string) (e error) {
 		return Err(e, "start")
 	}
 
-	reader := bufio.NewReader(exio.MultiReader(stderr, stdout))
-	var lines []byte
-	for {
-		select {
-		case <-ctx.Done():
-			return Err(ctx.Err(), "done")
-		default:
-			lines, _, e = reader.ReadLine()
-			if e != nil || io.EOF == e {
-				goto END
-			}
-			if lines = bytes.TrimSpace(lines); lines != nil {
-				if c.message != nil {
-					c.message(string(lines))
+	go func() {
+		reader := bufio.NewReader(exio.MultiReader(stderr, stdout))
+		var lines []byte
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			default:
+				lines, _, e = reader.ReadLine()
+				if e != nil && e != io.EOF {
+					log.Error(e)
+				}
+				if l := string(bytes.TrimSpace(lines)); l != "" {
+					if c.message != nil {
+						c.message(l)
+					}
 				}
 			}
 		}
-	}
-END:
-	e = cmd.Wait()
-	if e != nil {
-		return e
-	}
-	return nil
+	}()
+	return cmd.Wait()
 }
 
 // cmdArgs ...
