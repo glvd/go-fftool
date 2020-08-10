@@ -18,16 +18,20 @@ var DefaultCommandPath = ""
 
 // CommandRunner ...
 type CommandRunner interface {
-	Run() (string, error)
-	RunContext(ctx context.Context, info chan<- string) (e error)
+	Message(func(message string))
+	Run(s string) (string, error)
+	RunContext(ctx context.Context, s string) (e error)
 }
 
 // Command ...
 type Command struct {
-	path string
-	env  []string
-	Name string
+	path    string
+	env     []string
+	Name    string
+	message func(s string)
 }
+
+var _ CommandRunner = &Command{}
 
 // Path ...
 func (c *Command) Path() string {
@@ -87,13 +91,12 @@ func (c *Command) Run(args string) (string, error) {
 	return string(stdout), nil
 }
 
+func (c *Command) Message(f func(message string)) {
+	panic("implement me")
+}
+
 // RunContext ...
-func (c *Command) RunContext(ctx context.Context, args string, info chan<- string) (e error) {
-	defer func() {
-		if info != nil {
-			close(info)
-		}
-	}()
+func (c *Command) RunContext(ctx context.Context, args string) (e error) {
 	c.init()
 	cmd := exec.CommandContext(ctx, c.Name, cmdArgs(args)...)
 	//显示运行的命令
@@ -125,8 +128,8 @@ func (c *Command) RunContext(ctx context.Context, args string, info chan<- strin
 				goto END
 			}
 			if strings.TrimSpace(string(lines)) != "" {
-				if info != nil {
-					info <- string(lines)
+				if c.message != nil {
+					c.message(string(lines))
 				}
 			}
 		}
