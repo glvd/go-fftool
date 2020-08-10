@@ -1,4 +1,4 @@
-package fftool
+package tool
 
 import (
 	"bufio"
@@ -11,7 +11,6 @@ import (
 	"strings"
 
 	exio "github.com/goextension/io"
-	"github.com/goextension/log"
 )
 
 // DefaultCommandPath default point to current dir

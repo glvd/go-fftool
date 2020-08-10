@@ -1,9 +1,8 @@
-package fftool
+package tool
 
 import (
 	"errors"
 	"fmt"
-	"github.com/goextension/log"
 	"math"
 	"path/filepath"
 	"strconv"

@@ -15,8 +15,8 @@ type Options func(option *Option)
 // DefaultOption ...
 func DefaultOption() *Option {
 	return &Option{
-		MpegName:    fftool.DefaultMpegName,
-		ProbeName:   fftool.DefaultProbeName,
-		CommandPath: fftool.DefaultCommandPath,
+		MpegName:    tool.DefaultMpegName,
+		ProbeName:   tool.DefaultProbeName,
+		CommandPath: tool.DefaultCommandPath,
 	}
 }

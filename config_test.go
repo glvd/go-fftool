@@ -1,4 +1,4 @@
-package fftool
+package tool
 
 import (
 	"github.com/google/uuid"

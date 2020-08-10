@@ -1,12 +1,10 @@
-package fftool
+package tool
 
 import (
 	"context"
 	"path/filepath"
 	"sync"
 	"testing"
-
-	"github.com/goextension/log"
 )
 
 func init() {

@@ -8,8 +8,8 @@ import (
 // Factory ...
 type Factory struct {
 	once  sync.Once
-	probe *fftool.FFProbe
-	mpeg  *fftool.FFMpeg
+	probe *tool.FFProbe
+	mpeg  *tool.FFMpeg
 }
 
 var _factory *Factory
@@ -37,29 +37,29 @@ func Initialize(opts ...Options) {
 	}
 
 	if dop.MpegName != "" {
-		fftool.DefaultMpegName = dop.MpegName
+		tool.DefaultMpegName = dop.MpegName
 	}
 
 	if dop.ProbeName != "" {
-		fftool.DefaultProbeName = dop.ProbeName
+		tool.DefaultProbeName = dop.ProbeName
 	}
 
 	if dop.CommandPath != "" {
-		fftool.DefaultCommandPath = dop.CommandPath
+		tool.DefaultCommandPath = dop.CommandPath
 	}
 
 	_factory.once.Do(func() {
-		_factory.probe = fftool.NewFFProbe()
-		_factory.mpeg = fftool.NewFFMpeg()
+		_factory.probe = tool.NewFFProbe()
+		_factory.mpeg = tool.NewFFMpeg()
 	})
 }
 
 // Mpeg ...
-func Mpeg() *fftool.FFMpeg {
+func Mpeg() *tool.FFMpeg {
 	return _factory.mpeg
 }
 
 // Probe ...
-func Probe() *fftool.FFProbe {
+func Probe() *tool.FFProbe {
 	return _factory.probe
 }

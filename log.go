@@ -1,4 +1,4 @@
-package fftool
+package tool
 
 import (
 	extlog "github.com/goextension/log"

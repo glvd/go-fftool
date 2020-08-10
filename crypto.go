@@ -1,10 +1,9 @@
-package fftool
+package tool
 
 import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"github.com/goextension/log"
 	"io"
 	"io/ioutil"
 	"os"

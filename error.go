@@ -1,7 +1,6 @@
-package fftool
+package tool
 
 import (
-	"github.com/goextension/log"
 	"strings"
 )
 

@@ -1,9 +1,8 @@
-package fftool
+package tool
 
 import (
 	"context"
 	"errors"
-	"github.com/goextension/log"
 	"github.com/google/uuid"
 	"os"
 	"strings"

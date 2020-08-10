@@ -1,4 +1,4 @@
-package fftool
+package tool
 
 import "testing"
 
