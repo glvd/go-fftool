@@ -2,6 +2,7 @@ package tool
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -92,7 +93,7 @@ func (c *Command) Run(args string) (string, error) {
 }
 
 func (c *Command) Message(f func(message string)) {
-	panic("implement me")
+	c.message = f
 }
 
 // RunContext ...
@@ -127,7 +128,7 @@ func (c *Command) RunContext(ctx context.Context, args string) (e error) {
 			if e != nil || io.EOF == e {
 				goto END
 			}
-			if strings.TrimSpace(string(lines)) != "" {
+			if lines = bytes.TrimSpace(lines); lines != nil {
 				if c.message != nil {
 					c.message(string(lines))
 				}
