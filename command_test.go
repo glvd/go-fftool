@@ -15,7 +15,7 @@ func init() {
 func TestCommand_RunContext(t *testing.T) {
 	type fields struct {
 		path string
-		Name string
+		bin  string
 	}
 	type args struct {
 		ctx  context.Context
@@ -32,7 +32,7 @@ func TestCommand_RunContext(t *testing.T) {
 			name: "runcontext1",
 			fields: fields{
 				path: DefaultCommandPath,
-				Name: "ffmpeg",
+				bin:  "ffmpeg",
 			},
 			args: args{
 				ctx:  context.Background(),
@@ -43,7 +43,7 @@ func TestCommand_RunContext(t *testing.T) {
 			name: "runcontext2",
 			fields: fields{
 				path: DefaultCommandPath,
-				Name: "ffmpeg",
+				bin:  "ffmpeg",
 			},
 			args: args{
 				ctx:  context.Background(),
@@ -57,7 +57,7 @@ func TestCommand_RunContext(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			c := &Command{
 				path: tt.fields.path,
-				Name: tt.fields.Name,
+				bin:  tt.fields.bin,
 			}
 			wg := &sync.WaitGroup{}
 			wg.Add(1)
@@ -82,7 +82,7 @@ func TestCommand_Run(t *testing.T) {
 	type fields struct {
 		path string
 		env  []string
-		Name string
+		bin  string
 	}
 	type args struct {
 		args string
@@ -99,7 +99,7 @@ func TestCommand_Run(t *testing.T) {
 			fields: fields{
 				path: DefaultCommandPath,
 				env:  nil,
-				Name: "ffmpeg",
+				bin:  "ffmpeg",
 			},
 			args: args{
 				args: "-version",
@@ -112,7 +112,7 @@ func TestCommand_Run(t *testing.T) {
 			c := &Command{
 				path: tt.fields.path,
 				env:  tt.fields.env,
-				Name: tt.fields.Name,
+				bin:  tt.fields.bin,
 			}
 			got, err := c.Run(tt.args.args)
 			if (err != nil) != tt.wantErr {

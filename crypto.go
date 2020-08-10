@@ -22,8 +22,8 @@ type Crypto struct {
 }
 
 // LoadCrypto ...
-func LoadCrypto(path string) (c Crypto) {
-	c = Crypto{}
+func LoadCrypto(path string) (c *Crypto) {
+	c = &Crypto{}
 	path = abs(path)
 	open, err := os.Open(path)
 	if err != nil {
