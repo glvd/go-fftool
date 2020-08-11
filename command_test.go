@@ -80,7 +80,6 @@ func TestCommand_RunContext(t *testing.T) {
 // TestCommand_Run ...
 func TestCommand_Run(t *testing.T) {
 	type fields struct {
-		env []string
 		bin string
 	}
 	type args struct {
@@ -96,7 +95,6 @@ func TestCommand_Run(t *testing.T) {
 		{
 			name: "testrun",
 			fields: fields{
-				env: nil,
 				bin: "ffmpeg",
 			},
 			args: args{
@@ -108,7 +106,6 @@ func TestCommand_Run(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := &Command{
-				env: tt.fields.env,
 				bin: tt.fields.bin,
 			}
 			got, err := c.Run(tt.args.args)
