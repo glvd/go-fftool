@@ -7,7 +7,7 @@ require (
 	github.com/fatih/gomodifytags v1.6.0 // indirect
 	github.com/fatih/motion v1.1.0 // indirect
 	github.com/go-delve/delve v1.5.0 // indirect
-	github.com/goextension/io v0.0.0-20191016080154-50dbafac3df3
+	github.com/goextension/io v0.0.1
 	github.com/goextension/log v0.0.2
 	github.com/golangci/golangci-lint v1.30.0 // indirect
 	github.com/google/uuid v1.1.1
