@@ -3,19 +3,14 @@ module github.com/glvd/go-media-tool
 go 1.12
 
 require (
-	github.com/davidrjenni/reftools v0.0.0-20191222082827-65925cf01315 // indirect
-	github.com/fatih/gomodifytags v1.6.0 // indirect
-	github.com/fatih/motion v1.1.0 // indirect
-	github.com/go-delve/delve v1.5.0 // indirect
 	github.com/goextension/io v0.0.1
 	github.com/goextension/log v0.0.2
-	github.com/golangci/golangci-lint v1.30.0 // indirect
 	github.com/google/uuid v1.1.1
-	github.com/josharian/impl v1.0.0 // indirect
-	github.com/jstemmer/gotags v1.4.1 // indirect
-	github.com/kisielk/errcheck v1.4.0 // indirect
-	github.com/klauspost/asmfmt v1.2.1 // indirect
-	github.com/koron/iferr v0.0.0-20180615142939-bb332a3b1d91 // indirect
-	github.com/rogpeppe/godef v1.1.2 // indirect
-	golang.org/x/tools/gopls v0.4.4 // indirect
+	github.com/kr/text v0.2.0 // indirect
+	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
+	github.com/pkg/errors v0.9.1 // indirect
+	github.com/stretchr/testify v1.6.1 // indirect
+	golang.org/x/tools v0.0.0-20200729181040-64cdafbe085c // indirect
+	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
+	honnef.co/go/tools v0.0.1-2020.1.4 // indirect
 )
