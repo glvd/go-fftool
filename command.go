@@ -26,7 +26,6 @@ type CommandRunner interface {
 
 // Command ...
 type Command struct {
-	env     []string
 	bin     string
 	message func(s string)
 }
