@@ -57,8 +57,7 @@ func TestCommand_RunContext(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := &Command{
-				path: tt.fields.path,
-				bin:  tt.fields.bin,
+				bin: tt.fields.bin,
 			}
 			wg := &sync.WaitGroup{}
 			wg.Add(1)
@@ -81,9 +80,8 @@ func TestCommand_RunContext(t *testing.T) {
 // TestCommand_Run ...
 func TestCommand_Run(t *testing.T) {
 	type fields struct {
-		path string
-		env  []string
-		bin  string
+		env []string
+		bin string
 	}
 	type args struct {
 		args string
@@ -98,9 +96,8 @@ func TestCommand_Run(t *testing.T) {
 		{
 			name: "testrun",
 			fields: fields{
-				path: DefaultCommandPath,
-				env:  nil,
-				bin:  "ffmpeg",
+				env: nil,
+				bin: "ffmpeg",
 			},
 			args: args{
 				args: "-version",
@@ -111,9 +108,8 @@ func TestCommand_Run(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := &Command{
-				path: tt.fields.path,
-				env:  tt.fields.env,
-				bin:  tt.fields.bin,
+				env: tt.fields.env,
+				bin: tt.fields.bin,
 			}
 			got, err := c.Run(tt.args.args)
 			if (err != nil) != tt.wantErr {

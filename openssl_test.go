@@ -32,9 +32,11 @@ func TestOpenSSL_Hex(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ssl := NewOpenSSL()
-			if got := ssl.Hex(tt.args.size); len(got) != len(tt.want) {
+			got := ssl.Hex(tt.args.size)
+			if len(got) != len(tt.want) {
 				t.Errorf("Hex() = %v, want %v", len(got), len(tt.want))
 			}
+			t.Log(got)
 		})
 	}
 }

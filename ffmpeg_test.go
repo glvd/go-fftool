@@ -12,6 +12,7 @@ var testVideo = `D:\video\集锦-挪威混剪8.1-4k_360.mp4`
 var testStreamFormat *StreamFormat
 
 func init() {
+	DefaultMpegName = "D:\\workspace\\golang\\project\\ipvc\\bin\\ffmpeg.exe"
 	RegisterLogger(zap.NewZapFileSugar())
 	var err error
 	p := NewFFProbe()

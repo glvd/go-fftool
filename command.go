@@ -26,7 +26,6 @@ type CommandRunner interface {
 
 // Command ...
 type Command struct {
-	path    string
 	env     []string
 	bin     string
 	message func(s string)
@@ -51,17 +50,24 @@ func (c *Command) environ() []string {
 
 // Path ...
 func (c *Command) BinPath() string {
-	if filepath.IsAbs(c.path) {
-		return filepath.Join(c.path)
+	if filepath.IsAbs(c.bin) {
+		return c.bin
 	}
-	return filepath.Join(getCurrentDir(), c.path)
+	if DefaultCommandPath != "" {
+		if filepath.IsAbs(DefaultCommandPath) {
+			filepath.Join(DefaultCommandPath, c.bin)
+		}
+	}
+	return filepath.Join(getCurrentDir(), c.bin)
 }
 
 // NewCommand ...
 func NewCommand(name string) *Command {
+	if !filepath.IsAbs(name) {
+		name = binaryExt(name)
+	}
 	c := &Command{
-		path: DefaultCommandPath,
-		bin:  binaryExt(name),
+		bin: name,
 	}
 	c.environ()
 	return c
@@ -78,7 +84,7 @@ func getCurrentDir() string {
 
 // Run ...
 func (c *Command) Run(args string) (string, error) {
-	cmd := exec.Command(c.bin, cmdArgs(args)...)
+	cmd := exec.Command(c.BinPath(), cmdArgs(args)...)
 	cmd.Env = c.environ()
 	//显示运行的命令
 	log.Infow("run", "outputArgs", cmd.Args)
