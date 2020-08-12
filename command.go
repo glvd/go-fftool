@@ -129,7 +129,8 @@ func (c *Command) RunContext(ctx context.Context, args string) (e error) {
 			default:
 				lines, _, e = reader.ReadLine()
 				if e != nil && e != io.EOF {
-					log.Error(e)
+					log.Error(Err(e, "readline"))
+					return
 				}
 				if l := string(bytes.TrimSpace(lines)); l != "" {
 					if c.message != nil {
