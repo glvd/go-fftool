@@ -4,8 +4,8 @@ github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ3
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/goextension/io v0.0.6 h1:f0cOlbJpCBbZ73u/9aOlbCqO1Vx6csnUQS+QIdM7YpU=
-github.com/goextension/io v0.0.6/go.mod h1:5QLWw/fpUT0jzZyldpv46Nezl5QnV1AsozrnyG1cKFA=
+github.com/goextension/io v0.0.8 h1:nSMAcuiU0xLBVflBI2qA3oUa8JmH56hJjtPIshmkWas=
+github.com/goextension/io v0.0.8/go.mod h1:5QLWw/fpUT0jzZyldpv46Nezl5QnV1AsozrnyG1cKFA=
 github.com/goextension/log v0.0.2 h1:/KMuT22zzIMHe4qD7rR8dnfXWSFAyp+10pTC4fWLztI=
 github.com/goextension/log v0.0.2/go.mod h1:fz72q/d4Iw05nbRSbxgGkGNTne3jxrq2Td5ogfunZak=
 github.com/google/renameio v0.1.0/go.mod h1:KWCgfxg9yswjAJkECMjeO8J8rahYeXnNhOm40UhjYkI=
