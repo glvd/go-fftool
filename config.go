@@ -23,9 +23,16 @@ const defaultTemplate = `-y%s,-i,%s,-strict,-2,-c:v,%s,-c:a,%s%s`
 
 // None ...
 const (
-	ProcessNone ProcessCore = -1
-	ProcessCPU  ProcessCore = 1
-	ProcessCUDA ProcessCore = iota
+	ProcessNone    ProcessCore = -1
+	ProcessH264CPU ProcessCore = 1
+	ProcessH264QSV ProcessCore = iota
+	ProcessH264AMF
+	ProcessH264NVENC
+	ProcessH264VideoToolBox
+	ProcessHevcQSV
+	ProcessHevcAMF
+	ProcessHevcNVENC
+	ProcessHevcVideoToolBox
 	ProcessCUVID
 )
 
@@ -112,7 +119,7 @@ var DefaultM3U8Name = "media.m3u8"
 var DefaultSegmentFileName = "media-%05d.ts"
 
 // DefaultProcessCore ...
-var DefaultProcessCore = ProcessCUDA
+var DefaultProcessCore = ProcessH264CPU
 
 // DefaultSlice ...
 var DefaultSlice = false
@@ -338,7 +345,7 @@ func outputArgs(c *Config, input string) string {
 	var exts []interface{}
 
 	//gpu decode config
-	if c.ProcessCore != ProcessCPU && c.VideoFormat != "copy" {
+	if c.ProcessCore != ProcessH264NVENC && c.VideoFormat != "copy" {
 		c.VideoFormat = "h264_nvenc"
 	}
 
@@ -374,10 +381,8 @@ func outputTemplate(core ProcessCore, input, cv, ca, output string, exts ...inte
 	var tmpl string
 	//cuda/cpu/cuvid arguments case
 	switch core {
-	case ProcessCPU:
+	case ProcessH264CPU:
 		tmpl = fmt.Sprintf(defaultTemplate, "", input, cv, ca, strings.Join(outExt, ""))
-	case ProcessCUDA:
-		tmpl = fmt.Sprintf(defaultTemplate, cudaOutputTemplate, input, cv, ca, strings.Join(outExt, ""))
 	case ProcessCUVID:
 		tmpl = fmt.Sprintf(defaultTemplate, cuvidOutputTemplate, input, cv, ca, strings.Join(outExt, ""))
 	default:
