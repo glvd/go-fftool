@@ -3,17 +3,20 @@ package tool
 import (
 	"context"
 	"fmt"
+	extlog "github.com/goextension/log"
 	"github.com/goextension/log/zap"
 	"sync"
 	"testing"
 )
 
-var testVideo = `D:\video\集锦-挪威混剪8.1-4k_360.mp4`
+var testVideo = `D:\workspace\golang\project\go-media-tool\test\media.mp4`
 var testStreamFormat *StreamFormat
 
 func init() {
 	DefaultMpegName = "D:\\workspace\\golang\\project\\ipvc\\bin\\ffmpeg.exe"
-	RegisterLogger(zap.NewZapFileSugar())
+	DefaultProbeName = "D:\\workspace\\golang\\project\\ipvc\\bin\\ffprobe.exe"
+	zap.InitZapSugar()
+	log = extlog.Log()
 	var err error
 	p := NewFFProbe()
 	testStreamFormat, err = p.StreamFormat(testVideo)
@@ -76,14 +79,6 @@ func TestFFMpeg_Run(t *testing.T) {
 				input: testVideo,
 			},
 			wantErr: false,
-		}, {
-			name:   "run2",
-			fields: fields{},
-			args: args{
-				ctx:   context.Background(),
-				input: testVideo,
-			},
-			wantErr: false,
 		},
 	}
 	wg := &sync.WaitGroup{}
@@ -93,12 +88,13 @@ func TestFFMpeg_Run(t *testing.T) {
 			defer wg.Done()
 			cfg := DefaultConfig()
 			cfg.Slice = true
-			c := GenerateCrypto(NewOpenSSL(), true)
-
-			cfg.SetCrypt(*c)
+			//c := GenerateCrypto(NewOpenSSL(), true)
+			//
+			//cfg.SetCrypt(*c)
 			cfg.LogOutput = true
-			ff := NewFFMpeg(func(c *Config) {
-				*c = *cfg
+			ff := NewFFMpeg(cfg.ConfigOptions())
+			ff.HandleMessage(func(s string) {
+				fmt.Println(s)
 			})
 			e := OptimizeWithFormat(cfg, testStreamFormat)
 			if e != nil {

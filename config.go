@@ -175,8 +175,8 @@ func abs(path string) string {
 }
 
 // SetCrypt ...
-func (c *Config) SetCrypt(crypto Crypto) {
-	c.crypto = &crypto
+func (c *Config) SetCrypt(crypto *Crypto) {
+	c.crypto = crypto
 }
 
 // CryptoInfo ...
@@ -216,6 +216,12 @@ func (c *Config) SaveKey() error {
 	return nil
 }
 
+func (c *Config) ConfigOptions() ConfigOptions {
+	return func(cfg *Config) {
+		*cfg = *c
+	}
+}
+
 // ProcessPath ...
 func (c *Config) ProcessPath() string {
 	c.OutputPath = abs(c.OutputPath)
@@ -240,7 +246,6 @@ func ScaleValue(scale Scale) int64 {
 }
 
 func resolutionScale(v int64) Scale {
-	//r := getResolution(v, 0, -1)
 	switch {
 	case v <= 480:
 		return Scale480P

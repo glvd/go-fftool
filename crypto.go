@@ -89,6 +89,32 @@ func GenerateCrypto(ssl *OpenSSL, useIV bool) *Crypto {
 	return &c
 }
 
+func GenerateNewKey(path string, iv bool) (*Crypto, error) {
+	ssl := NewOpenSSL()
+	crypto := &Crypto{
+		err:         nil,
+		KeyInfoPath: filepath.Join(path, DefaultKeyInfoName),
+		Key:         "",
+		KeyPath:     filepath.Join(path, DefaultKeyName),
+		UseIV:       iv,
+		IV:          "",
+		URL:         DefaultKeyName,
+	}
+	if crypto.UseIV {
+		crypto.IV = ssl.Hex(16)
+	}
+	if crypto.Key == "" || (crypto.UseIV && crypto.IV == "") {
+		return nil, fmt.Errorf("generate crypto error(key:%v,useIV:%v,iv:%v)", crypto.Key, crypto.UseIV, crypto.IV)
+	}
+	if err := crypto.SaveKey(); err != nil {
+		return nil, err
+	}
+	if err := crypto.SaveKeyInfo(); err != nil {
+		return nil, err
+	}
+	return crypto, nil
+}
+
 // SaveKey ...
 func (c *Crypto) SaveKey() error {
 	split, _ := filepath.Split(c.KeyPath)

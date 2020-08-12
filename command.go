@@ -100,7 +100,9 @@ func (c *Command) Message(f func(message string)) {
 
 // RunContext ...
 func (c *Command) RunContext(ctx context.Context, args string) (e error) {
-	cmd := exec.CommandContext(ctx, c.BinPath(), cmdArgs(args)...)
+	cctx, cancelFunc := context.WithCancel(ctx)
+	defer cancelFunc()
+	cmd := exec.CommandContext(cctx, c.BinPath(), cmdArgs(args)...)
 	cmd.Env = c.environ()
 	//显示运行的命令
 	log.Infow("run context", "outputArgs", strings.Join(cmd.Args, " "))
@@ -118,9 +120,10 @@ func (c *Command) RunContext(ctx context.Context, args string) (e error) {
 	if e != nil {
 		return Err(e, "start")
 	}
-
-	go func() {
-		reader := bufio.NewReader(exio.MultiReader(stderr, stdout))
+	mreader := exio.MultiReader(stderr, stdout)
+	defer exio.Close(mreader)
+	go func(ctx context.Context, mreader io.Reader) {
+		reader := bufio.NewReader(mreader)
 		var lines []byte
 		for {
 			select {
@@ -128,8 +131,10 @@ func (c *Command) RunContext(ctx context.Context, args string) (e error) {
 				return
 			default:
 				lines, _, e = reader.ReadLine()
-				if e != nil && e != io.EOF {
-					log.Error(Err(e, "readline"))
+				if e != nil {
+					if e != io.EOF {
+						log.Error(Err(e, "readline"))
+					}
 					return
 				}
 				if l := string(bytes.TrimSpace(lines)); l != "" {
@@ -139,8 +144,13 @@ func (c *Command) RunContext(ctx context.Context, args string) (e error) {
 				}
 			}
 		}
-	}()
-	return cmd.Wait()
+	}(cctx, mreader)
+	if err := cmd.Wait(); err != nil {
+		if err != io.EOF {
+			return Err(err, "wait")
+		}
+	}
+	return nil
 }
 
 // cmdArgs ...

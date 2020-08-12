@@ -61,10 +61,7 @@ func (ff FFMpeg) Run(ctx context.Context, input string) (e error) {
 		return Err(e, "action do")
 	}
 	args := outputArgs(ff.config, input)
-
-	if ff.msg != nil {
-		ff.cmd.Message(ff.messageCallback)
-	}
+	ff.cmd.Message(ff.messageCallback)
 
 	e = ff.cmd.RunContext(ctx, args)
 
