@@ -3,7 +3,7 @@ module github.com/glvd/go-media-tool
 go 1.12
 
 require (
-	github.com/goextension/io v0.0.3
+	github.com/goextension/io v0.0.4
 	github.com/goextension/log v0.0.2
 	github.com/google/uuid v1.1.1
 	github.com/kr/text v0.2.0 // indirect
