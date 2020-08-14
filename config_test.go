@@ -51,7 +51,7 @@ func Test_outputArgs(t *testing.T) {
 			name: "args2",
 			fields: Config{
 				Scale:           DefaultScale,
-				ProcessCore:     ProcessCPU,
+				ProcessCore:     ProcessH264CPU,
 				BitRate:         0,
 				FrameRate:       0,
 				OutputPath:      DefaultOutputPath,

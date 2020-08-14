@@ -18,22 +18,23 @@ const frameRateOutputTemplate = ",-r,%3.2f"
 
 const cudaOutputTemplate = ",-hwaccel,cuda"
 const cuvidOutputTemplate = ",-hwaccel,cuvid,-c:v,h264_cuvid"
-
+const defaultAccel = ",-c:v,%s"
 const defaultTemplate = `-y%s,-i,%s,-strict,-2,-c:v,%s,-c:a,%s%s`
 
 // None ...
 const (
-	ProcessNone    ProcessCore = -1
-	ProcessH264CPU ProcessCore = 1
-	ProcessH264QSV ProcessCore = iota
-	ProcessH264AMF
-	ProcessH264NVENC
-	ProcessH264VideoToolBox
-	ProcessHevcQSV
-	ProcessHevcAMF
-	ProcessHevcNVENC
-	ProcessHevcVideoToolBox
-	ProcessCUVID
+	ProcessNone             = ""
+	ProcessH264CPU          = "libx264"
+	ProcessH264QSV          = "h264_qsv"
+	ProcessH264AMF          = "h264_amf"
+	ProcessH264NVENC        = "h264_nvenc"
+	ProcessH264VideoToolBox = "h264_videotoolbox"
+	ProcessHevcCPU          = "libx265"
+	ProcessHevcQSV          = "hevc_qsv"
+	ProcessHevcAMF          = "hevc_amf"
+	ProcessHevcNVENC        = "hevc_nvenc"
+	ProcessHevcVideoToolBox = "hevc_videotoolbox"
+	ProcessCUVID            = "cuvid"
 )
 
 // Scale ...
@@ -47,9 +48,6 @@ const (
 	//Scale8K    Scale = 5
 )
 
-// ProcessCore ...
-type ProcessCore int
-
 // Scale ...
 type Scale int
 
@@ -62,7 +60,7 @@ type Config struct {
 	VideoFormat     string
 	AudioFormat     string
 	Scale           Scale
-	ProcessCore     ProcessCore
+	ProcessCore     string
 	BitRate         int64
 	FrameRate       float64
 	OutputPath      string //output path
@@ -372,7 +370,7 @@ func outputArgs(c *Config, input string) string {
 	return outputTemplate(c.ProcessCore, input, c.VideoFormat, c.AudioFormat, c.ActionOutput(), exts...)
 }
 
-func outputTemplate(core ProcessCore, input, cv, ca, output string, exts ...interface{}) string {
+func outputTemplate(core string, input, cv, ca, output string, exts ...interface{}) string {
 	var outExt []string
 	exts = append(exts, ","+output)
 	for range exts {
@@ -385,8 +383,17 @@ func outputTemplate(core ProcessCore, input, cv, ca, output string, exts ...inte
 		tmpl = fmt.Sprintf(defaultTemplate, "", input, cv, ca, strings.Join(outExt, ""))
 	case ProcessCUVID:
 		tmpl = fmt.Sprintf(defaultTemplate, cuvidOutputTemplate, input, cv, ca, strings.Join(outExt, ""))
+	case ProcessH264QSV,
+		ProcessH264AMF,
+		ProcessH264NVENC,
+		ProcessH264VideoToolBox,
+		ProcessHevcQSV,
+		ProcessHevcAMF,
+		ProcessHevcNVENC,
+		ProcessHevcVideoToolBox:
+		tmpl = fmt.Sprintf(defaultTemplate, fmt.Sprintf(defaultAccel, core), input, cv, ca, strings.Join(outExt, ""))
 	default:
-		panic(fmt.Sprintf("wrong core type:%d", core))
+		panic(fmt.Sprintf("wrong core type:%v", core))
 	}
 	log.Infow("format", "tmpl", tmpl, "output", output)
 	return fmt.Sprintf(tmpl, exts...)
