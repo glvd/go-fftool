@@ -88,6 +88,7 @@ func TestFFMpeg_Run(t *testing.T) {
 			defer wg.Done()
 			cfg := DefaultConfig()
 			cfg.Slice = true
+			cfg.ProcessCore = ProcessH264NVENC
 			//c := GenerateCrypto(NewOpenSSL(), true)
 			//
 			//cfg.SetCrypt(*c)

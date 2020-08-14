@@ -343,8 +343,8 @@ func outputArgs(c *Config, input string) string {
 	var exts []interface{}
 
 	//gpu decode config
-	if c.ProcessCore != ProcessH264NVENC && c.VideoFormat != "copy" {
-		c.VideoFormat = "h264_nvenc"
+	if c.VideoFormat != "copy" {
+		c.VideoFormat = c.ProcessCore
 	}
 
 	//add scale setting
@@ -391,7 +391,7 @@ func outputTemplate(core string, input, cv, ca, output string, exts ...interface
 		ProcessHevcAMF,
 		ProcessHevcNVENC,
 		ProcessHevcVideoToolBox:
-		tmpl = fmt.Sprintf(defaultTemplate, fmt.Sprintf(defaultAccel, core), input, cv, ca, strings.Join(outExt, ""))
+		tmpl = fmt.Sprintf(defaultTemplate, "", input, cv, ca, strings.Join(outExt, ""))
 	default:
 		panic(fmt.Sprintf("wrong core type:%v", core))
 	}
