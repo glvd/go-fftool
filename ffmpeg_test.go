@@ -88,23 +88,20 @@ func TestFFMpeg_Run(t *testing.T) {
 			defer wg.Done()
 			cfg := DefaultConfig()
 			cfg.Slice = true
-			cfg.ProcessCore = ProcessHevcNVENC
+			cfg.ProcessCore = ProcessH264NVENC
 			//c := GenerateCrypto(NewOpenSSL(), true)
 			//
 			//cfg.SetCrypt(*c)
 			cfg.LogOutput = true
-			cfg.Slice = true
-
+			ff := NewFFMpeg(cfg.ConfigOptions())
+			ff.HandleMessage(func(s string) {
+				fmt.Println(s)
+			})
 			e := OptimizeWithFormat(cfg, testStreamFormat)
 			if e != nil {
 				t.Errorf("OptimizeWithFormat() error = %v, wantErr %v", e, tt.wantErr)
 				return
 			}
-			cfg.FrameRate = 0
-			ff := NewFFMpeg(cfg.ConfigOptions())
-			ff.HandleMessage(func(s string) {
-				fmt.Println(s)
-			})
 			if err := ff.Run(tt.args.ctx, tt.args.input); (err != nil) != tt.wantErr {
 				t.Errorf("Run() error = %v, wantErr %v", err, tt.wantErr)
 			}
