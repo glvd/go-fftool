@@ -92,7 +92,7 @@ func TestFFMpeg_Run(t *testing.T) {
 			//c := GenerateCrypto(NewOpenSSL(), true)
 			//
 			//cfg.SetCrypt(*c)
-			cfg.LogOutput = true
+			//cfg.LogOutput = true
 			ff := NewFFMpeg(cfg.ConfigOptions())
 			ff.HandleMessage(func(s string) {
 				fmt.Println(s)
