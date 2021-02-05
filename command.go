@@ -94,6 +94,7 @@ func (c *Command) Run(args string) (string, error) {
 	return string(stdout), nil
 }
 
+// Message ...
 func (c *Command) Message(f func(message string)) {
 	c.message = f
 }

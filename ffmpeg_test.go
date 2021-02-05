@@ -21,7 +21,7 @@ func init() {
 	p := NewFFProbe()
 	testStreamFormat, err = p.StreamFormat(testVideo)
 	if err != nil {
-		//ignore err
+
 	}
 }
 
@@ -88,11 +88,12 @@ func TestFFMpeg_Run(t *testing.T) {
 			defer wg.Done()
 			cfg := DefaultConfig()
 			cfg.Slice = true
-			cfg.ProcessCore = ProcessH264NVENC
+			cfg.ProcessCore = ProcessHevcAMF
 			//c := GenerateCrypto(NewOpenSSL(), true)
 			//
 			//cfg.SetCrypt(*c)
 			cfg.LogOutput = true
+			cfg.Slice = true
 			ff := NewFFMpeg(cfg.ConfigOptions())
 			ff.HandleMessage(func(s string) {
 				fmt.Println(s)

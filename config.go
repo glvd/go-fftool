@@ -143,6 +143,7 @@ var DefaultProbeName = "ffprobe"
 // DefaultMpegName ...
 var DefaultMpegName = "ffmpeg"
 
+// DefaultOpenSSLName ...
 var DefaultOpenSSLName = "openssl"
 
 // DefaultConfig ...
@@ -221,6 +222,7 @@ func (c *Config) SaveKey() error {
 	return nil
 }
 
+// ConfigOptions ...
 func (c *Config) ConfigOptions() ConfigOptions {
 	return func(cfg *Config) {
 		*cfg = *c

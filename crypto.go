@@ -89,6 +89,7 @@ func GenerateCrypto(ssl *OpenSSL, useIV bool) *Crypto {
 	return &c
 }
 
+// GenerateNewKey ...
 func GenerateNewKey(path string, iv bool) (*Crypto, error) {
 	ssl := NewOpenSSL()
 	crypto := &Crypto{

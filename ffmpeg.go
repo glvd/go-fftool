@@ -22,6 +22,7 @@ type MpegOption struct {
 	Config *Config
 }
 
+// ConfigOptions ...
 type ConfigOptions func(cfg *Config)
 
 // Name ...
@@ -34,6 +35,7 @@ func (ff *FFMpeg) Version() (string, error) {
 	return ff.cmd.Run("-version")
 }
 
+// HandleMessage ...
 func (ff *FFMpeg) HandleMessage(msg func(s string)) {
 	ff.msg = msg
 }

@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	//DefaultCommandPath = filepath.Join(`D:\workspace\golang\project\go-fftool`, DefaultCommandPath)
+
 }
 
 // TestCommand_RunContext ...
@@ -120,6 +120,7 @@ func TestCommand_Run(t *testing.T) {
 	}
 }
 
+// TestEnviron ...
 func TestEnviron(t *testing.T) {
 	type args struct {
 		env  []string
