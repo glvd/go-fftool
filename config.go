@@ -151,7 +151,7 @@ func DefaultConfig() *Config {
 	return &Config{
 		crypto:          nil,
 		output:          "",
-		VideoFormat:     "libx264",
+		VideoFormat:     "libx265",
 		AudioFormat:     "aac",
 		Slice:           DefaultSlice,
 		Scale:           Scale720P,

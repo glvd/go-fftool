@@ -47,7 +47,7 @@ func (c *Command) environ() []string {
 	return _env
 }
 
-// Path ...
+// BinPath ...
 func (c *Command) BinPath() string {
 	if filepath.IsAbs(c.bin) {
 		return c.bin
