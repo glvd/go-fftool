@@ -292,13 +292,13 @@ func OptimizeWithFormat(c *Config, sfmt *StreamFormat) (e error) {
 	if e != nil {
 		return e
 	}
-	fmt.Println("BitRate", c.BitRate)
+	log.Info("BitRate", c.BitRate)
 
 	e = optimizeFrameRate(c, video.RFrameRate)
 	if e != nil {
 		return e
 	}
-	fmt.Println("FrameRate", c.FrameRate)
+	log.Info("FrameRate", c.FrameRate)
 
 	if video.CodecName == "h264" && c.Scale == -1 {
 		c.VideoFormat = "copy"
