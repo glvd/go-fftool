@@ -1,14 +1,20 @@
 package main
 
 import (
-	"net/http"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 )
 
 var dir = `D:\workspace\golang\project\go-fftool\video_split_temp`
 
 func main() {
-	err := http.ListenAndServe(":8081", http.FileServer(http.Dir(dir)))
-	if err != nil {
+	router := gin.Default()
+
+	router.Use(cors.Default())
+	router.Static("/", dir)
+
+	if err := router.Run("0.0.0.0:8081"); err != nil {
 		panic(err)
 	}
+
 }
