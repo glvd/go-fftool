@@ -82,8 +82,13 @@ func (ff *FFMpeg) messageCallback(message string) {
 }
 
 // RunCommandString ...
-func (ff *FFMpeg) RunCommandString() string {
+func (ff FFMpeg) RunCommandString() string {
 	return ff.cmd.runArgs
+}
+
+// ProcessID ...
+func (ff FFMpeg) ProcessID() string {
+	return ff.config.processID
 }
 
 // NewFFMpeg ...
