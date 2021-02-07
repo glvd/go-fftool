@@ -41,7 +41,7 @@ func (ff *FFMpeg) HandleMessage(msg func(s string)) {
 }
 
 // Run ...
-func (ff FFMpeg) Run(ctx context.Context, input string) (e error) {
+func (ff *FFMpeg) Run(ctx context.Context, input string) (e error) {
 	pid := uuid.New().String()
 
 	ff.config.processID = pid
