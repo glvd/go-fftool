@@ -9,7 +9,9 @@ import (
 	"strings"
 )
 
-const sliceOutputTemplate = "-bsf:v,h264_mp4toannexb,-f,hls,-hls_list_size,0%s,-hls_time,%d,-hls_segment_filename,%s,%s"
+const bsfH264 = "h264_mp4toannexb"
+const bsfHevc = "hevc_mp4toannexb"
+const sliceOutputTemplate = "-bsf:v,%s,-f,hls,-hls_list_size,0%s,-hls_time,%d,-hls_segment_filename,%s,%s"
 const cryptoOutputTemplate = ",-hls_key_info_file,%s"
 const scaleOutputTemplate = ",-vf,scale=-2:%d"
 const cuvidScaleOutputTemplate = ",-vf,scale_npp=-2:%d"
@@ -108,10 +110,10 @@ var frameRateList = []float64{
 var DefaultOutputPath = "video_split_temp"
 
 // DefaultOutputName ...
-var DefaultOutputName = "media.mp4"
+var DefaultOutputName = "index.mp4"
 
 // DefaultM3U8Name ...
-var DefaultM3U8Name = "media.m3u8"
+var DefaultM3U8Name = "index.m3u8"
 
 // DefaultSegmentFileName ...
 var DefaultSegmentFileName = "media-%05d.ts"
@@ -201,7 +203,16 @@ func (c *Config) ProcessID() string {
 // ActionOutput ...
 func (c *Config) ActionOutput() string {
 	if c.Slice {
-		return fmt.Sprintf(sliceOutputTemplate, c.CryptoInfo(), c.HLSTime, filepath.Join(c.ProcessPath(), c.SegmentFileName), filepath.Join(c.ProcessPath(), c.M3U8Name))
+		bsf := bsfH264
+		switch c.ProcessCore {
+		case ProcessHevcCPU,
+			ProcessHevcQSV,
+			ProcessHevcAMF,
+			ProcessHevcNVENC,
+			ProcessHevcVideoToolBox:
+			bsf = bsfHevc
+		}
+		return fmt.Sprintf(sliceOutputTemplate, bsf, c.CryptoInfo(), c.HLSTime, filepath.Join(c.ProcessPath(), c.SegmentFileName), filepath.Join(c.ProcessPath(), c.M3U8Name))
 	}
 	return filepath.Join(c.ProcessPath(), c.OutputName)
 }

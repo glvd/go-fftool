@@ -9,12 +9,12 @@ import (
 	"testing"
 )
 
-var testVideo = `D:\workspace\golang\project\go-media-tool\test\media.mp4`
+var testVideo = `D:\video\test\test.mp4`
 var testStreamFormat *StreamFormat
 
 func init() {
-	DefaultMpegName = "D:\\workspace\\golang\\project\\ipvc\\bin\\ffmpeg.exe"
-	DefaultProbeName = "D:\\workspace\\golang\\project\\ipvc\\bin\\ffprobe.exe"
+	DefaultMpegName = "D:\\workspace\\golang\\project\\go-fftool\\bin\\ffmpeg.exe"
+	DefaultProbeName = "D:\\workspace\\golang\\project\\go-fftool\\bin\\ffprobe.exe"
 	zap.InitZapSugar()
 	log = extlog.Log()
 	var err error
@@ -88,7 +88,7 @@ func TestFFMpeg_Run(t *testing.T) {
 			defer wg.Done()
 			cfg := DefaultConfig()
 			cfg.Slice = true
-			cfg.ProcessCore = ProcessHevcAMF
+			cfg.ProcessCore = ProcessHevcNVENC
 			//c := GenerateCrypto(NewOpenSSL(), true)
 			//
 			//cfg.SetCrypt(*c)
