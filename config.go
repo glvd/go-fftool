@@ -293,11 +293,12 @@ func OptimizeWithFormat(c *Config, sfmt *StreamFormat) (e error) {
 	if e != nil {
 		return e
 	}
-
+	fmt.Println("BitRate", c.BitRate)
 	e = optimizeFrameRate(c, video.RFrameRate)
 	if e != nil {
 		return e
 	}
+	fmt.Println("FrameRate", c.FrameRate)
 
 	if video.CodecName == "h264" && c.Scale == -1 {
 		c.VideoFormat = "copy"
@@ -362,7 +363,7 @@ func outputArgs(c *Config, input string) string {
 
 	//add scale setting
 	if c.Scale != -1 {
-		log.Infow("scale", "scale", c.Scale, "value", ScaleValue(c.Scale))
+		log.Infow("Scale", "Scale", c.Scale, "Value", ScaleValue(c.Scale))
 		if c.ProcessCore != ProcessCUVID {
 			exts = append(exts, fmt.Sprintf(scaleOutputTemplate, ScaleValue(c.Scale)))
 		} else {
@@ -371,10 +372,12 @@ func outputArgs(c *Config, input string) string {
 	}
 	//add bitrate arguments
 	if c.BitRate != 0 {
+		log.Infow("BitRate", "BitRate", c.BitRate)
 		exts = append(exts, fmt.Sprintf(bitRateOutputTemplate, c.BitRate/1024))
 	}
 	//add frame rate arguments
 	if c.FrameRate != 0 {
+		log.Infow("FrameRate", "FrameRate", c.FrameRate)
 		exts = append(exts, fmt.Sprintf(frameRateOutputTemplate, c.FrameRate))
 	}
 

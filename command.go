@@ -121,6 +121,7 @@ func (c *Command) RunContext(ctx context.Context, args string) (e error) {
 	if e != nil {
 		return Err(e, "start")
 	}
+
 	mreader := exio.MultiReader(stderr, stdout)
 	defer exio.Close(mreader)
 	go func(ctx context.Context, mreader io.Reader) {
