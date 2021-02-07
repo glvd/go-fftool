@@ -122,7 +122,7 @@ var DefaultSegmentFileName = "media-%05d.ts"
 var DefaultProcessCore = ProcessH264CPU
 
 // DefaultSlice ...
-var DefaultSlice = false
+var DefaultSlice = true
 
 // DefaultHLSTime ...
 var DefaultHLSTime = 10
@@ -156,7 +156,7 @@ func DefaultConfig() *Config {
 		VideoFormat:     "libx265",
 		AudioFormat:     "aac",
 		Slice:           DefaultSlice,
-		Scale:           Scale720P,
+		Scale:           DefaultScale,
 		ProcessCore:     DefaultProcessCore,
 		BitRate:         0,
 		FrameRate:       0,
