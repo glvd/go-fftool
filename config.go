@@ -288,12 +288,12 @@ func OptimizeWithFormat(c *Config, sfmt *StreamFormat) (e error) {
 		i = math.MaxInt64
 		log.Errorw("parse:bitrate", "error", e)
 	}
-
 	e = optimizeBitRate(c, *video.Height, i)
 	if e != nil {
 		return e
 	}
 	fmt.Println("BitRate", c.BitRate)
+
 	e = optimizeFrameRate(c, video.RFrameRate)
 	if e != nil {
 		return e
