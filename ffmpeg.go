@@ -81,6 +81,11 @@ func (ff *FFMpeg) messageCallback(message string) {
 	}
 }
 
+// RunCommandString ...
+func (ff *FFMpeg) RunCommandString() string {
+	return ff.cmd.runArgs
+}
+
 // NewFFMpeg ...
 func NewFFMpeg(opts ...ConfigOptions) *FFMpeg {
 	ff := &FFMpeg{

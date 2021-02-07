@@ -26,6 +26,7 @@ type CommandRunner interface {
 
 // Command ...
 type Command struct {
+	runArgs string
 	bin     string
 	message func(s string)
 }
@@ -87,6 +88,7 @@ func (c *Command) Run(args string) (string, error) {
 	cmd.Env = c.environ()
 	//显示运行的命令
 	log.Infow("run", "outputArgs", cmd.Args)
+	c.runArgs = strings.Join(cmd.Args, " ")
 	stdout, err := cmd.CombinedOutput()
 	if err != nil {
 		return string(stdout), Err(err, "run")
@@ -107,6 +109,7 @@ func (c *Command) RunContext(ctx context.Context, args string) (e error) {
 	cmd.Env = c.environ()
 	//显示运行的命令
 	log.Infow("run context", "outputArgs", strings.Join(cmd.Args, " "))
+	c.runArgs = strings.Join(cmd.Args, " ")
 	stdout, e := cmd.StdoutPipe()
 	if e != nil {
 		return Err(e, "StdoutPipe")
