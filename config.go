@@ -90,7 +90,7 @@ var scaleList = []int64{
 var bitRateList = []int64{
 	Scale480P:  500 * 1024,
 	Scale720P:  1000 * 1024,
-	Scale1080P: 2000 * 1024,
+	Scale1080P: 2500 * 1024,
 	Scale2160P: 5000 * 1024,
 	Scale3840P: 20000 * 1024,
 }
