@@ -268,8 +268,12 @@ func resolutionScale(v int64) Scale {
 	switch {
 	case v <= 480:
 		return Scale480P
-	case v > 960:
+	case v > 960 && v <= 1080:
 		return Scale1080P
+	case v > 1080 && v <= 2160:
+		return Scale2160P
+	case v > 2160 && v <= 3840:
+		return Scale3840P
 	}
 	return Scale720P
 }
