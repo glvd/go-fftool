@@ -53,24 +53,26 @@ type Scale int
 
 // Config ...
 type Config struct {
-	processID       string
-	crypto          *Crypto
-	output          string
-	LogOutput       bool
-	VideoFormat     string
-	AudioFormat     string
-	Scale           Scale
-	ProcessCore     string
-	BitRate         int64
-	FrameRate       float64
-	OutputPath      string //output path
-	OutputName      string
-	M3U8Name        string
-	SegmentFileName string
-	HLSTime         int
-	KeyOutput       bool
-	Slice           bool
-	KeyPath         string
+	processID         string
+	crypto            *Crypto
+	output            string
+	LogOutput         bool
+	VideoFormat       string
+	AudioFormat       string
+	Scale             Scale
+	ProcessCore       string
+	BitRate           int64
+	OptimizeBitRate   bool
+	FrameRate         float64
+	OptimizeFrameRate bool
+	OutputPath        string //output path
+	OutputName        string
+	M3U8Name          string
+	SegmentFileName   string
+	HLSTime           int
+	KeyOutput         bool
+	Slice             bool
+	KeyPath           string
 }
 
 // CutOut ...
@@ -146,22 +148,26 @@ var DefaultOpenSSLName = "openssl"
 // DefaultConfig ...
 func DefaultConfig() *Config {
 	return &Config{
-		crypto:          nil,
-		output:          "",
-		VideoFormat:     "libx265",
-		AudioFormat:     "aac",
-		Slice:           DefaultSlice,
-		Scale:           DefaultScale,
-		ProcessCore:     DefaultProcessCore,
-		BitRate:         0,
-		FrameRate:       0,
-		KeyOutput:       true,
-		KeyPath:         DefaultKeyPath,
-		OutputPath:      DefaultOutputPath,
-		OutputName:      DefaultOutputName,
-		M3U8Name:        DefaultM3U8Name,
-		SegmentFileName: DefaultSegmentFileName,
-		HLSTime:         DefaultHLSTime,
+		processID:         "",
+		crypto:            nil,
+		output:            "",
+		LogOutput:         false,
+		VideoFormat:       "libx265",
+		AudioFormat:       "aac",
+		Scale:             DefaultScale,
+		ProcessCore:       DefaultProcessCore,
+		BitRate:           0,
+		OptimizeBitRate:   true,
+		FrameRate:         0,
+		OptimizeFrameRate: false,
+		OutputPath:        DefaultOutputPath,
+		OutputName:        DefaultOutputName,
+		M3U8Name:          DefaultM3U8Name,
+		SegmentFileName:   DefaultSegmentFileName,
+		HLSTime:           DefaultHLSTime,
+		KeyOutput:         true,
+		Slice:             DefaultSlice,
+		KeyPath:           DefaultKeyPath,
 	}
 }
 
@@ -283,17 +289,21 @@ func OptimizeWithFormat(c *Config, sfmt *StreamFormat) (e error) {
 		i = math.MaxInt64
 		log.Errorw("parse:bitrate", "error", e)
 	}
-	e = optimizeBitRate(c, *video.Height, i)
-	if e != nil {
-		return e
+	if c.OptimizeBitRate {
+		e = optimizeBitRate(c, *video.Height, i)
+		if e != nil {
+			return e
+		}
+		log.Info("BitRate", c.BitRate)
 	}
-	log.Info("BitRate", c.BitRate)
 
-	e = optimizeFrameRate(c, video.RFrameRate)
-	if e != nil {
-		return e
+	if c.OptimizeFrameRate {
+		e = optimizeFrameRate(c, video.RFrameRate)
+		if e != nil {
+			return e
+		}
+		log.Info("FrameRate", c.FrameRate)
 	}
-	log.Info("FrameRate", c.FrameRate)
 
 	if video.CodecName == "h264" && c.Scale == -1 {
 		c.VideoFormat = "copy"
